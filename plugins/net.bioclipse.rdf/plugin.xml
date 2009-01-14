@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="net.bioclipse.rdf.category"
+            name="RDF">
+      </category>
+      <view
+            category="net.bioclipse.rdf.category"
+            class="net.bioclipse.rdf.views.RDFView"
+            id="net.bioclipse.rdf.views.RDFView"
+            name="RDF Environment"
+            restorable="false">
+      </view>
+   </extension>
+   	
+</plugin>
