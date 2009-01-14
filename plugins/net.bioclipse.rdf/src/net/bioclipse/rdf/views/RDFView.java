@@ -10,22 +10,16 @@
  ******************************************************************************/
 package net.bioclipse.rdf.views;
 
-import net.bioclipse.cdk.domain.CDKMolecule;
-import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.IMolecule;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.zest.core.widgets.Graph;
-import org.eclipse.zest.core.widgets.GraphConnection;
-import org.eclipse.zest.core.widgets.GraphNode;
-import org.eclipse.zest.core.widgets.ZestStyles;
+import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 
@@ -34,22 +28,16 @@ import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
  */
 public class RDFView extends ViewPart implements ISelectionListener {
 
+    private GraphViewer viewer;
+    private RDFContentProvider contentProvider;
+    
     public void createPartControl( Composite parent ) {
-        Image image1 = Display.getDefault().getSystemImage(SWT.ICON_INFORMATION);
-        Image image2 = Display.getDefault().getSystemImage(SWT.ICON_WARNING);
-        Image image3 = Display.getDefault().getSystemImage(SWT.ICON_ERROR);
-
-        Graph g = new Graph(parent, SWT.NONE);
-        g.setConnectionStyle(ZestStyles.CONNECTIONS_DIRECTED);
-        GraphNode n1 = new GraphNode(g, SWT.NONE, "Information", image1);
-        GraphNode n2 = new GraphNode(g, SWT.NONE, "Warning", image2);
-        GraphNode n3 = new GraphNode(g, SWT.NONE, "Error", image3);
-
-        new GraphConnection(g, SWT.NONE, n1, n2);
-        new GraphConnection(g, SWT.NONE, n2, n3);
-        new GraphConnection(g, SWT.NONE, n3, n3);
-
-        g.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+        viewer = new GraphViewer(parent, SWT.NONE);
+        contentProvider = new RDFContentProvider();
+        viewer.setContentProvider(contentProvider);
+        viewer.setLabelProvider(new RDFLabelProvider());
+        viewer.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
+        getViewSite().getPage().addSelectionListener(this);
     }
 
     public void setFocus() {
@@ -57,20 +45,21 @@ public class RDFView extends ViewPart implements ISelectionListener {
     }
 
     public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        if (!(selection instanceof IStructuredSelection))
+        System.out.println("Selection changed...");
+        if (!(selection instanceof IStructuredSelection)) {
+            System.out.println(" not IStructuredSelection...");
             return;
+        }
         
         IStructuredSelection structuredSel = (IStructuredSelection)selection;
         Object firstElement = structuredSel.getFirstElement();
 
-        if (firstElement instanceof CDKMolecule) {
-            CDKMolecule mol = (CDKMolecule)firstElement;
-            try {
-                String SMILES = mol.getSMILES();
-            } catch ( BioclipseException e ) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        if (firstElement instanceof IMolecule) {
+            IMolecule mol = (IMolecule)firstElement;
+            contentProvider.setMolecule(mol);
+            viewer.setInput(new Object());
+        } else {
+            System.out.println("  not CDKMolecule, but: " + firstElement.getClass().getName());
         }
     }
     
