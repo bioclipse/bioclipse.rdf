@@ -6,7 +6,7 @@
          point="org.eclipse.ui.views">
       <category
             id="net.bioclipse.rdf.category"
-            name="RDF">
+            name="Bioclipse RDF">
       </category>
       <view
             category="net.bioclipse.rdf.category"
