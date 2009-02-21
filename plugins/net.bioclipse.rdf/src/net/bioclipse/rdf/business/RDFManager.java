@@ -24,6 +24,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -91,5 +97,25 @@ public class RDFManager implements IRDFManager {
         }
         
     }
-    
+
+    public void sparql(String queryString) throws IOException, BioclipseException,
+            CoreException {
+        IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
+            .getDefault().getJsConsoleManager();
+
+        Model model = Activator.getModel();
+
+        Query query = QueryFactory.create(queryString);
+        QueryExecution qexec = QueryExecutionFactory.create(query, model);
+        try {
+            ResultSet results = qexec.execSelect();
+            while (results.hasNext()) {
+                QuerySolution soln = results.nextSolution();
+                js.print(soln.toString() + "\n");
+            }
+        } finally {
+            qexec.close();
+        }
+    }
+
 }

@@ -56,4 +56,12 @@ public interface IRDFManager extends IBioclipseManager {
     public void dump()
         throws IOException, BioclipseException, CoreException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "String SPARQL query",
+        methodSummary = "Returns the results matching the query"
+    )
+    public void sparql(String query)
+        throws IOException, BioclipseException, CoreException;
+
 }
