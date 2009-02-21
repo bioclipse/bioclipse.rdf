@@ -20,6 +20,7 @@
 
    <requires>
       <import feature="net.bioclipse.chemoinformatics_feature" version="2.0.0.A20081028"/>
+      <import feature="org.eclipse.zest" version="1.0.0.v20080115-5318xB6CE899P233613552"/>
    </requires>
 
    <plugin
@@ -30,21 +31,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.zest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.zest.layouts"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.draw2d"
+         id="com.hp.hpl.jena"
          download-size="0"
          install-size="0"
          version="0.0.0"
