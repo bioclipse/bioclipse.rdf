@@ -3,18 +3,11 @@
 <plugin>
 
    <extension
-         point="org.eclipse.ui.views">
-      <category
-            id="net.bioclipse.rdf.category"
-            name="Bioclipse RDF">
-      </category>
-      <view
-            category="net.bioclipse.rdf.category"
-            class="net.bioclipse.rdf.views.RDFView"
-            id="net.bioclipse.rdf.views.RDFView"
-            name="RDF Environment"
-            restorable="false">
-      </view>
+         point="net.bioclipse.scripting.contribution">
+      <scriptContribution
+            id="net.bioclipse.rdf.business.RDFManager"
+            service="net.bioclipse.rdf.business.RDFManagerFactory">
+      </scriptContribution>
    </extension>
-   	
+
 </plugin>
