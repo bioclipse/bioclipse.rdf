@@ -12,25 +12,25 @@ package net.bioclipse.rdf;
 
 import net.bioclipse.core.util.LogUtils;
 import net.bioclipse.rdf.business.IRDFManager;
-import net.bioclipse.ui.BioclipseActivator;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class Activator extends BioclipseActivator {
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+
+public class Activator extends AbstractUIPlugin {
 
     public static final String PLUGIN_ID = "net.bioclipse.rdf";
-
-    public static ImageDescriptor getImageDescriptor(String path) {
-        return imageDescriptorFromPlugin(PLUGIN_ID, path);
-    }
 
     private static final Logger logger = Logger.getLogger(Activator.class);
 
     private static Activator plugin;
     private ServiceTracker finderTracker;
+    
+    private static Model model;
 
     public Activator() {}
 
@@ -43,10 +43,15 @@ public class Activator extends BioclipseActivator {
             null
         );
         finderTracker.open();
+        
+        if (model == null) {
+            model = ModelFactory.createMemModelMaker().createFreshModel();
+        }
     }
 
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        model = null;
         super.stop(context);
     }
 
@@ -67,5 +72,9 @@ public class Activator extends BioclipseActivator {
             throw new IllegalStateException("Could not get the RDF manager.");
         }
         return manager;
+    }
+    
+    public static Model getModel() {
+        return model;
     }
 }

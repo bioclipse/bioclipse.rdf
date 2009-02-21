@@ -30,11 +30,30 @@ public interface IRDFManager extends IBioclipseManager {
         params = "String path of file to load", 
         methodSummary = "Loads a RDF/XML file"
     )
-    public void loadCompound(String target)
+    public void importFile(String target)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public void loadCompound(IFile target, IProgressMonitor monitor )
+    public void importFile(IFile target, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "String URL to load from", 
+        methodSummary = "Loads a RDF/XML file"
+    )
+    public void importURL(String url)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    public void importURL(String url, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        methodSummary = "Dumps the full model to the console"
+    )
+    public void dump()
         throws IOException, BioclipseException, CoreException;
 
 }
