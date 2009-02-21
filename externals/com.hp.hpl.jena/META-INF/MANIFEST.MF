@@ -26,4 +26,4 @@ Bundle-Activator: net.bioclipse.jena.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j
-Export-Package: com.hp.hpl.jena.graph
+Export-Package: com.hp.hpl.jena.rdf.model
