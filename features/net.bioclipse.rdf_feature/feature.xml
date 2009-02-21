@@ -19,8 +19,7 @@
    </license>
 
    <requires>
-      <import feature="net.bioclipse.chemoinformatics_feature" version="2.0.0.A20081028"/>
-      <import feature="org.eclipse.zest" version="1.0.0.v20080115-5318xB6CE899P233613552"/>
+      <import feature="net.bioclipse_feature" version="2.0.0.B20090213"/>
    </requires>
 
    <plugin
