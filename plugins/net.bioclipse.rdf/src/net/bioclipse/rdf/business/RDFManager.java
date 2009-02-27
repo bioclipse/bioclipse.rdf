@@ -16,7 +16,6 @@ import java.net.URL;
 
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.rdf.Activator;
 import net.bioclipse.scripting.ui.business.IJsConsoleManager;
 
 import org.eclipse.core.resources.IFile;
@@ -42,45 +41,46 @@ public class RDFManager implements IRDFManager {
         return "rdf";
     }
 
-    public void importFile(String target) throws IOException,
+    public void importFile(IRDFStore store, String target) throws IOException,
             BioclipseException, CoreException {
         importFile(
+            store,
             ResourcePathTransformer.getInstance().transform(target),
             null
         );        
     }
 
-    public void importFile(IFile target, IProgressMonitor monitor)
+    public void importFile(IRDFStore store, IFile target, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
-        importFromStream(target.getContents(), monitor);
+        importFromStream(store, target.getContents(), monitor);
     }
 
-    public void importFromStream(InputStream stream, IProgressMonitor monitor)
+    public void importFromStream(IRDFStore store, InputStream stream, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
 
-        Model model = Activator.getModel();
+        Model model = ((JenaModel)store).getModel();
         model.read(stream, "");
     }
 
-    public void importURL(String url) throws IOException, BioclipseException,
+    public void importURL(IRDFStore store, String url) throws IOException, BioclipseException,
             CoreException {
-        importURL(url, null);
+        importURL(store, url, null);
     }
 
-    public void importURL(String url, IProgressMonitor monitor)
+    public void importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
-        importFromStream(realURL.openStream(), monitor);
+        importFromStream(store, realURL.openStream(), monitor);
     }
 
-    public void dump() throws IOException, BioclipseException, CoreException {
+    public void dump(IRDFStore store) throws IOException, BioclipseException, CoreException {
         IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
             .getDefault().getJsConsoleManager();
         
-        Model model = Activator.getModel();
+        Model model = ((JenaModel)store).getModel();
         
         StmtIterator statements = model.listStatements();
         while (statements.hasNext()) {
@@ -98,12 +98,12 @@ public class RDFManager implements IRDFManager {
         
     }
 
-    public void sparql(String queryString) throws IOException, BioclipseException,
+    public void sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
             CoreException {
         IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
             .getDefault().getJsConsoleManager();
 
-        Model model = Activator.getModel();
+        Model model = ((JenaModel)store).getModel();
 
         Query query = QueryFactory.create(queryString);
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
@@ -116,6 +116,10 @@ public class RDFManager implements IRDFManager {
         } finally {
             qexec.close();
         }
+    }
+
+    public IRDFStore createStore() {
+        return new JenaModel();
     }
 
 }

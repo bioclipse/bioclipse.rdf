@@ -27,41 +27,52 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        params = "String path of file to load", 
-        methodSummary = "Loads a RDF/XML file"
+        methodSummary = "Creates a new RDF store"
     )
-    public void importFile(String target)
+    public IRDFStore createStore();
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store to which loaded content is added," +
+                 "String path of file to load",
+        methodSummary = "Loads an RDF/XML file"
+    )
+    public void importFile(IRDFStore store, String target)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public void importFile(IFile target, IProgressMonitor monitor)
+    public void importFile(IRDFStore store, IFile target,
+            IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
     @PublishedMethod(
-        params = "String URL to load from", 
+        params = "IRDFStore store to which loaded content is added," +
+                 "String URL to load from",
         methodSummary = "Loads a RDF/XML file"
     )
-    public void importURL(String url)
+    public void importURL(IRDFStore store, String url)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public void importURL(String url, IProgressMonitor monitor)
+    public void importURL(IRDFStore store, String url, IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store to dump",
         methodSummary = "Dumps the full model to the console"
     )
-    public void dump()
+    public void dump(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
     @PublishedMethod(
-        params = "String SPARQL query",
+        params = "IRDFStore store to query," +
+                 "String SPARQL query",
         methodSummary = "Returns the results matching the query"
     )
-    public void sparql(String query)
+    public void sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
 }

@@ -18,9 +18,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-
 public class Activator extends AbstractUIPlugin {
 
     public static final String PLUGIN_ID = "net.bioclipse.rdf";
@@ -30,8 +27,6 @@ public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
     private ServiceTracker finderTracker;
     
-    private static Model model;
-
     public Activator() {}
 
     public void start(BundleContext context) throws Exception {
@@ -43,15 +38,10 @@ public class Activator extends AbstractUIPlugin {
             null
         );
         finderTracker.open();
-        
-        if (model == null) {
-            model = ModelFactory.createMemModelMaker().createFreshModel();
-        }
     }
 
     public void stop(BundleContext context) throws Exception {
         plugin = null;
-        model = null;
         super.stop(context);
     }
 
@@ -72,9 +62,5 @@ public class Activator extends AbstractUIPlugin {
             throw new IllegalStateException("Could not get the RDF manager.");
         }
         return manager;
-    }
-    
-    public static Model getModel() {
-        return model;
     }
 }
