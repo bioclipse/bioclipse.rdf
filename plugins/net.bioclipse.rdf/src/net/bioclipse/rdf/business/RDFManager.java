@@ -13,6 +13,10 @@ package net.bioclipse.rdf.business;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
@@ -34,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.shared.PrefixMapping;
 
 public class RDFManager implements IRDFManager {
 
@@ -100,24 +105,59 @@ public class RDFManager implements IRDFManager {
         
     }
 
-    public void sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
+    public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
             CoreException {
-        IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
-            .getDefault().getJsConsoleManager();
+        List<List<String>> table = new ArrayList<List<String>>();
 
         Model model = ((JenaModel)store).getModel();
 
         Query query = QueryFactory.create(queryString);
+        PrefixMapping prefixMap = query.getPrefixMapping();
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
             ResultSet results = qexec.execSelect();
             while (results.hasNext()) {
                 QuerySolution soln = results.nextSolution();
-                js.print(soln.toString() + "\n");
+                List<String> row = new ArrayList<String>();
+                Iterator<String> varNames = soln.varNames();
+                while (varNames.hasNext()) {
+                    RDFNode node = soln.get(varNames.next());
+                    String nodeStr = node.toString();
+                    if (node.isResource()) {
+                        Resource resource = (Resource)node;
+                        // the resource.getLocalName() is not accurate, so I
+                        // use some custom code
+                        String[] uriLocalSplit = split(prefixMap, resource);
+                        if (uriLocalSplit[0] == null) {
+                            row.add(resource.getURI());
+                        } else {
+                            row.add(uriLocalSplit[0] + ":" + uriLocalSplit[1]);
+                        }
+                    } else {
+                        row.add(nodeStr);
+                    }
+                }
+                table.add(row);
             }
         } finally {
             qexec.close();
         }
+        return table;
+    }
+
+    private String[] split(PrefixMapping prefixMap, Resource resource) {
+        String uri = resource.getURI();
+        Set<String> prefixes = prefixMap.getNsPrefixMap().keySet();
+        String[] split = { null, null };
+        for (String key : prefixes){
+            if (uri.startsWith(key)) {
+                split[0] = key;
+                split[1] = uri.substring(key.length());
+                return split;
+            }
+        }
+        split[1] = uri;
+        return split;
     }
 
     public IRDFStore createStore() {

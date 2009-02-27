@@ -11,16 +11,17 @@
 package net.bioclipse.rdf.business;
 
 import java.io.IOException;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.business.IBioclipseManager;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 @PublishedClass("Contains RDF related methods")
 public interface IRDFManager extends IBioclipseManager {
@@ -72,7 +73,7 @@ public interface IRDFManager extends IBioclipseManager {
                  "String SPARQL query",
         methodSummary = "Returns the results matching the query"
     )
-    public void sparql(IRDFStore store, String query)
+    public List<List<String>> sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
 }
