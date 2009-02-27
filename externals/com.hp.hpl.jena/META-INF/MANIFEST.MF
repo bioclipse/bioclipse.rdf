@@ -27,4 +27,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j
 Export-Package: com.hp.hpl.jena.rdf.model,
- com.hp.hpl.jena.query
+ com.hp.hpl.jena.query,
+ com.hp.hpl.jena.sparql.core,
+ com.hp.hpl.jena.shared
