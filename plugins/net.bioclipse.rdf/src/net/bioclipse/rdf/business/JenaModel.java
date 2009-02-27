@@ -25,4 +25,8 @@ public class JenaModel implements IRDFStore {
         return this.model;
     }
     
+    public String toString() {
+        return "RDFStore: " + model.size() + " triples";
+    }
+    
 }
