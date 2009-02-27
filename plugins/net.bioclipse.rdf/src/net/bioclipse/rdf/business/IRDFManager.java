@@ -37,11 +37,11 @@ public interface IRDFManager extends IBioclipseManager {
                  "String path of file to load",
         methodSummary = "Loads an RDF/XML file"
     )
-    public void importFile(IRDFStore store, String target)
+    public IRDFStore importFile(IRDFStore store, String target)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public void importFile(IRDFStore store, IFile target,
+    public IRDFStore importFile(IRDFStore store, IFile target,
             IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
@@ -51,11 +51,11 @@ public interface IRDFManager extends IBioclipseManager {
                  "String URL to load from",
         methodSummary = "Loads a RDF/XML file"
     )
-    public void importURL(IRDFStore store, String url)
+    public IRDFStore importURL(IRDFStore store, String url)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public void importURL(IRDFStore store, String url, IProgressMonitor monitor)
+    public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded

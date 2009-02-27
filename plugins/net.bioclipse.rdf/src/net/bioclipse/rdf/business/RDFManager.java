@@ -41,21 +41,21 @@ public class RDFManager implements IRDFManager {
         return "rdf";
     }
 
-    public void importFile(IRDFStore store, String target) throws IOException,
+    public IRDFStore importFile(IRDFStore store, String target) throws IOException,
             BioclipseException, CoreException {
-        importFile(
+        return importFile(
             store,
             ResourcePathTransformer.getInstance().transform(target),
             null
         );        
     }
 
-    public void importFile(IRDFStore store, IFile target, IProgressMonitor monitor)
+    public IRDFStore importFile(IRDFStore store, IFile target, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
-        importFromStream(store, target.getContents(), monitor);
+        return importFromStream(store, target.getContents(), monitor);
     }
 
-    public void importFromStream(IRDFStore store, InputStream stream, IProgressMonitor monitor)
+    public IRDFStore importFromStream(IRDFStore store, InputStream stream, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
@@ -63,17 +63,19 @@ public class RDFManager implements IRDFManager {
 
         Model model = ((JenaModel)store).getModel();
         model.read(stream, "");
+        return store;
     }
 
-    public void importURL(IRDFStore store, String url) throws IOException, BioclipseException,
+    public IRDFStore importURL(IRDFStore store, String url) throws IOException, BioclipseException,
             CoreException {
-        importURL(store, url, null);
+        return importURL(store, url, null);
     }
 
-    public void importURL(IRDFStore store, String url, IProgressMonitor monitor)
+    public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
         importFromStream(store, realURL.openStream(), monitor);
+        return store;
     }
 
     public void dump(IRDFStore store) throws IOException, BioclipseException, CoreException {
