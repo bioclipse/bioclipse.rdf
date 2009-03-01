@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -34,11 +35,15 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.reasoner.Reasoner;
+import com.hp.hpl.jena.reasoner.ValidityReport;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
 public class RDFManager implements IRDFManager {
@@ -165,6 +170,31 @@ public class RDFManager implements IRDFManager {
 
     public IRDFStore createStore() {
         return new JenaModel();
+    }
+
+    public void validate(IRDFStore store) throws IOException,
+            BioclipseException, CoreException {
+        IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
+            .getDefault().getJsConsoleManager();
+
+        Reasoner reasoner = PelletReasonerFactory.theInstance().create();
+        
+        // create an inferencing model using Pellet reasoner
+        InfModel model = ModelFactory.createInfModel(
+            reasoner,
+            ((JenaModel)store).getModel()
+        );
+        ValidityReport overallReport = model.validate();
+        if (overallReport.isValid()) {
+            js.print("Model is valid.");
+        } else {
+            js.print("Validation Results");
+            Iterator<ValidityReport.Report> reports = overallReport.getReports();
+            while (reports.hasNext()) {
+                ValidityReport.Report report = reports.next();
+                js.print(report.getType() + ": " + report.getDescription());
+            }
+        }
     }
 
 }

@@ -76,4 +76,12 @@ public interface IRDFManager extends IBioclipseManager {
     public List<List<String>> sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store to validate",
+        methodSummary = "Validates the consistency of the RDF model"
+    )
+    public void validate(IRDFStore store)
+        throws IOException, BioclipseException, CoreException;
+
 }
