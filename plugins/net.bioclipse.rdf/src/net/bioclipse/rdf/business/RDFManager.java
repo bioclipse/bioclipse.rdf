@@ -27,8 +27,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.mindswap.pellet.exceptions.UnsupportedFeatureException;
+import org.mindswap.pellet.jena.PelletQueryExecution;
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 
+import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -120,8 +123,26 @@ public class RDFManager implements IRDFManager {
         Model model = ((JenaModel)store).getModel();
 
         Query query = QueryFactory.create(queryString);
+        if (!query.isSelectType()) {
+            throw new UnsupportedFeatureException(
+                "Only SELECT queries are supported."
+            );
+        }
+
         PrefixMapping prefixMap = query.getPrefixMapping();
-        QueryExecution qexec = QueryExecutionFactory.create(query, model);
+        OntModel ontModel = ModelFactory.createOntologyModel(
+            PelletReasonerFactory.THE_SPEC,
+            model
+        );
+        ontModel.setStrictMode( false );
+        if( query.getGraphURIs().size() != 0 ) {
+            Iterator<String> queryURIs = query.getGraphURIs().iterator();
+            while (queryURIs.hasNext()) {
+                ontModel.read( queryURIs.next() );
+            }
+        }
+
+        QueryExecution qexec = new PelletQueryExecution(query, ontModel);
         try {
             ResultSet results = qexec.execSelect();
             while (results.hasNext()) {
