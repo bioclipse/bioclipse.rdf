@@ -13,6 +13,7 @@ package net.bioclipse.rdf.business;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -79,7 +80,9 @@ public class RDFManager implements IRDFManager {
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
-        importFromStream(store, realURL.openStream(), monitor);
+        URLConnection connection = realURL.openConnection();
+        connection.setRequestProperty("Accept", "application/rdf+xml");
+        importFromStream(store, connection.getInputStream(), monitor);
         return store;
     }
 
