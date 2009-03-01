@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jena
 Bundle-SymbolicName: com.hp.hpl.jena;singleton:=true
-Bundle-Version: 2.5.7
+Bundle-Version: 2.5.6
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ClassPath: .,
  jars/antlr-2.7.5.jar,
@@ -142,7 +142,6 @@ Export-Package: arq,
  com.hp.hpl.jena.sparql.lang.sparql,
  com.hp.hpl.jena.sparql.modify,
  com.hp.hpl.jena.sparql.modify.op,
- com.hp.hpl.jena.sparql.path,
  com.hp.hpl.jena.sparql.pfunction,
  com.hp.hpl.jena.sparql.pfunction.library,
  com.hp.hpl.jena.sparql.procedure,
