@@ -4,7 +4,7 @@ Bundle-Name: Pellet
 Bundle-SymbolicName: org.mindswap.pellet;singleton:=true
 Bundle-Version: 2.0.0.RC4
 Require-Bundle: org.eclipse.core.runtime,
- com.hp.hpl.jena;bundle-version="2.5.7"
+ com.hp.hpl.jena;bundle-version="2.5.6"
 Bundle-ClassPath: .,
  jars/pellet-core.jar,
  jars/pellet-cli.jar,
