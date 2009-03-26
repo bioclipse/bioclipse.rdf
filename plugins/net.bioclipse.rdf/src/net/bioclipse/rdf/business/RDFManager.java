@@ -5,7 +5,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contact: http://www.bioclipse.net/
  ******************************************************************************/
 package net.bioclipse.rdf.business;
@@ -34,7 +34,6 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -55,28 +54,32 @@ public class RDFManager implements IRDFManager {
         return "rdf";
     }
 
-    public IRDFStore importFile(IRDFStore store, String target) throws IOException,
-            BioclipseException, CoreException {
+    public IRDFStore importFile(IRDFStore store, String target, String format)
+    throws IOException, BioclipseException, CoreException {
         return importFile(
             store,
             ResourcePathTransformer.getInstance().transform(target),
+            format,
             null
-        );        
+        );
     }
 
-    public IRDFStore importFile(IRDFStore store, IFile target, IProgressMonitor monitor)
-            throws IOException, BioclipseException, CoreException {
-        return importFromStream(store, target.getContents(), monitor);
+    public IRDFStore importFile(IRDFStore store, IFile target, String format,
+            IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+        return importFromStream(store, target.getContents(), format, monitor);
     }
 
-    public IRDFStore importFromStream(IRDFStore store, InputStream stream, IProgressMonitor monitor)
-            throws IOException, BioclipseException, CoreException {
+    public IRDFStore importFromStream(IRDFStore store, InputStream stream,
+            String format, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
+        if (format == null) format = "RDF/XML";
 
         Model model = ((JenaModel)store).getModel();
-        model.read(stream, "");
+        model.read(stream, "", format);
         return store;
     }
 
@@ -90,16 +93,16 @@ public class RDFManager implements IRDFManager {
         URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
         connection.setRequestProperty("Accept", "application/rdf+xml");
-        importFromStream(store, connection.getInputStream(), monitor);
+        importFromStream(store, connection.getInputStream(), null, monitor);
         return store;
     }
 
     public void dump(IRDFStore store) throws IOException, BioclipseException, CoreException {
         IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
             .getDefault().getJsConsoleManager();
-        
+
         Model model = ((JenaModel)store).getModel();
-        
+
         StmtIterator statements = model.listStatements();
         while (statements.hasNext()) {
             Statement statement = statements.nextStatement();
@@ -113,7 +116,7 @@ public class RDFManager implements IRDFManager {
                  "\n"
             );
         }
-        
+
     }
 
     public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
@@ -199,7 +202,7 @@ public class RDFManager implements IRDFManager {
             .getDefault().getJsConsoleManager();
 
         Reasoner reasoner = PelletReasonerFactory.theInstance().create();
-        
+
         // create an inferencing model using Pellet reasoner
         InfModel model = ModelFactory.createInfModel(
             reasoner,

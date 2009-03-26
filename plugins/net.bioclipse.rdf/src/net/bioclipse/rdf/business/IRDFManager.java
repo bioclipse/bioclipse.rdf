@@ -5,7 +5,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contact: http://www.bioclipse.net/
  ******************************************************************************/
 package net.bioclipse.rdf.business;
@@ -35,14 +35,16 @@ public interface IRDFManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store to which loaded content is added," +
-                 "String path of file to load",
+                 "String path of file to load, " +
+                 "String format of the content to read (\"RDF/XML\"," +
+                 " \"N-TRIPLE\", \"TURTLE\" and \"N3\")",
         methodSummary = "Loads an RDF/XML file"
     )
-    public IRDFStore importFile(IRDFStore store, String target)
+    public IRDFStore importFile(IRDFStore store, String target, String format)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
-    public IRDFStore importFile(IRDFStore store, IFile target,
+    public IRDFStore importFile(IRDFStore store, IFile target, String format,
             IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
