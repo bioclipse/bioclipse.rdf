@@ -34,6 +34,7 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
@@ -146,6 +147,47 @@ public class RDFManager implements IRDFManager {
         }
 
         QueryExecution qexec = new PelletQueryExecution(query, ontModel);
+        try {
+            ResultSet results = qexec.execSelect();
+            while (results.hasNext()) {
+                QuerySolution soln = results.nextSolution();
+                List<String> row = new ArrayList<String>();
+                Iterator<String> varNames = soln.varNames();
+                while (varNames.hasNext()) {
+                    RDFNode node = soln.get(varNames.next());
+                    String nodeStr = node.toString();
+                    if (node.isResource()) {
+                        Resource resource = (Resource)node;
+                        // the resource.getLocalName() is not accurate, so I
+                        // use some custom code
+                        String[] uriLocalSplit = split(prefixMap, resource);
+                        if (uriLocalSplit[0] == null) {
+                            row.add(resource.getURI());
+                        } else {
+                            row.add(uriLocalSplit[0] + ":" + uriLocalSplit[1]);
+                        }
+                    } else {
+                        row.add(nodeStr);
+                    }
+                }
+                table.add(row);
+            }
+        } finally {
+            qexec.close();
+        }
+        return table;
+    }
+
+    public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
+    CoreException {
+        List<List<String>> table = new ArrayList<List<String>>();
+
+        Model model = ((JenaModel)store).getModel();
+
+        Query query = QueryFactory.create(queryString);
+
+        PrefixMapping prefixMap = query.getPrefixMapping();
+        QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
             ResultSet results = qexec.execSelect();
             while (results.hasNext()) {
