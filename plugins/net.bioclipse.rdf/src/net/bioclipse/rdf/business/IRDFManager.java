@@ -75,7 +75,7 @@ public interface IRDFManager extends IBioclipseManager {
                  "String SPARQL query",
         methodSummary = "Returns the results matching the query"
     )
-    public List<List<String>> sparql(IRDFStore store, String query)
+    public List<List<String>> reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded

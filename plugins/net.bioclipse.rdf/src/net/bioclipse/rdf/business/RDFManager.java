@@ -119,7 +119,7 @@ public class RDFManager implements IRDFManager {
 
     }
 
-    public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
+    public List<List<String>> reason(IRDFStore store, String queryString) throws IOException, BioclipseException,
             CoreException {
         List<List<String>> table = new ArrayList<List<String>>();
 
