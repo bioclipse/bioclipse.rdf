@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf_feature"
       label="RDF Feature"
-      version="1.0.0"
+      version="2.0.0.B20090409"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.rdf">
 
