@@ -19,7 +19,7 @@
    </license>
 
    <requires>
-      <import feature="net.bioclipse_feature" version="2.0.0.B20090213"/>
+      <import feature="net.bioclipse.core.patch" version="2.0.0.B20090417" match="greaterOrEqual"/>
    </requires>
 
    <plugin
