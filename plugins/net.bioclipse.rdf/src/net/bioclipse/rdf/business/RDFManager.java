@@ -99,26 +99,23 @@ public class RDFManager implements IRDFManager {
         return store;
     }
 
-    public void dump(IRDFStore store) throws IOException, BioclipseException, CoreException {
-        IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
-            .getDefault().getJsConsoleManager();
-
+    public String dump(IRDFStore store) {
         Model model = ((JenaModel)store).getModel();
+        StringBuffer dump = new StringBuffer();
 
         StmtIterator statements = model.listStatements();
         while (statements.hasNext()) {
             Statement statement = statements.nextStatement();
             RDFNode object = statement.getObject();
-            js.print(
-                 statement.getSubject().getLocalName() + " " +
-                 statement.getPredicate().getLocalName() + " " +
-                 (object instanceof Resource ?
-                      object.toString() :
-                      "\"" + object.toString() + "\"") +
-                 "\n"
-            );
+            dump.append(statement.getSubject().getLocalName())
+                .append(' ')
+                .append(statement.getPredicate().getLocalName())
+                .append(' ')
+                .append((object instanceof Resource ?
+                     object.toString() : '"' + object.toString() + "\""))
+                .append('\n');
         }
-
+        return dump.toString();
     }
 
     public List<List<String>> reason(IRDFStore store, String queryString) throws IOException, BioclipseException,

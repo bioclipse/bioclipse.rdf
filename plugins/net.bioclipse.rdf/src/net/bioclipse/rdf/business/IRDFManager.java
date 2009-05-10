@@ -64,10 +64,9 @@ public interface IRDFManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store to dump",
-        methodSummary = "Dumps the full model to the console"
+        methodSummary = "Dumps the full model to the returned String"
     )
-    public void dump(IRDFStore store)
-        throws IOException, BioclipseException, CoreException;
+    public String dump(IRDFStore store);
 
     @Recorded
     @PublishedMethod(
