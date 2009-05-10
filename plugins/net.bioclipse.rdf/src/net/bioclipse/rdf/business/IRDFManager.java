@@ -34,11 +34,10 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to which loaded content is added," +
-                 "String path of file to load, " +
-                 "String format of the content to read (\"RDF/XML\"," +
-                 " \"N-TRIPLE\", \"TURTLE\" and \"N3\")",
-        methodSummary = "Loads an RDF/XML file"
+        params = "IRDFStore store, String target, String format",
+        methodSummary = "Loads an RDF file in the given content format " +
+        		"(\"RDF/XML\", \"N-TRIPLE\", \"TURTLE\" and \"N3\") into " +
+        		"the given store"
     )
     public IRDFStore importFile(IRDFStore store, String target, String format)
         throws IOException, BioclipseException, CoreException;
@@ -50,9 +49,8 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to which loaded content is added," +
-                 "String URL to load from",
-        methodSummary = "Loads a RDF/XML file"
+        params = "IRDFStore store, String url",
+        methodSummary = "Loads a RDF/XML file from the URL into the given store"
     )
     public IRDFStore importURL(IRDFStore store, String url)
         throws IOException, BioclipseException, CoreException;
@@ -63,33 +61,32 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to dump",
+        params = "IRDFStore store",
         methodSummary = "Dumps the full model to the returned String"
     )
     public String dump(IRDFStore store);
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to query," +
-                 "String SPARQL query",
-        methodSummary = "Returns the results matching the query"
+        params = "IRDFStore store, String query",
+        methodSummary = "Returns the results matching the SPARQL query using" +
+        		" the Pellet reasoner"
     )
     public List<List<String>> reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to query," +
-                 "String SPARQL query",
-        methodSummary = "Returns the results matching the query"
+        params = "IRDFStore store, String query",
+        methodSummary = "Returns the results matching the SPARQL query"
     )
     public List<List<String>> sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store to validate",
-        methodSummary = "Validates the consistency of the RDF model"
+        params = "IRDFStore store",
+        methodSummary = "Validates the consistency of the RDF model in the store"
     )
     public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
@@ -116,6 +113,7 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store",
         methodSummary = "Returns the number of triples in the store"
     )
     public long size(IRDFStore store) throws BioclipseException;
