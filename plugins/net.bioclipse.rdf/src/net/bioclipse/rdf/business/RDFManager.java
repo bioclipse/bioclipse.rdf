@@ -41,6 +41,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -261,6 +262,24 @@ public class RDFManager implements IRDFManager {
                 js.print(report.getType() + ": " + report.getDescription());
             }
         }
+    }
+
+    public void addObjectProperty(IRDFStore store,
+        String subject, String property, String object)
+        throws BioclipseException {
+        Model model = ((JenaModel)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        Resource objectRes = model.createResource(object);
+        model.add(subjectRes, propertyRes, objectRes);
+    }
+
+    public void addDataProperty(IRDFStore store, String subject,
+            String property, String value) throws BioclipseException {
+        Model model = ((JenaModel)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        model.add(subjectRes, propertyRes, value);
     }
 
 }

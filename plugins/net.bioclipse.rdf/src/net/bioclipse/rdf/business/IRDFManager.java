@@ -95,4 +95,24 @@ public interface IRDFManager extends IBioclipseManager {
     public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+            "String object",
+        methodSummary = "Adds a triple to the given store"
+    )
+    public void addObjectProperty(IRDFStore store,
+        String subject, String predicate, String object)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+                "String value",
+        methodSummary = "Adds a triple to the given store"
+    )
+    public void addDataProperty(IRDFStore store,
+        String subject, String predicate, String value)
+        throws BioclipseException;
+
 }
