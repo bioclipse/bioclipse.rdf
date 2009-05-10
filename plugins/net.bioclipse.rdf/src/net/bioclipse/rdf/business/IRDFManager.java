@@ -115,4 +115,10 @@ public interface IRDFManager extends IBioclipseManager {
         String subject, String predicate, String value)
         throws BioclipseException;
 
+    @Recorded
+    @PublishedMethod(
+        methodSummary = "Returns the number of triples in the store"
+    )
+    public long size(IRDFStore store) throws BioclipseException;
+
 }

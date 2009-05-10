@@ -282,4 +282,9 @@ public class RDFManager implements IRDFManager {
         model.add(subjectRes, propertyRes, value);
     }
 
+    public long size(IRDFStore store) throws BioclipseException {
+        Model model = ((JenaModel)store).getModel();
+        return model.size();
+    }
+
 }
