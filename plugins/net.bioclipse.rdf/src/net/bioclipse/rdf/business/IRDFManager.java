@@ -17,7 +17,7 @@ import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.core.business.IBioclipseManager;
+import net.bioclipse.managers.business.IBioclipseManager;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
