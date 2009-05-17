@@ -11,7 +11,8 @@
 package net.bioclipse.rdf;
 
 import net.bioclipse.core.util.LogUtils;
-import net.bioclipse.rdf.business.IRDFManager;
+import net.bioclipse.rdf.business.IJavaRDFManager;
+import net.bioclipse.rdf.business.IJavaScriptRDFManager;
 
 import org.apache.log4j.Logger;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -26,6 +27,7 @@ public class Activator extends AbstractUIPlugin {
 
     private static Activator plugin;
     private ServiceTracker finderTracker;
+    private ServiceTracker jsFinderTracker;
     
     public Activator() {}
 
@@ -34,10 +36,16 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
         finderTracker = new ServiceTracker(
             context, 
-            IRDFManager.class.getName(), 
+            IJavaRDFManager.class.getName(), 
             null
         );
         finderTracker.open();
+        jsFinderTracker = new ServiceTracker(
+            context, 
+            IJavaScriptRDFManager.class.getName(), 
+            null
+        );
+        jsFinderTracker.open();
     }
 
     public void stop(BundleContext context) throws Exception {
@@ -49,10 +57,25 @@ public class Activator extends AbstractUIPlugin {
         return plugin;
     }
 
-    public IRDFManager getManager() {
-        IRDFManager manager = null;
+    public IJavaRDFManager getJavaManager() {
+        IJavaRDFManager manager = null;
         try {
-            manager = (IRDFManager)finderTracker.waitForService(1000*10);
+            manager = (IJavaRDFManager)finderTracker.waitForService(1000*10);
+        } catch (InterruptedException exception) {
+            LogUtils.debugTrace(logger, exception);
+            throw new IllegalStateException("Could not get the RDF manager: " +
+                exception.getMessage(), exception);
+        }
+        if (manager == null) {
+            throw new IllegalStateException("Could not get the RDF manager.");
+        }
+        return manager;
+    }
+
+    public IJavaScriptRDFManager getJavaScriptManager() {
+        IJavaScriptRDFManager manager = null;
+        try {
+            manager = (IJavaScriptRDFManager)jsFinderTracker.waitForService(1000*10);
         } catch (InterruptedException exception) {
             LogUtils.debugTrace(logger, exception);
             throw new IllegalStateException("Could not get the RDF manager: " +

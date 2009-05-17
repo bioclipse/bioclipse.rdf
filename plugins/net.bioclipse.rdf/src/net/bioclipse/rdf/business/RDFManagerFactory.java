@@ -26,7 +26,7 @@ public class RDFManagerFactory implements IExecutableExtension,
                                        String propertyName, 
                                        Object data) throws CoreException {
         
-        rdfManager = Activator.getDefault().getManager();
+        rdfManager = Activator.getDefault().getJavaScriptManager();
         
         if (rdfManager == null ) {
             rdfManager = new Object();
