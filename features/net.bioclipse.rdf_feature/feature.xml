@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf_feature"
       label="RDF Feature"
-      version="2.0.0.B20090519"
+      version="2.0.0.B20090520"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.rdf">
 
@@ -29,7 +29,7 @@ is available at http://www.eclipse.org/legal/epl-v10.html
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core.patch" version="2.0.0.B20090519" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.core.patch" version="2.0.0.B20090520" match="greaterOrEqual"/>
    </requires>
 
    <plugin
