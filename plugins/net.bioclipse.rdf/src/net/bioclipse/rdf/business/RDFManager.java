@@ -284,4 +284,19 @@ public class RDFManager implements IRDFManager {
         return model.size();
     }
 
+    public List<String> isRDFType(IRDFStore store, String type)
+        throws IOException, BioclipseException, CoreException {
+        List<String> classes = new ArrayList<String>();
+        List<List<String>> sparqlResults = reason(
+            store,
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "SELECT ?o WHERE { "+
+            "  ?o rdf:type <" + type + ">." +
+            "}"
+        );
+        for (List<String> sparqlRows : sparqlResults) {
+            classes.add(sparqlRows.get(0));
+        }
+        return classes;
+    }
 }

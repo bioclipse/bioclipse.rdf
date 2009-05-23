@@ -118,4 +118,12 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public long size(IRDFStore store) throws BioclipseException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String type",
+        methodSummary = "Returns the Objects that are of the given rdf:type."
+    )
+    public List<String> isRDFType(IRDFStore store, String type)
+        throws IOException, BioclipseException, CoreException;
+
 }
