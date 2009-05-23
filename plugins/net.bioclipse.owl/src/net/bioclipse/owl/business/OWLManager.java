@@ -11,16 +11,15 @@
 package net.bioclipse.owl.business;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.core.runtime.CoreException;
 
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
+
+import org.eclipse.core.runtime.CoreException;
 
 public class OWLManager implements IBioclipseManager {
 
@@ -30,23 +29,11 @@ public class OWLManager implements IBioclipseManager {
         return "owl";
     }
     
-    private final String SPARQL_GET_ALL_OWL_CLASSES =
-        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-        "PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
-        "SELECT ?o WHERE { "+
-        "  ?o rdf:type owl:Class." +
-        "}";
-
     public List<String> listClasses(IRDFStore store)
         throws IOException, BioclipseException, CoreException {
-        List<String> classes = new ArrayList<String>();
-        List<List<String>> sparqlResults = rdf.reason(
-            store, SPARQL_GET_ALL_OWL_CLASSES
+        return rdf.isRDFType(
+            store, "http://www.w3.org/2002/07/owl#Class"
         );
-        for (List<String> sparqlRows : sparqlResults) {
-            classes.add(sparqlRows.get(0));
-        }
-        return classes;
     }
     
 }
