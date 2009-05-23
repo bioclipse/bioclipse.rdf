@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="net.bioclipse.scripting.contribution">
+      <scriptContribution
+            id="net.bioclipse.owl.business.OWLManager"
+            service="net.bioclipse.owl.business.OWLManagerFactory">
+      </scriptContribution>
+   </extension>
+
+</plugin>
