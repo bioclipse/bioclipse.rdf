@@ -126,4 +126,12 @@ public interface IRDFManager extends IBioclipseManager {
     public List<String> isRDFType(IRDFStore store, String type)
         throws IOException, BioclipseException, CoreException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String identifier",
+        methodSummary = "Returns all triples about the Object with the given " +
+        		"identifier."
+    )
+    public List<List<String>> allAbout(IRDFStore store, String identifier)
+        throws BioclipseException, IOException, CoreException;
 }

@@ -299,4 +299,20 @@ public class RDFManager implements IRDFManager {
         }
         return classes;
     }
+
+    public List<List<String>> allAbout(IRDFStore store, String identifier)
+        throws BioclipseException, IOException, CoreException {
+        List<List<String>> knowledge = new ArrayList<List<String>>();
+        List<List<String>> sparqlResults = reason(
+            store,
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "SELECT ?p ?s WHERE { "+
+            "<" + identifier + "> ?p ?s." +
+            "}"
+        );
+        for (List<String> sparqlRows : sparqlResults) {
+            knowledge.add(sparqlRows);
+        }
+        return knowledge;
+    }
 }
