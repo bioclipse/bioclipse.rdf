@@ -224,6 +224,9 @@ public class RDFManager implements IRDFManager {
 
     private String[] split(PrefixMapping prefixMap, Resource resource) {
         String uri = resource.getURI();
+        if (uri == null) {
+            return new String[] {null, null};
+        }
         Set<String> prefixes = prefixMap.getNsPrefixMap().keySet();
         String[] split = { null, null };
         for (String key : prefixes){
