@@ -132,10 +132,15 @@ public class RDFManager implements IRDFManager {
         }
 
         PrefixMapping prefixMap = query.getPrefixMapping();
-        OntModel ontModel = ModelFactory.createOntologyModel(
-            PelletReasonerFactory.THE_SPEC,
-            model
-        );
+        OntModel ontModel = null;
+        if (model instanceof OntModel) {
+            ontModel = (OntModel)model;
+        } else {
+            ontModel = ModelFactory.createOntologyModel(
+                PelletReasonerFactory.THE_SPEC,
+                model
+            );
+        }
         ontModel.setStrictMode( false );
         if( query.getGraphURIs().size() != 0 ) {
             Iterator<String> queryURIs = query.getGraphURIs().iterator();
