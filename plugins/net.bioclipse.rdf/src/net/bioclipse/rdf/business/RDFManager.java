@@ -95,7 +95,10 @@ public class RDFManager implements IRDFManager {
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
-        connection.setRequestProperty("Accept", "application/rdf+xml");
+        connection.setRequestProperty(
+            "Accept",
+            "application/xml, application/rdf+xml"
+        );
         importFromStream(store, connection.getInputStream(), null, monitor);
         return store;
     }
