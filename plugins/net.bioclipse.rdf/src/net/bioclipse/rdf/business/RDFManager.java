@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.mindswap.pellet.exceptions.InternalReasonerException;
 import org.mindswap.pellet.exceptions.UnsupportedFeatureException;
 import org.mindswap.pellet.jena.PelletQueryExecution;
 import org.mindswap.pellet.jena.PelletReasonerFactory;
@@ -256,16 +257,21 @@ public class RDFManager implements IRDFManager {
             reasoner,
             ((JenaModel)store).getModel()
         );
-        ValidityReport overallReport = model.validate();
-        if (overallReport.isValid()) {
-            js.print("Model is valid.");
-        } else {
-            js.print("Validation Results");
-            Iterator<ValidityReport.Report> reports = overallReport.getReports();
-            while (reports.hasNext()) {
-                ValidityReport.Report report = reports.next();
-                js.print(report.getType() + ": " + report.getDescription());
+        try {
+            ValidityReport overallReport = model.validate();
+            if (overallReport.isValid()) {
+                js.print("Model is valid.");
+            } else {
+                js.print("Validation Results");
+                Iterator<ValidityReport.Report> reports =
+                    overallReport.getReports();
+                while (reports.hasNext()) {
+                    ValidityReport.Report report = reports.next();
+                    js.print(report.getType() + ": " + report.getDescription());
+                }
             }
+        } catch (InternalReasonerException exception) {
+            js.print("Model is invalid: " + exception.getMessage());
         }
     }
 
