@@ -37,6 +37,7 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.InfModel;
@@ -122,13 +123,20 @@ public class RDFManager implements IRDFManager {
         return dump.toString();
     }
 
-    public List<List<String>> reason(IRDFStore store, String queryString) throws IOException, BioclipseException,
-            CoreException {
+    public List<List<String>> reason(IRDFStore store, String queryString)
+        throws IOException, BioclipseException, CoreException {
         List<List<String>> table = new ArrayList<List<String>>();
 
         Model model = ((JenaModel)store).getModel();
 
-        Query query = QueryFactory.create(queryString);
+        Query query = null;
+        try {
+            query = QueryFactory.create(queryString);
+        } catch (QueryParseException exception) {
+            throw new BioclipseException(
+                "SPARQL syntax error: " + exception.getMessage()
+            );
+        }
         if (!query.isSelectType()) {
             throw new UnsupportedFeatureException(
                 "Only SELECT queries are supported."
