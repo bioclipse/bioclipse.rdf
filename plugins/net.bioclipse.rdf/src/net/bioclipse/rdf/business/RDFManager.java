@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
@@ -239,12 +240,14 @@ public class RDFManager implements IRDFManager {
         if (uri == null) {
             return new String[] {null, null};
         }
-        Set<String> prefixes = prefixMap.getNsPrefixMap().keySet();
+        Map<String,String> prefixMapMap = prefixMap.getNsPrefixMap();
+        Set<String> prefixes = prefixMapMap.keySet();
         String[] split = { null, null };
         for (String key : prefixes){
-            if (uri.startsWith(key)) {
+            String ns = prefixMapMap.get(key);
+            if (uri.startsWith(ns)) {
                 split[0] = key;
-                split[1] = uri.substring(key.length());
+                split[1] = uri.substring(ns.length());
                 return split;
             }
         }
