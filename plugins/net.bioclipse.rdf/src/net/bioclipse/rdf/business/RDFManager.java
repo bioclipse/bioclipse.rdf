@@ -171,8 +171,9 @@ public class RDFManager implements IRDFManager {
                 Iterator<String> varNames = soln.varNames();
                 while (varNames.hasNext()) {
                     RDFNode node = soln.get(varNames.next());
-                    String nodeStr = node.toString();
-                    if (node.isResource()) {
+                    if (node == null) {
+                        row.add("null");
+                    } else if (node.isResource()) {
                         Resource resource = (Resource)node;
                         // the resource.getLocalName() is not accurate, so I
                         // use some custom code
@@ -182,7 +183,8 @@ public class RDFManager implements IRDFManager {
                         } else {
                             row.add(uriLocalSplit[0] + ":" + uriLocalSplit[1]);
                         }
-                    } else {
+                    } else if (node != null) {
+                        String nodeStr = node.toString();
                         row.add(nodeStr);
                     }
                 }
