@@ -25,7 +25,7 @@ public class OWLManager implements IBioclipseManager {
 
     IRDFManager rdf = new RDFManager(); 
     
-    public String getNamespace() {
+    public String getManagerName() {
         return "owl";
     }
     
