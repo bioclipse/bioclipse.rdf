@@ -55,7 +55,7 @@ import com.hp.hpl.jena.shared.PrefixMapping;
 
 public class RDFManager implements IRDFManager {
 
-    public String getNamespace() {
+    public String getManagerName() {
         return "rdf";
     }
 
