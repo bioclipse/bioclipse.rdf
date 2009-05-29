@@ -32,6 +32,8 @@ import net.bioclipse.structuredb.domain.User;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.hp.hpl.jena.vocabulary.DC;
+
 public class StructureRDFManager implements IStructureRDFManager {
 
     Map<String,IRDFStore> stores = new HashMap<String,IRDFStore>();
@@ -118,8 +120,13 @@ public class StructureRDFManager implements IStructureRDFManager {
             ICDKMolecule cdkMolecule) throws BioclipseException {
         DBMolecule m = new DBMolecule(moleculeName, cdkMolecule);
         IRDFStore store = stores.get(databaseName);
-//        return m; FIXME: molecule needs to be stored
-        return null;
+        rdf.addDataProperty(store,
+            "http://pele.farmbio.uu.se/structurerdf/" + databaseName + "/" +
+            moleculeName,
+            DC.title.toString(),
+            moleculeName
+        );
+        return m;
     }
 
     public RealNumberAnnotation createRealNumberAnnotation(String databaseName,
