@@ -162,7 +162,15 @@ public class RDFManager implements IRDFManager {
         return table;
     }
 
-    public String[] split(PrefixMapping prefixMap, Resource resource) {
+    /**
+     * Helper method that splits up a URI into a namespace and a local part.
+     * It uses the prefixMap to recognize namespaces, and replaces the
+     * namespace part by a prefix.
+     *
+     * @param prefixMap
+     * @param resource
+     */
+    public static String[] split(PrefixMapping prefixMap, Resource resource) {
         String uri = resource.getURI();
         if (uri == null) {
             return new String[] {null, null};
