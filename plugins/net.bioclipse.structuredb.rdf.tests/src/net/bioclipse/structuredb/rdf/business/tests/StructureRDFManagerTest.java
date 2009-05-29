@@ -19,8 +19,11 @@ import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.MockIFile;
 import net.bioclipse.core.business.IBioclipseManager;
 import net.bioclipse.core.tests.AbstractManagerTest;
-import net.bioclipse.structuredb.business.IStructuredbManager;
+import net.bioclipse.rdf.business.IRDFManager;
+import net.bioclipse.rdf.business.IRDFStore;
+import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.domain.DBMolecule;
+import net.bioclipse.structuredb.rdf.business.IStructureRDFManager;
 import net.bioclipse.structuredb.rdf.business.StructureRDFManager;
 
 import org.junit.Assert;
@@ -29,11 +32,12 @@ import org.junit.Test;
 
 public class StructureRDFManagerTest extends AbstractManagerTest {
 
-    private static IStructuredbManager manager;
+    private static IStructureRDFManager manager;
     private final static String database1 = "database1";
     private final static String database2 = "database2";
 
     private ICDKManager cdk = new CDKManager();
+    private IRDFManager rdf = new RDFManager();
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -145,8 +149,10 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     }
 
     @Test public void testCreateMolecule() throws Exception {
+        final String database = "testCreateMolecule";
+        manager.createDatabase(database);
         DBMolecule dbMolecule = manager.createMolecule(
-             database1, 
+             database,
              "test", 
              cdk.fromSMILES("CC")
         );
@@ -154,6 +160,8 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
         Assert.assertTrue(
             manager.allMolecules(database1).contains(dbMolecule)
         );
+        IRDFStore store = manager.getStore(database);
+        Assert.assertNotSame(0, rdf.size(store));
     }
     
     @Test public void testDeleteStructure() throws Exception {
