@@ -62,23 +62,23 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     }
 
     @Test public void testEditDBMolecule() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testEditTextAnnotation() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testAddMoleculesFromSDF() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testCreatingAndRetrievingAnnotations() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testAllLabels() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
     
     public void testCreatingAndRetrievingStructures() throws Exception {
@@ -125,23 +125,23 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     }
 
     @Test public void testCreatingChoiceAnnotation() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testCreatingRealNumberAnnotation() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testCreatingTextAnnotation() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testDeleteAnnotation() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testRemovingDatabaseInstance() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testCreateMolecule() throws Exception {
@@ -169,27 +169,27 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     }
 
     @Test public void testDeletingAnnotationWithMolecules() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testListSMARTSQueryResults() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testSmartsQueryIterator() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testListSubstructureSearchResults() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testSubstructureSearch() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @Test public void testCreatingAndRetrievingUsers() {
-        Assert.fail("Not implemented yet.");
+        throw new RuntimeException("Not implemented yet.");
     }
 
 }
