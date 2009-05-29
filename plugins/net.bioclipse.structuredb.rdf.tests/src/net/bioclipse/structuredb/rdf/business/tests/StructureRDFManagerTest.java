@@ -14,12 +14,10 @@ package net.bioclipse.structuredb.rdf.business.tests;
 import java.util.List;
 
 import net.bioclipse.cdk.business.CDKManager;
-import net.bioclipse.cdk.business.ICDKManager;
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.MockIFile;
-import net.bioclipse.core.business.IBioclipseManager;
 import net.bioclipse.core.tests.AbstractManagerTest;
-import net.bioclipse.rdf.business.IRDFManager;
+import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.domain.DBMolecule;
@@ -36,8 +34,8 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     private final static String database1 = "database1";
     private final static String database2 = "database2";
 
-    private ICDKManager cdk = new CDKManager();
-    private IRDFManager rdf = new RDFManager();
+    private CDKManager cdk = new CDKManager();
+    private RDFManager rdf = new RDFManager();
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -86,13 +84,15 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
     }
     
     public void testCreatingAndRetrievingStructures() throws Exception {
-        ICDKManager cdk = new CDKManager();
+        CDKManager cdk = new CDKManager();
 
         ICDKMolecule mol1 = cdk.loadMolecule( 
             new MockIFile( StructureRDFManagerTest.class
                                    .getClassLoader()
                                    .getResourceAsStream(
-                                       "testData/0037.cml") ) );
+                                       "testData/0037.cml") ),
+            null
+        );
         Assert.assertNotNull(mol1);
 
         DBMolecule structure1 = manager
@@ -109,7 +109,10 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
                     new MockIFile( StructureRDFManagerTest.class
                                    .getClassLoader()
                                    .getResourceAsStream(
-                                       "testData/0106.cml") ) ) );
+                                       "testData/0106.cml") ),
+                                       null 
+                )
+            );
 
         Assert.assertNotNull(structure2);
 

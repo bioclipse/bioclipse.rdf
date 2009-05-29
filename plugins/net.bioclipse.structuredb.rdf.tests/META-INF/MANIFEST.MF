@@ -18,4 +18,5 @@ Require-Bundle: net.bioclipse.core;bundle-version="2.0.0",
  org.junit4;bundle-version="4.3.1",
  net.bioclipse.cdk.business;bundle-version="2.0.0",
  net.bioclipse.ui;bundle-version="2.0.0",
- net.bioclipse.rdf;bundle-version="2.0.0"
+ net.bioclipse.rdf;bundle-version="2.0.0",
+ org.openscience.cdk.ioformats;bundle-version="1.2.2"

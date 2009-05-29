@@ -10,8 +10,8 @@
  ******************************************************************************/
 package net.bioclipse.structuredb.rdf.tests;
 
-import net.bioclipse.core.business.IBioclipseManager;
 import net.bioclipse.core.tests.coverage.AbstractCoverageTest;
+import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.structuredb.rdf.business.StructureRDFManager;
 
 /**
