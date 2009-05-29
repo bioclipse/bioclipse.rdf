@@ -17,6 +17,7 @@ import java.util.Map;
 
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.BioList;
 import net.bioclipse.core.domain.IMolecule;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
@@ -80,8 +81,8 @@ public class StructureRDFManager implements IStructureRDFManager {
     }
 
     public List<DBMolecule> allMolecules(String databaseName) {
-        // TODO Auto-generated method stub
-        return null;
+        List<DBMolecule> allMolecules = new BioList<DBMolecule>();
+        return allMolecules;
     }
 
     public List<DBMolecule> allMoleculesByName(String databaseName,
@@ -115,7 +116,9 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     public DBMolecule createMolecule(String databaseName, String moleculeName,
             ICDKMolecule cdkMolecule) throws BioclipseException {
-        // TODO Auto-generated method stub
+        DBMolecule m = new DBMolecule(moleculeName, cdkMolecule);
+        IRDFStore store = stores.get(databaseName);
+//        return m; FIXME: molecule needs to be stored
         return null;
     }
 
@@ -143,8 +146,9 @@ public class StructureRDFManager implements IStructureRDFManager {
     }
 
     public void deleteDatabase(String databaseName) {
-        // TODO Auto-generated method stub
-
+        if (stores.containsKey(databaseName)) {
+            stores.remove(databaseName);
+        }
     }
 
     public void deleteStructure(String database, DBMolecule molecule) {

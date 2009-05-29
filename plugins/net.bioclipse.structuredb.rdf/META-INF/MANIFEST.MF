@@ -16,4 +16,6 @@ Require-Bundle: net.bioclipse.core;bundle-version="2.0.0",
  net.bioclipse.scripting.ui;bundle-version="2.0.0",
  net.bioclipse.structuredb;bundle-version="2.0.0",
  net.bioclipse.cdk.business;bundle-version="2.0.0",
- net.bioclipse.rdf;bundle-version="2.0.0"
+ net.bioclipse.rdf,
+ org.openscience.cdk.data,
+ org.openscience.cdk.interfaces
