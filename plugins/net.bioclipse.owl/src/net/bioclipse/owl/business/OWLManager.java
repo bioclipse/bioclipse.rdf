@@ -23,15 +23,15 @@ import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.rdf.business.IRDFManager;
+import net.bioclipse.pellet.business.IPelletManager;
+import net.bioclipse.pellet.business.PelletManager;
 import net.bioclipse.rdf.business.IRDFStore;
-import net.bioclipse.rdf.business.RDFManager;
 
 import org.eclipse.core.runtime.CoreException;
 
 public class OWLManager implements IBioclipseManager {
 
-    IRDFManager rdf = new RDFManager(); 
+    IPelletManager rdf = new PelletManager(); 
     
     public String getManagerName() {
         return "owl";
