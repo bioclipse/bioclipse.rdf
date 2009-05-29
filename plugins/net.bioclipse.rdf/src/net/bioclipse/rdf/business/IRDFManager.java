@@ -69,26 +69,9 @@ public interface IRDFManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store, String query",
-        methodSummary = "Returns the results matching the SPARQL query using" +
-        		" the Pellet reasoner"
-    )
-    public List<List<String>> reason(IRDFStore store, String query)
-        throws IOException, BioclipseException, CoreException;
-
-    @Recorded
-    @PublishedMethod(
-        params = "IRDFStore store, String query",
         methodSummary = "Returns the results matching the SPARQL query"
     )
     public List<List<String>> sparql(IRDFStore store, String query)
-        throws IOException, BioclipseException, CoreException;
-
-    @Recorded
-    @PublishedMethod(
-        params = "IRDFStore store",
-        methodSummary = "Validates the consistency of the RDF model in the store"
-    )
-    public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
@@ -118,20 +101,4 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public long size(IRDFStore store) throws BioclipseException;
 
-    @Recorded
-    @PublishedMethod(
-        params = "IRDFStore store, String type",
-        methodSummary = "Returns the Objects that are of the given rdf:type."
-    )
-    public List<String> isRDFType(IRDFStore store, String type)
-        throws IOException, BioclipseException, CoreException;
-
-    @Recorded
-    @PublishedMethod(
-        params = "IRDFStore store, String identifier",
-        methodSummary = "Returns all triples about the Object with the given " +
-        		"identifier."
-    )
-    public List<List<String>> allAbout(IRDFStore store, String identifier)
-        throws BioclipseException, IOException, CoreException;
 }

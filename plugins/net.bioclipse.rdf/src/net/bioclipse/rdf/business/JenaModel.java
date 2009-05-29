@@ -10,8 +10,6 @@
  ******************************************************************************/
 package net.bioclipse.rdf.business;
 
-import org.mindswap.pellet.jena.PelletReasonerFactory;
-
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
@@ -20,9 +18,7 @@ public class JenaModel implements IRDFStore {
     private Model model;
     
     protected JenaModel() {
-        model = ModelFactory.createOntologyModel(
-            PelletReasonerFactory.THE_SPEC
-        );
+        model = ModelFactory.createOntologyModel();
     }
     
     protected Model getModel() {
