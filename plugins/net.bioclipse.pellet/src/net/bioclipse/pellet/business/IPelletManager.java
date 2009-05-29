@@ -35,7 +35,8 @@ public interface IPelletManager extends IBioclipseManager {
     @PublishedMethod(
         params = "IRDFStore store, String query",
         methodSummary = "Returns the results matching the SPARQL query using" +
-        		" the Pellet reasoner"
+            " the Pellet reasoner",
+        doi="10.1016/j.websem.2007.03.004"
     )
     public List<List<String>> reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
@@ -43,7 +44,9 @@ public interface IPelletManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store",
-        methodSummary = "Validates the consistency of the RDF model in the store"
+        methodSummary = "Validates the consistency of the RDF model in the " +
+            "store",
+        doi="10.1016/j.websem.2007.03.004"
     )
     public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
