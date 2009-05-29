@@ -10,26 +10,4 @@
       </scriptContribution>
    </extension>
 
-  <extension point="org.eclipse.core.contenttype.contentTypes">
-      <content-type
-        base-type="org.eclipse.core.runtime.xml"
-        id="net.bioclipse.contenttypes.rdf.xml"
-        name="Resource Description Frameowork (XML)"
-        file-extensions="rdf,xml,owl"
-        priority="normal">
-          <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
-              <parameter name="element"
-                value="{http://www.w3.org/1999/02/22-rdf-syntax-ns#}*">
-              </parameter>
-          </describer>
-      </content-type>
-      <content-type
-        base-type="org.eclipse.core.runtime.text"
-        id="net.bioclipse.contenttypes.rdf.n3"
-        name="Resource Description Frameowork (N3)"
-        file-extensions="n3"
-        priority="normal">
-      </content-type>
-  </extension>
-
 </plugin>
