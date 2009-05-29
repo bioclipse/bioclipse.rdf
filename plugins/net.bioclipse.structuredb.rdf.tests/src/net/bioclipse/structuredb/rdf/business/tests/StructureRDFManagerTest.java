@@ -47,6 +47,20 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
         return new StructureRDFManager();
     }
 
+    @Test public void testCreateAndDeleteDatabase() {
+        manager.createDatabase("testCreateDatabase");
+        manager.deleteDatabase("testCreateDatabase");
+        // test if delete worked properly
+        manager.createDatabase("testCreateDatabase");
+        manager.deleteDatabase("testCreateDatabase");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testCreateDatabaseDuplicate() {
+        manager.createDatabase("testCreateDatabaseDuplicate");
+        manager.createDatabase("testCreateDatabaseDuplicate");        
+    }
+
     @Test public void testEditDBMolecule() {
         Assert.fail("Not implemented yet.");
     }
