@@ -144,8 +144,28 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
         Assert.fail("Not implemented yet.");
     }
 
-    @Test public void testDeleteStructure() {
-        Assert.fail("Not implemented yet.");
+    @Test public void testCreateMolecule() throws Exception {
+        DBMolecule dbMolecule = manager.createMolecule(
+             database1, 
+             "test", 
+             cdk.fromSMILES("CC")
+        );
+        Assert.assertNotNull(dbMolecule);
+        Assert.assertTrue(
+            manager.allMolecules(database1).contains(dbMolecule)
+        );
+    }
+    
+    @Test public void testDeleteStructure() throws Exception {
+        DBMolecule dbMolecule = manager.createMolecule(
+            database1, 
+            "test", 
+            cdk.fromSMILES("CC")
+        );
+        manager.deleteStructure(database1, dbMolecule);
+        Assert.assertFalse(
+            manager.allMolecules(database1).contains(dbMolecule)
+        );
     }
 
     @Test public void testDeletingAnnotationWithMolecules() {
