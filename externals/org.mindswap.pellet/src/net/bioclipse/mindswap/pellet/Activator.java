@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Egon Willighagen
+ * Copyright (c) 2009 Egon Willighagen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package net.bioclipse.pellet;
+package net.bioclipse.mindswap.pellet;
 
 import org.eclipse.core.runtime.Plugin;
 

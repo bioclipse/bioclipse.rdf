@@ -22,7 +22,7 @@ Bundle-ClassPath: .,
  jars/aterm-java-1.6.jar,
  jars/relaxngDatatype.jar,
  jars/xsdlib.jar
-Bundle-Activator: net.bioclipse.pellet.Activator
+Bundle-Activator: net.bioclipse.mindswap.pellet.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Export-Package: aterm,
@@ -78,7 +78,7 @@ Export-Package: aterm,
  jjtraveler.graph,
  jjtraveler.reflective,
  jjtraveler.util,
- net.bioclipse.pellet,
+ net.bioclipse.mindswap.pellet,
  org.apache.xerces.impl.xpath.regex,
  org.mindswap.pellet,
  org.mindswap.pellet.datatypes,
