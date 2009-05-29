@@ -10,6 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.structuredb.rdf.business;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,15 +31,23 @@ import net.bioclipse.structuredb.domain.TextAnnotation;
 import net.bioclipse.structuredb.domain.User;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.hp.hpl.jena.vocabulary.DC;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class StructureRDFManager implements IStructureRDFManager {
 
     Map<String,IRDFStore> stores = new HashMap<String,IRDFStore>();
     
     RDFManager rdf = new RDFManager();
+    
+    public final static String STRUCTEN_NS =
+        "http://pele.farmbio.uu.se/structurerdf/#";
+    
+    public final static String MOLECULE_ID = STRUCTEN_NS + "MoleculeID";
+    public final static String MOLECULE_TYPE = STRUCTEN_NS + "MoleculeType";
     
     public String getNamespace() {
         return "structrdf";
@@ -84,6 +93,38 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     public List<DBMolecule> allMolecules(String databaseName) {
         List<DBMolecule> allMolecules = new BioList<DBMolecule>();
+        IRDFStore store = stores.get(databaseName);
+        if (store != null) {
+            try {
+                String sparql =
+                    "PREFIX structrdf: <http://pele.farmbio.uu.se/structurerdf/#> " +
+                    "PREFIX rdf: <" + RDF.getURI() + "> " +
+                    "PREFIX dc: <" + DC.getURI() + "> " +
+                    "SELECT ?s ?t ?i WHERE {" +
+                    "    ?s rdf:type structrdf:MoleculeType ." +
+                    "    ?s dc:title ?t ." +
+                    "    ?s structrdf:MoleculeID ?i . " +
+                    "}";
+                List<List<String>> results = rdf.sparql(store, sparql);
+                for (List<String> molecule : results) {
+                    DBMolecule mol = new DBMolecule();
+                    System.out.println("Mol: " + molecule.get(1));
+                    System.out.println("Mol: " + molecule.get(2));
+                    mol.setName(molecule.get(1)); // ?t
+                    mol.setId(molecule.get(2));   // ?i
+                    allMolecules.add(mol);
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (BioclipseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (CoreException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         return allMolecules;
     }
 
@@ -120,12 +161,17 @@ public class StructureRDFManager implements IStructureRDFManager {
             ICDKMolecule cdkMolecule) throws BioclipseException {
         DBMolecule m = new DBMolecule(moleculeName, cdkMolecule);
         IRDFStore store = stores.get(databaseName);
-        rdf.addDataProperty(store,
-            "http://pele.farmbio.uu.se/structurerdf/" + databaseName + "/" +
-            moleculeName,
-            DC.title.toString(),
-            moleculeName
+        System.out.println("Size before: " + rdf.size(store));
+        String resource = "http://pele.farmbio.uu.se/structurerdf/" +
+            databaseName + "/" + moleculeName;
+        rdf.addObjectProperty(store,
+            resource, RDF.type.toString(), MOLECULE_TYPE
         );
+        rdf.addDataProperty(store,
+            resource, DC.title.toString(), moleculeName
+        );
+        rdf.addDataProperty(store, resource, MOLECULE_ID, m.getId());
+        System.out.println("Size after: " + rdf.size(store));
         return m;
     }
 
