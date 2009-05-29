@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bioclipse Pellet
+Bundle-SymbolicName: net.bioclipse.pellet;singleton:=true
+Bundle-Version: 2.0.0.B20090417
+Bundle-Activator: net.bioclipse.pellet.Activator
+Bundle-Vendor: The Bioclipse Team
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.log4j
+Export-Package: net.bioclipse.pellet,
+ net.bioclipse.pellet.business
+Require-Bundle: net.bioclipse.core,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ com.hp.hpl.jena;bundle-version="2.5.6",
+ net.bioclipse.scripting.ui,
+ org.mindswap.pellet;bundle-version="2.0.0",
+ net.bioclipse.rdf
+Bundle-ClassPath: .
