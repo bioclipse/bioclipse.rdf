@@ -10,12 +10,16 @@
  ******************************************************************************/
 package net.bioclipse.structuredb.rdf.business;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule;
+import net.bioclipse.rdf.business.IRDFStore;
+import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.business.IDatabaseListener;
 import net.bioclipse.structuredb.domain.Annotation;
 import net.bioclipse.structuredb.domain.ChoiceAnnotation;
@@ -29,6 +33,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class StructureRDFManager implements IStructureRDFManager {
 
+    Map<String,IRDFStore> stores = new HashMap<String,IRDFStore>();
+    
+    RDFManager rdf = new RDFManager();
+    
     public String getNamespace() {
         return "structrdf";
     }
@@ -95,8 +103,14 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     public void createDatabase(String databaseName)
             throws IllegalArgumentException {
-        // TODO Auto-generated method stub
+        IRDFStore store = stores.get(databaseName);
+        if (store != null)
+            throw new IllegalArgumentException(
+                "Database " + databaseName + " already exists."
+            );
 
+        store = rdf.createStore();
+        stores.put(databaseName, store);
     }
 
     public DBMolecule createMolecule(String databaseName, String moleculeName,
