@@ -22,12 +22,12 @@ import net.bioclipse.rdf.business.IRDFStore;
 
 import org.eclipse.core.runtime.CoreException;
 
-@PublishedClass("Contains RDF related methods")
+@PublishedClass("Contains Pellet related methods")
 public interface IPelletManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        methodSummary = "Creates a new RDF store"
+        methodSummary = "Creates a new Pellet-targeted store"
     )
     public IRDFStore createStore();
 
