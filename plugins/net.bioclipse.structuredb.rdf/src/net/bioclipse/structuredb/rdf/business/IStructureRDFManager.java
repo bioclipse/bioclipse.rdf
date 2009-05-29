@@ -12,9 +12,12 @@ package net.bioclipse.structuredb.rdf.business;
 
 import net.bioclipse.core.TestClasses;
 import net.bioclipse.core.business.IBioclipseManager;
+import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.structuredb.business.IStructuredbManager;
 
 @TestClasses(value="net.bioclipse.structuredb.rdf.business.tests.StructureRDFManagerTest")
 public interface IStructureRDFManager extends IStructuredbManager, IBioclipseManager {
+
+    public IRDFStore getStore(String databaseName);
 
 }

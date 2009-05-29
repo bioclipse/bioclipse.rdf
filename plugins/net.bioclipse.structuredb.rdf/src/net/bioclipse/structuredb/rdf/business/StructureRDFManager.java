@@ -248,5 +248,9 @@ public class StructureRDFManager implements IStructureRDFManager {
         return null;
     }
 
+    public IRDFStore getStore(String databaseName) {
+        return stores.get(databaseName);
+    }
+
 
 }
