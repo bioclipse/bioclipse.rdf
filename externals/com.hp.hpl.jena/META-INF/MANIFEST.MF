@@ -3,7 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jena
 Bundle-SymbolicName: com.hp.hpl.jena;singleton:=true
 Bundle-Version: 2.5.7
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ slf4j.api;bundle-version="1.5.0",
+ jcl104.over.slf4j;bundle-version="1.5.0"
 Bundle-ClassPath: .,
  jars/antlr-2.7.5.jar,
  jars/arq-extra.jar,

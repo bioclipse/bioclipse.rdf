@@ -20,5 +20,6 @@
 	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.0.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/xercesImpl.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/xml-apis.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
+	<classpathentry kind="lib" path="jars/slf4j-simple-1.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
