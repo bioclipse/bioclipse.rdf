@@ -19,4 +19,5 @@ Require-Bundle: net.bioclipse.core;bundle-version="2.0.0",
  net.bioclipse.rdf,
  org.openscience.cdk.data,
  org.openscience.cdk.interfaces,
- com.hp.hpl.jena
+ com.hp.hpl.jena,
+ org.openscience.cdk.ioformats;bundle-version="1.2.2"

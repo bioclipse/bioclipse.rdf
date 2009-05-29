@@ -18,8 +18,8 @@ import java.util.Map;
 
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.core.domain.BioList;
 import net.bioclipse.core.domain.IMolecule;
+import net.bioclipse.core.domain.RecordableList;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.business.IDatabaseListener;
@@ -49,7 +49,7 @@ public class StructureRDFManager implements IStructureRDFManager {
     public final static String MOLECULE_ID = STRUCTEN_NS + "MoleculeID";
     public final static String MOLECULE_TYPE = STRUCTEN_NS + "MoleculeType";
     
-    public String getNamespace() {
+    public String getManagerName() {
         return "structrdf";
     }
 
@@ -92,7 +92,7 @@ public class StructureRDFManager implements IStructureRDFManager {
     }
 
     public List<DBMolecule> allMolecules(String databaseName) {
-        List<DBMolecule> allMolecules = new BioList<DBMolecule>();
+        List<DBMolecule> allMolecules = new RecordableList<DBMolecule>();
         IRDFStore store = stores.get(databaseName);
         if (store != null) {
             try {
