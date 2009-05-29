@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bioclipse StructureDB RDF
+Bundle-SymbolicName: net.bioclipse.rdf;singleton:=true
+Bundle-Version: 2.0.0.A20081028
+Bundle-Activator: net.bioclipse.structuredb.rdf.Activator
+Bundle-Vendor: The Bioclipse Team
+Bundle-ActivationPolicy: lazy
+Import-Package: org.apache.log4j
+Export-Package: net.bioclipse.structuredb.rdf,
+ net.bioclipse.structuredb.rdf.business
+Require-Bundle: net.bioclipse.core;bundle-version="2.0.0",
+ org.eclipse.core.runtime;bundle-version="3.4.0",
+ org.eclipse.core.resources;bundle-version="3.4.1",
+ org.eclipse.ui;bundle-version="3.4.1",
+ net.bioclipse.scripting.ui;bundle-version="2.0.0"
