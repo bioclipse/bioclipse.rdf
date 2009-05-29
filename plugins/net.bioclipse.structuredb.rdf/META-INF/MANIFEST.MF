@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bioclipse StructureDB RDF
-Bundle-SymbolicName: net.bioclipse.rdf;singleton:=true
+Bundle-Name: Bioclipse RDF-backed StructureDB
+Bundle-SymbolicName: net.bioclipse.structuredb.rdf;singleton:=true
 Bundle-Version: 2.0.0.A20081028
 Bundle-Activator: net.bioclipse.structuredb.rdf.Activator
 Bundle-Vendor: The Bioclipse Team

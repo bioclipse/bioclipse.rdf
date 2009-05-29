@@ -17,7 +17,6 @@ import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule;
 import net.bioclipse.structuredb.business.IDatabaseListener;
-import net.bioclipse.structuredb.business.IStructuredbManager;
 import net.bioclipse.structuredb.domain.Annotation;
 import net.bioclipse.structuredb.domain.ChoiceAnnotation;
 import net.bioclipse.structuredb.domain.DBMolecule;
@@ -28,7 +27,7 @@ import net.bioclipse.structuredb.domain.User;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class StructureRDFManager implements IStructuredbManager {
+public class StructureRDFManager implements IStructureRDFManager {
 
     public String getNamespace() {
         return "structrdf";

@@ -5,12 +5,12 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!-- regular spring configuration file defining simple service
-       bean. We've kept the osgi definitions in a separate 
+       bean. We've kept the osgi definitions in a separate
        configuration file so that this file can easily be used
        for testing outside of an OSGi environment -->
 
-  <bean id="rdfManagerTarget" 
-        class="net.bioclipse.structuredb.rdf.business.RDFManager">
+  <bean id="structuredbrdfManagerTarget"
+        class="net.bioclipse.structuredb.rdf.business.StructureRDFManager">
   </bean>
-  
+
 </beans>

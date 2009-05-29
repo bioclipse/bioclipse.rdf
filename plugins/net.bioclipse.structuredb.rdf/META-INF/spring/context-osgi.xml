@@ -8,17 +8,17 @@
   <!-- Export the bean (defined in a separate
        config file in this case) as an OSGi service -->
 
-  <osgi:service id="rdfManagerOSGI" 
-                ref="rdfManager"
-                interface="net.bioclipse.rdf.business.IRDFManager" />
+  <osgi:service id="structuredbrdfManagerOSGI"
+                ref="structuredbrdfManager"
+                interface="net.bioclipse.structuredb.rdf.business.IStructureRDFManager" />
 
-  <osgi:reference id="recordingAdvice" 
+  <osgi:reference id="recordingAdvice"
                   interface="net.bioclipse.recording.IRecordingAdvice" />
 
   <osgi:reference id="createJobAdvice"
                   interface="net.bioclipse.ui.jobs.ICreateJobAdvice" />
 
-  <osgi:reference id="JSJobCreatorAdvice" 
+  <osgi:reference id="JSJobCreatorAdvice"
                   interface="net.bioclipse.scripting.business.IJSJobCreatorAdvice"/>
 
   <osgi:reference id="wrapInProxyAdvice"
@@ -29,20 +29,20 @@
         <property name="advice"  ref="recordingAdvice" />
   		<property name="pattern" value=".*" /> <!-- See also class implementation -->
   </bean>
-  
-  <bean id="rdfManager"
+
+  <bean id="structuredbrdfManager"
   		class="org.springframework.aop.framework.ProxyFactoryBean">
-  	<property name="target" 
-  	          ref="rdfManagerTarget" />
-  	<property name="proxyInterfaces" 
-  	          value="net.bioclipse.rdf.business.IRDFManager" />
+  	<property name="target"
+  	          ref="structuredbrdfManagerTarget" />
+  	<property name="proxyInterfaces"
+  	          value="net.bioclipse.structuredb.rdf.business.IStructureRDFManager" />
   	<property name="interceptorNames" >
   	    <list>
             <value>recordingAdvisor</value>
             <value>createJobAdvice</value>
             <value>wrapInProxyAdvice</value>
         </list>
-    </property>    
+    </property>
   </bean>
 
 </beans>

@@ -11,7 +11,7 @@
 package net.bioclipse.structuredb.rdf;
 
 import net.bioclipse.core.util.LogUtils;
-import net.bioclipse.structuredb.business.IStructuredbManager;
+import net.bioclipse.structuredb.rdf.business.IStructureRDFManager;
 
 import org.apache.log4j.Logger;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -34,7 +34,7 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
         finderTracker = new ServiceTracker(
             context,
-            IStructuredbManager.class.getName(),
+            IStructureRDFManager.class.getName(),
             null
         );
         finderTracker.open();
@@ -49,10 +49,10 @@ public class Activator extends AbstractUIPlugin {
         return plugin;
     }
 
-    public IStructuredbManager getManager() {
-        IStructuredbManager manager = null;
+    public IStructureRDFManager getManager() {
+        IStructureRDFManager manager = null;
         try {
-            manager = (IStructuredbManager)finderTracker.waitForService(1000*10);
+            manager = (IStructureRDFManager)finderTracker.waitForService(1000*10);
         } catch (InterruptedException exception) {
             LogUtils.debugTrace(logger, exception);
             throw new IllegalStateException("Could not get the RDF manager: " +
