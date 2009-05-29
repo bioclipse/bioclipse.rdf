@@ -22,7 +22,10 @@ import net.bioclipse.rdf.business.IRDFStore;
 
 import org.eclipse.core.runtime.CoreException;
 
-@PublishedClass("Contains Pellet related methods")
+@PublishedClass(
+    value="Contains Pellet related methods",
+    doi={"10.1016/j.websem.2007.03.004"}
+)
 public interface IPelletManager extends IBioclipseManager {
 
     @Recorded
@@ -35,8 +38,7 @@ public interface IPelletManager extends IBioclipseManager {
     @PublishedMethod(
         params = "IRDFStore store, String query",
         methodSummary = "Returns the results matching the SPARQL query using" +
-            " the Pellet reasoner",
-        doi="10.1016/j.websem.2007.03.004"
+            " the Pellet reasoner"
     )
     public List<List<String>> reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
@@ -45,8 +47,7 @@ public interface IPelletManager extends IBioclipseManager {
     @PublishedMethod(
         params = "IRDFStore store",
         methodSummary = "Validates the consistency of the RDF model in the " +
-            "store",
-        doi="10.1016/j.websem.2007.03.004"
+            "store"
     )
     public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
