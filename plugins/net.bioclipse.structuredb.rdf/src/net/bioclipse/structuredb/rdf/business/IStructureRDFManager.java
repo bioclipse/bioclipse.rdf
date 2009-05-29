@@ -10,8 +10,9 @@
  ******************************************************************************/
 package net.bioclipse.structuredb.rdf.business;
 
+import net.bioclipse.core.business.IBioclipseManager;
 import net.bioclipse.structuredb.business.IStructuredbManager;
 
-public interface IStructureRDFManager extends IStructuredbManager {
+public interface IStructureRDFManager extends IStructuredbManager, IBioclipseManager {
 
 }
