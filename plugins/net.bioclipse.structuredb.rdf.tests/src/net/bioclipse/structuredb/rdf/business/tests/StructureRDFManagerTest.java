@@ -158,7 +158,7 @@ public class StructureRDFManagerTest extends AbstractManagerTest {
         );
         Assert.assertNotNull(dbMolecule);
         Assert.assertTrue(
-            manager.allMolecules(database1).contains(dbMolecule)
+            manager.allMolecules(database).contains(dbMolecule)
         );
         IRDFStore store = manager.getStore(database);
         Assert.assertNotSame(0, rdf.size(store));
