@@ -39,6 +39,10 @@ Jena includes software developed by the Apache Software Foundation (http://www.a
 Jena is built on top of other sub-systems which we gratefully acknowledge: details of these systems and their version numbers.
    </license>
 
+   <requires>
+      <import feature="net.bioclipse.core_feature" version="2.0.0.RC1" match="greaterOrEqual"/>
+   </requires>
+
    <plugin
          id="net.bioclipse.rdf"
          download-size="0"
