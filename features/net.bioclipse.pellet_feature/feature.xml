@@ -2,8 +2,8 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet Feature"
-      version="2.0.0.B20090520"
-      provider-name="Bioclipse Team"
+      version="2.0.0.RC1"
+      provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
    <description url="http://clarkparsia.com/pellet/">
@@ -860,7 +860,7 @@ GNU AGPL, see
    </url>
 
    <requires>
-      <import plugin="net.bioclipse.rdf"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.0.0.RC1" match="greaterOrEqual"/>
    </requires>
 
    <plugin
