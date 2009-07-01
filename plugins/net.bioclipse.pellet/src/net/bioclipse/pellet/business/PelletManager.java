@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.rdf.business.IJenaStore;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.scripting.ui.business.IJsConsoleManager;
@@ -60,7 +61,11 @@ public class PelletManager implements IPelletManager {
         throws IOException, BioclipseException, CoreException {
         List<List<String>> table = new ArrayList<List<String>>();
 
-        Model model = ((PelletModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
 
         Query query = null;
         try {
@@ -139,13 +144,19 @@ public class PelletManager implements IPelletManager {
 
         Reasoner reasoner = PelletReasonerFactory.theInstance().create();
 
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        
+        Model model = ((IJenaStore)store).getModel();
+
         // create an inferencing model using Pellet reasoner
-        InfModel model = ModelFactory.createInfModel(
-            reasoner,
-            ((PelletModel)store).getModel()
+        InfModel infModel = ModelFactory.createInfModel(
+            reasoner, model
         );
         try {
-            ValidityReport overallReport = model.validate();
+            ValidityReport overallReport = infModel.validate();
             if (overallReport.isValid()) {
                 js.print("Model is valid.");
             } else {

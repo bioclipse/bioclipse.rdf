@@ -10,14 +10,14 @@
  ******************************************************************************/
 package net.bioclipse.pellet.business;
 
-import net.bioclipse.rdf.business.IRDFStore;
+import net.bioclipse.rdf.business.IJenaStore;
 
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-public class PelletModel implements IRDFStore {
+public class PelletModel implements IJenaStore {
 
     private Model model;
     
@@ -27,7 +27,7 @@ public class PelletModel implements IRDFStore {
         );
     }
     
-    protected Model getModel() {
+    public Model getModel() {
         return this.model;
     }
     
