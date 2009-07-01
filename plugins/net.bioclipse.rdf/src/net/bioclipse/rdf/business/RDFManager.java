@@ -80,7 +80,12 @@ public class RDFManager implements IRDFManager {
         }
         if (format == null) format = "RDF/XML";
 
-        Model model = ((JenaModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        
+        Model model = ((IJenaStore)store).getModel();
         model.read(stream, "", format);
         return store;
     }
@@ -103,7 +108,12 @@ public class RDFManager implements IRDFManager {
     }
 
     public String dump(IRDFStore store) {
-        Model model = ((JenaModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+
+        Model model = ((IJenaStore)store).getModel();
         StringBuffer dump = new StringBuffer();
 
         StmtIterator statements = model.listStatements();
@@ -123,9 +133,14 @@ public class RDFManager implements IRDFManager {
 
     public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
     CoreException {
-        List<List<String>> table = new ArrayList<List<String>>();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
 
-        Model model = ((JenaModel)store).getModel();
+        List<List<String>> table = new ArrayList<List<String>>();
+        
+        Model model = ((IJenaStore)store).getModel();
 
         Query query = QueryFactory.create(queryString);
 
@@ -197,7 +212,11 @@ public class RDFManager implements IRDFManager {
     public void addObjectProperty(IRDFStore store,
         String subject, String property, String object)
         throws BioclipseException {
-        Model model = ((JenaModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
         Resource subjectRes = model.createResource(subject);
         Property propertyRes = model.createProperty(property);
         Resource objectRes = model.createResource(object);
@@ -206,14 +225,22 @@ public class RDFManager implements IRDFManager {
 
     public void addDataProperty(IRDFStore store, String subject,
             String property, String value) throws BioclipseException {
-        Model model = ((JenaModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
         Resource subjectRes = model.createResource(subject);
         Property propertyRes = model.createProperty(property);
         model.add(subjectRes, propertyRes, value);
     }
 
     public long size(IRDFStore store) throws BioclipseException {
-        Model model = ((JenaModel)store).getModel();
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
         return model.size();
     }
 

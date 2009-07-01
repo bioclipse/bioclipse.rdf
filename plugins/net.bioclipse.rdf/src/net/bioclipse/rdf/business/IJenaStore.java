@@ -11,22 +11,9 @@
 package net.bioclipse.rdf.business;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-public class JenaModel implements IJenaStore {
+public interface IJenaStore extends IRDFStore {
 
-    private Model model;
-    
-    protected JenaModel() {
-        model = ModelFactory.createOntologyModel();
-    }
-    
-    public Model getModel() {
-        return this.model;
-    }
-    
-    public String toString() {
-        return "RDFStore: " + model.size() + " triples";
-    }
-    
+    public Model getModel();
+
 }
