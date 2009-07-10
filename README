@@ -1,0 +1,6 @@
+Repository for the Bioclipse-RDF features.
+
+This currently includes:
+
+* a Jena-based RDF Feature
+* a GPL-licensed Pellet Feature
