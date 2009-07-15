@@ -4,3 +4,9 @@ This currently includes:
 
 * a Jena-based RDF Feature
 * a GPL-licensed Pellet Feature
+
+Depends
+-------
+* bioclipse.core
+* bioclipse.statistics
+
