@@ -9,4 +9,4 @@ Depends
 -------
 * bioclipse.core
 * bioclipse.statistics
-
+* bioclipse.structuredb
