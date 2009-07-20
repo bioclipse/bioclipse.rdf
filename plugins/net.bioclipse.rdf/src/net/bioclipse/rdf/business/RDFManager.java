@@ -154,19 +154,23 @@ public class RDFManager implements IRDFManager {
                 Iterator<String> varNames = soln.varNames();
                 while (varNames.hasNext()) {
                     RDFNode node = soln.get(varNames.next());
-                    String nodeStr = node.toString();
-                    if (node.isResource()) {
-                        Resource resource = (Resource)node;
-                        // the resource.getLocalName() is not accurate, so I
-                        // use some custom code
-                        String[] uriLocalSplit = split(prefixMap, resource);
-                        if (uriLocalSplit[0] == null) {
-                            row.add(resource.getURI());
-                        } else {
-                            row.add(uriLocalSplit[0] + ":" + uriLocalSplit[1]);
-                        }
-                    } else {
-                        row.add(nodeStr);
+                    if (node != null) {
+                    	String nodeStr = node.toString();
+                    	if (node.isResource()) {
+                    		Resource resource = (Resource)node;
+                    		// the resource.getLocalName() is not accurate, so I
+                    		// use some custom code
+                    		String[] uriLocalSplit = split(prefixMap, resource);
+                    		if (uriLocalSplit[0] == null) {
+                    			row.add(resource.getURI());
+                    		} else {
+                    			row.add(
+                    			    uriLocalSplit[0] + ":" + uriLocalSplit[1]
+                    			);
+                    		}
+                    	} else {
+                    		row.add(nodeStr);
+                    	}
                     }
                 }
                 table.add(row);
