@@ -17,6 +17,8 @@ import java.util.List;
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
+import net.bioclipse.core.TestClasses;
+import net.bioclipse.core.TestMethods;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 
@@ -25,12 +27,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 @PublishedClass("Contains RDF related methods")
+@TestClasses(
+    "net.bioclipse.rdf.tests.APITest," +
+    "net.bioclipse.rdf.tests.AbstractRDFManagerPluginTest"
+)
 public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
         methodSummary = "Creates a new RDF store"
     )
+    @TestMethods("testCreateStore")
     public IRDFStore createStore();
 
     @Recorded
@@ -65,6 +72,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store",
         methodSummary = "Dumps the full model to the returned String"
     )
+    @TestMethods("testDump")
     public String dump(IRDFStore store);
 
     @Recorded

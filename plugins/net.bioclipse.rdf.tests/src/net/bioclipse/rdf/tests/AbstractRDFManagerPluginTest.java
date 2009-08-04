@@ -11,9 +11,26 @@
 package net.bioclipse.rdf.tests;
 
 import net.bioclipse.rdf.business.IRDFManager;
+import net.bioclipse.rdf.business.IRDFStore;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public abstract class AbstractRDFManagerPluginTest {
 
     protected static IRDFManager rdf;
+
+    @Test public void testCreateStore() {
+        IRDFStore store = rdf.createStore();
+        Assert.assertNotNull(store);
+    }
+
+    @Test public void testDump() {
+        IRDFStore store = rdf.createStore();
+        Assert.assertNotNull(store);
+        String dump = rdf.dump(store);
+        Assert.assertNotNull(dump);
+        Assert.assertNotSame(0, dump.length());
+    }
 
 }
