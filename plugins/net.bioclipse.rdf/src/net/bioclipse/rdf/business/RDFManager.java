@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 
@@ -56,17 +55,6 @@ public class RDFManager implements IBioclipseManager {
     public String getManagerName() {
         return "rdf";
     }
-
-    public IRDFStore importFile(IRDFStore store, String target, String format)
-    throws IOException, BioclipseException, CoreException {
-        return importFile(
-            store,
-            ResourcePathTransformer.getInstance().transform(target),
-            format,
-            null
-        );
-    }
-
     public IRDFStore importFile(IRDFStore store, IFile target, String format,
             IProgressMonitor monitor)
     throws IOException, BioclipseException, CoreException {
@@ -89,11 +77,6 @@ public class RDFManager implements IBioclipseManager {
         Model model = ((IJenaStore)store).getModel();
         model.read(stream, "", format);
         return store;
-    }
-
-    public IRDFStore importURL(IRDFStore store, String url) throws IOException, BioclipseException,
-            CoreException {
-        return importURL(store, url, null);
     }
 
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
