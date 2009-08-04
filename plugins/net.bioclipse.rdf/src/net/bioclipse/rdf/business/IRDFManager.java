@@ -11,6 +11,7 @@
 package net.bioclipse.rdf.business;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
@@ -100,5 +101,30 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Returns the number of triples in the store"
     )
     public long size(IRDFStore store) throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String fileName",
+        methodSummary = "Saves the store to RDF/XML."
+    )
+    public long saveRDFXML(IRDFStore store, String fileName)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, URL url, String SPARQL",
+        methodSummary = "Queries a remote SPARQL end point."
+    )
+    public long sparqlRemote(IRDFStore store, URL url, String SPARQL)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore targetStore, IRDFStore sourceStore",
+        methodSummary = "Copies the triples from the sourceStore into the " +
+                "targetStore."
+    )
+    public long copy(IRDFStore targetStore, IRDFStore sourceStore)
+        throws BioclipseException;
 
 }
