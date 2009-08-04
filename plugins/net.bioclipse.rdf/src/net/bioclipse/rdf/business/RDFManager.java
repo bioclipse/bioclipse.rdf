@@ -30,6 +30,7 @@ import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.managers.business.IBioclipseManager;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -50,7 +51,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
-public class RDFManager implements IRDFManager {
+public class RDFManager implements IBioclipseManager {
 
     public String getManagerName() {
         return "rdf";
