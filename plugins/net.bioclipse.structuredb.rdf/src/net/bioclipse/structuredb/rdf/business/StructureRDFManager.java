@@ -22,7 +22,7 @@ import net.bioclipse.core.domain.IMolecule;
 import net.bioclipse.core.domain.RecordableList;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
-import net.bioclipse.structuredb.business.IDatabaseListener;
+import net.bioclipse.structuredb.business.IStructureDBChangeListener;
 import net.bioclipse.structuredb.domain.Annotation;
 import net.bioclipse.structuredb.domain.ChoiceAnnotation;
 import net.bioclipse.structuredb.domain.DBMolecule;
@@ -51,11 +51,6 @@ public class StructureRDFManager implements IStructureRDFManager {
     
     public String getManagerName() {
         return "structrdf";
-    }
-
-    public void addListener(IDatabaseListener listener) {
-        // TODO Auto-generated method stub
-
     }
 
     public void addMoleculesFromSDF(String databaseName, String filePath)
@@ -232,11 +227,6 @@ public class StructureRDFManager implements IStructureRDFManager {
         return 0;
     }
 
-    public void removeListener(IDatabaseListener listener) {
-        // TODO Auto-generated method stub
-
-    }
-
     public void save(String database, DBMolecule molecule) {
         // TODO Auto-generated method stub
 
@@ -296,6 +286,21 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     public IRDFStore getStore(String databaseName) {
         return stores.get(databaseName);
+    }
+
+    public void addListener(IStructureDBChangeListener listener) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public int numberOfMoleculesInDatabaseInstance(String databaseName) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public void removeListener(IStructureDBChangeListener listener) {
+        // TODO Auto-generated method stub
+        
     }
 
 
