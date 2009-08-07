@@ -40,7 +40,7 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.0.0.v20090707" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.core_feature" version="2.1.0.v20090807" match="greaterOrEqual"/>
    </requires>
 
    <plugin
