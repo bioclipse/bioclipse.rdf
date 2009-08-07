@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bioclipse Pellet
 Bundle-SymbolicName: net.bioclipse.pellet;singleton:=true
-Bundle-Version: 2.0.0.B20090417
+Bundle-Version: 2.1.0.v20090807
 Bundle-Activator: net.bioclipse.pellet.Activator
 Bundle-Vendor: The Bioclipse Team
 Bundle-ActivationPolicy: lazy

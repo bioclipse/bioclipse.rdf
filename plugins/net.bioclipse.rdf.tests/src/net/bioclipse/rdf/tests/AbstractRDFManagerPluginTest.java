@@ -33,4 +33,11 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertNotSame(0, dump.length());
     }
 
+    @Test public void testSize() throws Exception {
+        IRDFStore store = rdf.createStore();
+        Assert.assertNotNull(store);
+        long size = rdf.size(store);
+        Assert.assertNotSame(0, size);
+    }
+
 }

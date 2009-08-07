@@ -108,6 +108,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store",
         methodSummary = "Returns the number of triples in the store"
     )
+    @TestMethods("testSize")
     public long size(IRDFStore store) throws BioclipseException;
 
     @Recorded

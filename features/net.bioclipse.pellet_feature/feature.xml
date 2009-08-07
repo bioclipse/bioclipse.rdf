@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet Feature"
-      version="2.0.0.RC3"
+      version="2.1.0.v20090807"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
