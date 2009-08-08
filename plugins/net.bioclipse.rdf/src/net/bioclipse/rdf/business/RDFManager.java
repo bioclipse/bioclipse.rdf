@@ -18,6 +18,8 @@
  ******************************************************************************/
 package net.bioclipse.rdf.business;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 
@@ -231,5 +234,77 @@ public class RDFManager implements IBioclipseManager {
         Model model = ((IJenaStore)store).getModel();
         return model.size();
     }
+
+    public void saveRDFXML(IRDFStore store, String fileName)
+        throws BioclipseException {
+        IFile file = ResourcePathTransformer.getInstance().transform(fileName);
+        saveRDFXML(store, file, null);
+    };
+
+    public IFile saveRDFXML(IRDFStore store, IFile file,
+                            IProgressMonitor monitor)
+        throws BioclipseException {
+        return saveRDF(store, file, "RDF/XML-ABBREV", monitor);
+    }
+
+    public void saveRDFNTriple(IRDFStore store, String fileName)
+        throws BioclipseException {
+        IFile file = ResourcePathTransformer.getInstance().transform(fileName);
+        saveRDFNTriple(store, file, null);
+    };
+
+    public IFile saveRDFNTriple(IRDFStore store, IFile file,
+            IProgressMonitor monitor)
+        throws BioclipseException {
+        return saveRDF(store, file, "N-TRIPLE", monitor);
+    }
+
+    public IFile saveRDF(IRDFStore store, IFile file,
+                         String type,
+                         IProgressMonitor monitor)
+        throws BioclipseException {
+
+        if (type == null && !"RDF/XML-ABBREV".equals(type) &&
+                            !"N-TRIPLE".equals(type))
+            throw new BioclipseException("Can only save RDF/XML-ABBREV " +
+            		"and N-TRIPLE.");
+
+        if (file.exists()) {
+            throw new BioclipseException("File already exists!");
+        }
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+        monitor.beginTask("Writing file", 100);
+
+        try {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            if (store instanceof IJenaStore) {
+                Model model = ((IJenaStore)store).getModel();
+                model.write(output, type);
+                output.close();
+                file.create(
+                        new ByteArrayInputStream(output.toByteArray()),
+                        false,
+                        monitor
+                );
+            } else {
+                monitor.worked(100);
+                monitor.done();
+                throw new BioclipseException("Only supporting IJenaStore!");
+            }
+        } catch (CoreException e) {
+            monitor.worked(100);
+            monitor.done();
+            throw new BioclipseException("Error while writing RDF.", e);
+        } catch (IOException e) {
+            monitor.worked(100);
+            monitor.done();
+            throw new BioclipseException("Error while writing RDF.", e);
+        }
+
+        monitor.worked(100);
+        monitor.done();
+        return file;
+    };
 
 }
