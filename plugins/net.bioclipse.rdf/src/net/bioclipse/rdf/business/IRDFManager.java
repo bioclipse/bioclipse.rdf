@@ -121,6 +121,14 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store, String fileName",
+        methodSummary = "Saves the store to RDF in N-TRIPLE format."
+    )
+    public void saveRDFNTriple(IRDFStore store, String fileName)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store, URL url, String SPARQL",
         methodSummary = "Queries a remote SPARQL end point."
     )
