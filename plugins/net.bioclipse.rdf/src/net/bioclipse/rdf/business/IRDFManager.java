@@ -116,7 +116,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String fileName",
         methodSummary = "Saves the store to RDF/XML."
     )
-    public long saveRDFXML(IRDFStore store, String fileName)
+    public void saveRDFXML(IRDFStore store, String fileName)
         throws BioclipseException;
 
     @Recorded
@@ -124,7 +124,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, URL url, String SPARQL",
         methodSummary = "Queries a remote SPARQL end point."
     )
-    public long sparqlRemote(IRDFStore store, URL url, String SPARQL)
+    public List<List<String>> sparqlRemote(IRDFStore store, URL url, String SPARQL)
         throws BioclipseException;
 
     @Recorded
@@ -133,7 +133,7 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Copies the triples from the sourceStore into the " +
                 "targetStore."
     )
-    public long copy(IRDFStore targetStore, IRDFStore sourceStore)
+    public void copy(IRDFStore targetStore, IRDFStore sourceStore)
         throws BioclipseException;
 
 }
