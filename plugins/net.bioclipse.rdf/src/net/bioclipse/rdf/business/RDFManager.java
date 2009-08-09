@@ -318,4 +318,12 @@ public class RDFManager implements IBioclipseManager {
         );
     }
 
+    public void addPrefix(IRDFStore store, String prefix, String namespace)
+        throws BioclipseException {
+        if (!(store instanceof IJenaStore)) {
+            throw new BioclipseException("Only supporting IJenaStore.");
+        }
+        ((IJenaStore)store).getModel().setNsPrefix(prefix, namespace);
+    }
+
 }

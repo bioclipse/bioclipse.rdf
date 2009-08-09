@@ -144,4 +144,12 @@ public interface IRDFManager extends IBioclipseManager {
     public void copy(IRDFStore targetStore, IRDFStore sourceStore)
         throws BioclipseException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String prefix, String namespace",
+        methodSummary = "Registers the prefix for the given namespace."
+    )
+    public void addPrefix(IRDFStore store, String prefix, String namespace)
+        throws BioclipseException;
+
 }
