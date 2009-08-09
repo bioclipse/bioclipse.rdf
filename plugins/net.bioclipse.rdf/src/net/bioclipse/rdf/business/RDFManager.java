@@ -307,4 +307,15 @@ public class RDFManager implements IBioclipseManager {
         return file;
     };
 
+    public void copy(IRDFStore targetStore, IRDFStore sourceStore)
+        throws BioclipseException {
+        if (!(targetStore instanceof IJenaStore &&
+              sourceStore instanceof IJenaStore)) {
+            throw new BioclipseException("Only supporting IJenaStore.");
+        }
+        ((IJenaStore)targetStore).getModel().add(
+            ((IJenaStore)sourceStore).getModel()
+        );
+    }
+
 }
