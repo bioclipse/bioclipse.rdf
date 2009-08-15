@@ -127,6 +127,26 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertEquals("http://example.com/#object", triple.get(1));
     }
 
+    @Test public void testImportURL() throws Exception {
+        URI uri = getClass().getResource("/testFiles/example.rdfxml").toURI();
+        URL url=FileLocator.toFileURL(uri.toURL());
+        IRDFStore store = rdf.createStore();
+        long originalTripleCount = rdf.size(store);
+        System.out.println(url.toExternalForm());
+        rdf.importURL(store, url.toExternalForm());
+        Assert.assertEquals(
+            originalTripleCount+1,
+            rdf.size(store)
+        );
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("http://example.com/#object", triple.get(1));
+    }
+
     @Test public void testSaveRDFXML() throws Exception {
         IRDFStore store = rdf.createStore();
         rdf.addObjectProperty(store,

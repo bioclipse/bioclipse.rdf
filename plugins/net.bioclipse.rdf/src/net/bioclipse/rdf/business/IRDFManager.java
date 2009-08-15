@@ -61,6 +61,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String url",
         methodSummary = "Loads a RDF/XML file from the URL into the given store"
     )
+    @TestMethods("testImportURL")
     public IRDFStore importURL(IRDFStore store, String url)
         throws IOException, BioclipseException, CoreException;
 
