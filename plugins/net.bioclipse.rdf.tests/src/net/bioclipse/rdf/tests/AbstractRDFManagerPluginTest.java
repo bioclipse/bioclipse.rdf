@@ -123,6 +123,36 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertEquals("http://example.com/#object", triple.get(1));
     }
 
+    @Test public void testSaveRDFXML() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        String rdfPath = "/Virtual/rdf" + store.hashCode() + ".xml";
+        rdf.saveRDFXML(store, rdfPath);
+
+        IRDFStore loadedStore = rdf.createStore();
+        rdf.importFile(loadedStore, rdfPath, "RDF/XML");
+        Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
+    }
+
+    @Test public void testSaveRDFNTriple() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        String rdfPath = "/Virtual/rdf" + store.hashCode() + ".nt";
+        rdf.saveRDFNTriple(store, rdfPath);
+
+        IRDFStore loadedStore = rdf.createStore();
+        rdf.importFile(loadedStore, rdfPath, "N-TRIPLE");
+        Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
+    }
+
     private List<List<String>> askAllTriplesAbout(
             IRDFStore store, String string) throws Exception {
         String query =

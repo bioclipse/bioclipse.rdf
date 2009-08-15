@@ -119,6 +119,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String fileName",
         methodSummary = "Saves the store to RDF/XML."
     )
+    @TestMethods("testSaveRDFXML")
     public void saveRDFXML(IRDFStore store, String fileName)
         throws BioclipseException;
 
@@ -127,6 +128,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String fileName",
         methodSummary = "Saves the store to RDF in N-TRIPLE format."
     )
+    @TestMethods("testSaveRDFNTriple")
     public void saveRDFNTriple(IRDFStore store, String fileName)
         throws BioclipseException;
 
