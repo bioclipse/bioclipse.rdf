@@ -155,6 +155,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String prefix, String namespace",
         methodSummary = "Registers the prefix for the given namespace."
     )
+    @TestMethods("testAddPrefix_WithPrefix")
     public void addPrefix(IRDFStore store, String prefix, String namespace)
         throws BioclipseException;
 

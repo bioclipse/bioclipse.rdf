@@ -10,13 +10,17 @@
  ******************************************************************************/
 package net.bioclipse.rdf.tests;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -182,6 +186,55 @@ public abstract class AbstractRDFManagerPluginTest {
             "SELECT ?pred ?obj " +
             "WHERE {<" + string + "> ?pred ?obj . }";
         return rdf.sparql(store, query);
+    }
+
+    @Test public void testAddPrefix_WithoutPrefix() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        String rdfPath = "/Virtual/rdf" + store.hashCode() + ".xml";
+        rdf.saveRDFXML(store, rdfPath);
+
+        IFile target = ResourcePathTransformer.getInstance().transform(rdfPath);
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(target.getContents())
+        );
+        StringBuffer fileContents = new StringBuffer();
+        String line = reader.readLine();
+        while(line != null){
+            fileContents.append(line).append('\n');
+            line = reader.readLine();
+        }
+
+        Assert.assertFalse(fileContents.toString().contains("foobar"));
+    }
+
+    @Test public void testAddPrefix_WithPrefix() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addPrefix(store, "foobar", "http://example.com/#");
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        String rdfPath = "/Virtual/rdf" + store.hashCode() + ".xml";
+        rdf.saveRDFXML(store, rdfPath);
+
+        IFile target = ResourcePathTransformer.getInstance().transform(rdfPath);
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(target.getContents())
+        );
+        StringBuffer fileContents = new StringBuffer();
+        String line = reader.readLine();
+        while(line != null){
+            fileContents.append(line).append('\n');
+            line = reader.readLine();
+        }
+
+        Assert.assertTrue(fileContents.toString().contains("foobar"));
     }
 
     private int tripleCount(IRDFStore store, String string) throws Exception {
