@@ -90,6 +90,7 @@ public interface IRDFManager extends IBioclipseManager {
             "String object",
         methodSummary = "Adds a triple to the given store"
     )
+    @TestMethods("testAddObjectProperty")
     public void addObjectProperty(IRDFStore store,
         String subject, String predicate, String object)
         throws BioclipseException;
@@ -100,6 +101,7 @@ public interface IRDFManager extends IBioclipseManager {
                 "String value",
         methodSummary = "Adds a triple to the given store"
     )
+    @TestMethods("testAddDataProperty")
     public void addDataProperty(IRDFStore store,
         String subject, String predicate, String value)
         throws BioclipseException;

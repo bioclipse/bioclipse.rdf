@@ -45,6 +45,44 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertNotSame(0, size);
     }
 
+    @Test public void testAddObjectProperty() throws Exception {
+        IRDFStore store = rdf.createStore();
+        Assert.assertNotNull(store);
+        long originalSize = rdf.size(store);
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        Assert.assertEquals(1, rdf.size(store)-originalSize);
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("http://example.com/#object", triple.get(1));
+    }
+
+    @Test public void testAddDataProperty() throws Exception {
+        IRDFStore store = rdf.createStore();
+        Assert.assertNotNull(store);
+        long originalSize = rdf.size(store);
+        rdf.addDataProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "someDataObject"
+        );
+        Assert.assertEquals(1, rdf.size(store)-originalSize);
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("someDataObject", triple.get(1));
+    }
+
     @Test public void testImportFile_NTriple() throws Exception {
         URI uri = getClass().getResource("/testFiles/example.nt").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());
