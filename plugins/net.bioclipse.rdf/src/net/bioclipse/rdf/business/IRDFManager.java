@@ -146,6 +146,7 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Copies the triples from the sourceStore into the " +
                 "targetStore."
     )
+    @TestMethods("testCopy")
     public void copy(IRDFStore targetStore, IRDFStore sourceStore)
         throws BioclipseException;
 

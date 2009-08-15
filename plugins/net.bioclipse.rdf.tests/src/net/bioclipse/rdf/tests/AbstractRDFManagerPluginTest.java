@@ -153,12 +153,39 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
     }
 
+    @Test public void testCopy() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        rdf.addDataProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "someDataObject"
+        );
+
+        IRDFStore secondStore = rdf.createStore();
+        Assert.assertEquals(0,
+            tripleCount(secondStore, "http://example.com/#subject")
+        );
+        rdf.copy(secondStore, store);
+        Assert.assertEquals(2,
+            tripleCount(secondStore, "http://example.com/#subject")
+        );
+    }
+
     private List<List<String>> askAllTriplesAbout(
             IRDFStore store, String string) throws Exception {
         String query =
             "SELECT ?pred ?obj " +
             "WHERE {<" + string + "> ?pred ?obj . }";
         return rdf.sparql(store, query);
+    }
+
+    private int tripleCount(IRDFStore store, String string) throws Exception {
+        return askAllTriplesAbout(store, string).size();
     }
 
 }
