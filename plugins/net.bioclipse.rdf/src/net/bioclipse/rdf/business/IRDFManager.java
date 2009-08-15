@@ -47,6 +47,7 @@ public interface IRDFManager extends IBioclipseManager {
         		"(\"RDF/XML\", \"N-TRIPLE\", \"TURTLE\" and \"N3\") into " +
         		"the given store"
     )
+    @TestMethods("testImportFile_RDFXML,testImportFile_NTriple")
     public IRDFStore importFile(IRDFStore store, String target, String format)
         throws IOException, BioclipseException, CoreException;
 

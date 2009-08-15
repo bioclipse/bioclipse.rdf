@@ -10,9 +10,14 @@
  ******************************************************************************/
 package net.bioclipse.rdf.tests;
 
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
+
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,6 +43,54 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertNotNull(store);
         long size = rdf.size(store);
         Assert.assertNotSame(0, size);
+    }
+
+    @Test public void testImportFile_NTriple() throws Exception {
+        URI uri = getClass().getResource("/testFiles/example.nt").toURI();
+        URL url=FileLocator.toFileURL(uri.toURL());
+        String path=url.getFile();
+        IRDFStore store = rdf.createStore();
+        long originalTripleCount = rdf.size(store);
+        rdf.importFile(store, path, "N-TRIPLE");
+        Assert.assertEquals(
+            originalTripleCount+1,
+            rdf.size(store)
+        );
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("http://example.com/#object", triple.get(1));
+    }
+
+    @Test public void testImportFile_RDFXML() throws Exception {
+        URI uri = getClass().getResource("/testFiles/example.rdfxml").toURI();
+        URL url=FileLocator.toFileURL(uri.toURL());
+        String path=url.getFile();
+        IRDFStore store = rdf.createStore();
+        long originalTripleCount = rdf.size(store);
+        rdf.importFile(store, path, "RDF/XML");
+        Assert.assertEquals(
+            originalTripleCount+1,
+            rdf.size(store)
+        );
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("http://example.com/#object", triple.get(1));
+    }
+
+    private List<List<String>> askAllTriplesAbout(
+            IRDFStore store, String string) throws Exception {
+        String query =
+            "SELECT ?pred ?obj " +
+            "WHERE {<" + string + "> ?pred ?obj . }";
+        return rdf.sparql(store, query);
     }
 
 }
