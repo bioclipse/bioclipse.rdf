@@ -82,6 +82,8 @@ public interface IRDFManager extends IBioclipseManager {
         params = "IRDFStore store, String query",
         methodSummary = "Returns the results matching the SPARQL query"
     )
+    @TestMethods("testAddDataProperty,testAddObjectProperty," +
+        "testImportFile_NTriple,testImportURL")
     public List<List<String>> sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
