@@ -125,45 +125,49 @@ public class RDFManager implements IBioclipseManager {
                 "Can only handle IJenaStore's for now."
             );
 
-        List<List<String>> table = new ArrayList<List<String>>();
-        
+        List<List<String>> table = null;
         Model model = ((IJenaStore)store).getModel();
-
         Query query = QueryFactory.create(queryString);
-
         PrefixMapping prefixMap = query.getPrefixMapping();
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
             ResultSet results = qexec.execSelect();
-            while (results.hasNext()) {
-                QuerySolution soln = results.nextSolution();
-                List<String> row = new ArrayList<String>();
-                Iterator<String> varNames = soln.varNames();
-                while (varNames.hasNext()) {
-                    RDFNode node = soln.get(varNames.next());
-                    if (node != null) {
-                    	String nodeStr = node.toString();
-                    	if (node.isResource()) {
-                    		Resource resource = (Resource)node;
-                    		// the resource.getLocalName() is not accurate, so I
-                    		// use some custom code
-                    		String[] uriLocalSplit = split(prefixMap, resource);
-                    		if (uriLocalSplit[0] == null) {
-                    			row.add(resource.getURI());
-                    		} else {
-                    			row.add(
-                    			    uriLocalSplit[0] + ":" + uriLocalSplit[1]
-                    			);
-                    		}
-                    	} else {
-                    		row.add(nodeStr);
-                    	}
-                    }
-                }
-                table.add(row);
-            }
+            table = convertIntoTable(prefixMap, results);
         } finally {
             qexec.close();
+        }
+        return table;
+    }
+
+    private List<List<String>> convertIntoTable(
+            PrefixMapping prefixMap, ResultSet results) {
+        List<List<String>> table = new ArrayList<List<String>>();
+        while (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+            List<String> row = new ArrayList<String>();
+            Iterator<String> varNames = soln.varNames();
+            while (varNames.hasNext()) {
+                RDFNode node = soln.get(varNames.next());
+                if (node != null) {
+                    String nodeStr = node.toString();
+                    if (node.isResource()) {
+                        Resource resource = (Resource)node;
+                        // the resource.getLocalName() is not accurate, so I
+                        // use some custom code
+                        String[] uriLocalSplit = split(prefixMap, resource);
+                        if (uriLocalSplit[0] == null) {
+                            row.add(resource.getURI());
+                        } else {
+                            row.add(
+                                uriLocalSplit[0] + ":" + uriLocalSplit[1]
+                            );
+                        }
+                    } else {
+                        row.add(nodeStr);
+                    }
+                }
+            }
+            table.add(row);
         }
         return table;
     }
@@ -326,4 +330,26 @@ public class RDFManager implements IBioclipseManager {
         ((IJenaStore)store).getModel().setNsPrefix(prefix, namespace);
     }
 
+    public List<List<String>> sparqlRemote(
+           String serviceURL,
+           String sparqlQueryString, IProgressMonitor monitor) {
+        if (monitor == null)
+            monitor = new NullProgressMonitor();
+
+        monitor.beginTask("Sparqling the remote service..", 100);
+        Query query = QueryFactory.create(sparqlQueryString);
+        QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceURL, query);
+        PrefixMapping prefixMap = query.getPrefixMapping();
+        monitor.worked(80);
+
+        List<List<String>> table = null;
+        try {
+            ResultSet results = qexec.execSelect();
+            table = convertIntoTable(prefixMap, results);
+        } finally {
+            qexec.close();
+        }
+        monitor.worked(20);
+        return table;
+    }
 }

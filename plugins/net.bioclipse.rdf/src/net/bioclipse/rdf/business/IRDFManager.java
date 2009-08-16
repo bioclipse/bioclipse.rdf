@@ -137,10 +137,10 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        params = "IRDFStore store, URL url, String SPARQL",
+        params = "String url, String SPARQL",
         methodSummary = "Queries a remote SPARQL end point."
     )
-    public List<List<String>> sparqlRemote(IRDFStore store, URL url, String SPARQL)
+    public List<List<String>> sparqlRemote(String url, String SPARQL)
         throws BioclipseException;
 
     @Recorded
