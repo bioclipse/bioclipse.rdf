@@ -20,6 +20,7 @@ import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule;
 import net.bioclipse.core.domain.RecordableList;
+import net.bioclipse.jobs.BioclipseUIJob;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.business.IStructureDBChangeListener;
@@ -299,6 +300,29 @@ public class StructureRDFManager implements IStructureRDFManager {
     }
 
     public void removeListener(IStructureDBChangeListener listener) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void addMoleculesFromFiles(String dbName, List<?> files) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void addMoleculesFromFiles(String dbName, List<?> files,
+            IProgressMonitor monitor) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void smartsQuery(String dbName, String smarts,
+            BioclipseUIJob<List<?>> uiJob) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void subStructureSearch(String dbName, IMolecule molecule,
+            BioclipseUIJob<List<?>> uijob) {
         // TODO Auto-generated method stub
         
     }
