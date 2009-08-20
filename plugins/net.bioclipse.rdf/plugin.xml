@@ -14,7 +14,7 @@
       <content-type
         base-type="org.eclipse.core.runtime.xml"
         id="net.bioclipse.contenttypes.rdf.xml"
-        name="Resource Description Frameowork (XML)"
+        name="Resource Description Framework (XML)"
         file-extensions="rdf,xml,owl"
         priority="normal">
           <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
@@ -26,7 +26,7 @@
       <content-type
         base-type="org.eclipse.core.runtime.text"
         id="net.bioclipse.contenttypes.rdf.n3"
-        name="Resource Description Frameowork (N3)"
+        name="Resource Description Framework (N3)"
         file-extensions="n3"
         priority="normal">
       </content-type>
