@@ -30,6 +30,13 @@
         file-extensions="n3"
         priority="normal">
       </content-type>
+      <content-type
+        base-type="org.eclipse.core.runtime.text"
+        id="net.bioclipse.contenttypes.rdf.ntriple"
+        name="Resource Description Framework (N-TRIPLE)"
+        file-extensions="nt"
+        priority="normal">
+      </content-type>
   </extension>
 
 </plugin>
