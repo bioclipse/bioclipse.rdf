@@ -11,7 +11,6 @@
 package net.bioclipse.rdf.business;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
@@ -124,6 +123,15 @@ public interface IRDFManager extends IBioclipseManager {
     )
     @TestMethods("testSaveRDFXML")
     public void saveRDFXML(IRDFStore store, String fileName)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String fileName",
+        methodSummary = "Saves the store to a N3 file."
+    )
+    @TestMethods("testSaveRDFN3")
+    public void saveRDFN3(IRDFStore store, String fileName)
         throws BioclipseException;
 
     @Recorded

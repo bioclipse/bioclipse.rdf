@@ -251,6 +251,18 @@ public class RDFManager implements IBioclipseManager {
         return saveRDF(store, file, "RDF/XML-ABBREV", monitor);
     }
 
+    public void saveRDFN3(IRDFStore store, String fileName)
+    throws BioclipseException {
+        IFile file = ResourcePathTransformer.getInstance().transform(fileName);
+        saveRDFN3(store, file, null);
+    };
+
+    public IFile saveRDFN3(IRDFStore store, IFile file,
+            IProgressMonitor monitor)
+    throws BioclipseException {
+        return saveRDF(store, file, "N3", monitor);
+    }
+
     public void saveRDFNTriple(IRDFStore store, String fileName)
         throws BioclipseException {
         IFile file = ResourcePathTransformer.getInstance().transform(fileName);
@@ -269,8 +281,9 @@ public class RDFManager implements IBioclipseManager {
         throws BioclipseException {
 
         if (type == null && !"RDF/XML-ABBREV".equals(type) &&
-                            !"N-TRIPLE".equals(type))
-            throw new BioclipseException("Can only save RDF/XML-ABBREV " +
+                            !"N-TRIPLE".equals(type) &&
+                            !"N3".equals(type))
+            throw new BioclipseException("Can only save RDF/XML-ABBREV, N3, " +
             		"and N-TRIPLE.");
 
         if (file.exists()) {
