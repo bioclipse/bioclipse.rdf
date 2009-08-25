@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bioclipse.myexperiment Tests
+Bundle-SymbolicName: net.bioclipse.myexperiment.tests;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: net.bioclipse.myexperiment.tests.Activator
+Bundle-Vendor: The Bioclipse Team
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.junit4,
+ net.bioclipse.core,
+ org.eclipse.core.resources,
+ net.bioclipse.core.tests,
+ net.bioclipse.myexperiment,
+ net.bioclipse.ui
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bioclipse.myexperiment.tests

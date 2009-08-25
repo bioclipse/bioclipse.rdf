@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+  <extension point="net.bioclipse.scripting.contribution">
+    <scriptContribution
+      id="net.bioclipse.myexperiment.business.MyExperimentManager"
+      service="net.bioclipse.myexperiment.business.MyExperimentManagerFactory">
+    </scriptContribution>
+  </extension>
+</plugin>
