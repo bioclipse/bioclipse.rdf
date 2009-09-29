@@ -10,16 +10,12 @@
 	<classpathentry exported="true" kind="lib" path="jars/concurrent.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/icu4j_3_4.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/iri.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/jena.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/jenatest.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/json.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/junit.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/log4j-1.2.12.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/lucene-core-2.3.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.0.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/xercesImpl.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/xml-apis.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry kind="lib" path="jars/slf4j-simple-1.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
