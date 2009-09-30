@@ -70,6 +70,15 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store, String url",
+        methodSummary = "Loads a XHTML+RDFa file from the URL into the given " +
+        		"store"
+    )
+    public IRDFStore importRDFa(IRDFStore store, String url)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store",
         methodSummary = "Dumps the full model to the returned String"
     )
