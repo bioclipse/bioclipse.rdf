@@ -365,4 +365,17 @@ public class RDFManager implements IBioclipseManager {
         monitor.worked(20);
         return table;
     }
+    
+    public IRDFStore importRDFa(IRDFStore store, String url,
+            IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+        new URL(url);
+        // if no exception was thrown,
+        // than the given url seems OK
+        
+        String pyrdfaURL = "http://www.w3.org/2007/08/pyRdfa/extract?uri="
+            + url;
+        return importURL(store, pyrdfaURL, monitor);
+    }
+    
 }
