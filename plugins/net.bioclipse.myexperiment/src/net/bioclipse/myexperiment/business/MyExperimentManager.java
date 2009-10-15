@@ -10,6 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.myexperiment.business;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,4 +182,42 @@ public class MyExperimentManager implements IBioclipseManager {
         return project;
     }
 
+    public List<Integer> search(String query, IProgressMonitor monitor)
+        throws BioclipseException {
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+
+        List<Integer> workflows = new ArrayList<Integer>();
+        monitor.beginTask("Searching MyExperiment for BSL scripts with '" +
+                          query + "'...", 1);
+
+        String sparql =
+            "PREFIX mecontrib: <http://rdf.myexperiment.org/ontologies/" +
+                               "contributions/>" +
+            "PREFIX mebase: <http://rdf.myexperiment.org/ontologies/" +
+                               "base/>" +
+            "PREFIX dcterms: <http://purl.org/dc/terms/>" +
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" +
+            "SELECT ?workflow WHERE {" +
+            "  ?workflow mebase:has-content-type ?type ." +
+            "  ?workflow rdf:type                mecontrib:Workflow ." +
+            "  ?workflow dcterms:title           ?title ." +
+            "  ?type     rdf:type                mebase:ContentType ." +
+            "  ?type     dcterms:title           ?typetitle ." +
+            "  FILTER regex(?title, \"" + query + "\") ." +
+            "  FILTER regex(?typetitle, \"Bioclipse\") ." +
+            "}";
+        List<List<String>> results =
+            rdf.sparqlRemote(SPARQL_ENDPOINT, sparql, monitor);
+        for (List<String> row : results) {
+            String workflow = row.get(0); // only one column
+            int number = Integer.valueOf(workflow.substring(
+                    workflow.lastIndexOf('/')+1
+            ));
+            workflows.add(number);
+        }
+
+        return workflows;
+    }
 }

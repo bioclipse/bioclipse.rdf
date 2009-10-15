@@ -10,6 +10,8 @@
  ******************************************************************************/
 package net.bioclipse.myexperiment.business;
 
+import java.util.List;
+
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
@@ -38,4 +40,11 @@ public interface IMyExperimentManager extends IBioclipseManager {
     public String downloadWorkflow(Integer workflowNumber, String filename)
     throws BioclipseException;
 
+    @Recorded
+    @PublishedMethod(
+        params="String query",
+        methodSummary="Search for BSL scripts which have the query string " +
+        		"in the title."
+    )
+    public List<Integer> search(String query) throws BioclipseException;
 }
