@@ -10,6 +10,8 @@
 	<classpathentry exported="true" kind="lib" path="jars/concurrent.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/icu4j_3_4.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/iri.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jenatest.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/json.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/junit.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/log4j-1.2.12.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>

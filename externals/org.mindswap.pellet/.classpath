@@ -5,19 +5,19 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="jars/pellet-core.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/pellet-cli.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-datatypes.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-dig.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-el.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-explanation.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-jena.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-modularity.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-owlapi.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-pellint.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-query.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-rules.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/pellet-test.jar" sourcepath="org.mindswap.pelletsrc.zip"/>
-	<classpathentry kind="lib" path="jars/aterm-java-1.6.jar"/>
-	<classpathentry kind="lib" path="jars/relaxngDatatype.jar"/>
-	<classpathentry kind="lib" path="jars/xsdlib.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-datatypes.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-dig.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-el.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-explanation.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-jena.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-modularity.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-owlapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-pellint.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-query.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-rules.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/pellet-test.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/aterm-java-1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/relaxngDatatype.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/xsdlib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
