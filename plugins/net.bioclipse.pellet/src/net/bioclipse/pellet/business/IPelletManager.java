@@ -44,6 +44,19 @@ public interface IPelletManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "String tripleStoreDirectoryPath",
+        methodSummary = "Creates a new scalable Pellet-targeted store, " +
+            "(using the Jena TDB package, which stores on disk as a " +
+            "complement to memory, for scalability). " +
+            "tripleStoreDirectoryPath is the path (relative to the" +
+            "Bioclipse workspace) to a folder to use for the " +
+            "triple store"
+    )
+    @TestMethods("testCreateStore")
+    public IRDFStore createStore(String tripleStoreDirectoryPath);
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store, String query",
         methodSummary = "Returns the results matching the SPARQL query using" +
             " the Pellet reasoner"

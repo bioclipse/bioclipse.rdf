@@ -17,5 +17,6 @@ Require-Bundle: net.bioclipse.core,
  net.bioclipse.scripting.ui,
  org.mindswap.pellet;bundle-version="2.0.0",
  net.bioclipse.rdf,
- com.hp.hpl.jena.arq;bundle-version="2.8.2"
+ com.hp.hpl.jena.arq;bundle-version="2.8.2",
+ com.hp.hpl.jena.tdb;bundle-version="0.8.4"
 Bundle-ClassPath: .

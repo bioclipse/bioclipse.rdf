@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.ui,
  net.bioclipse.ui,
  com.hp.hpl.jena;bundle-version="2.6.0",
  com.hp.hpl.jena.arq;bundle-version="2.8.2",
- org.mindswap.pellet;bundle-version="2.0.0"
+ org.mindswap.pellet;bundle-version="2.0.0",
+ com.hp.hpl.jena.tdb;bundle-version="0.8.4"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.pellet.tests
 Import-Package: org.apache.log4j

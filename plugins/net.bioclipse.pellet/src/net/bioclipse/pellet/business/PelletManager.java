@@ -30,6 +30,7 @@ import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.scripting.ui.business.IJsConsoleManager;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.mindswap.pellet.exceptions.InternalReasonerException;
 import org.mindswap.pellet.exceptions.UnsupportedFeatureException;
@@ -136,6 +137,11 @@ public class PelletManager implements IBioclipseManager {
 
     public IRDFStore createInMemoryStore() {
         return new PelletInMemoryModel();
+    }
+
+    public IRDFStore createStore(IFile tripleStoreDirectoryPath) {
+        String tripleStoreDirectoryPathFull = tripleStoreDirectoryPath.getRawLocation().toString();
+        return new PelletModel(tripleStoreDirectoryPathFull);
     }
 
     public void validate(IRDFStore store) throws IOException,
