@@ -33,6 +33,15 @@ public interface IPelletManager extends IBioclipseManager {
         methodSummary = "Creates a new Pellet-targeted store"
     )
     public IRDFStore createStore();
+    
+    @Recorded
+    @PublishedMethod(
+        params = "String tdbDirectory",
+        methodSummary = "Creates a new scalable Pellet-targeted store, " +
+        		"(using the Jena TDB package, which stores on disk as a " +
+        		"complement to memory, for scalability)"
+    )
+    public IRDFStore createJenaTDBStore(String tdbDirectory);    
 
     @Recorded
     @PublishedMethod(

@@ -137,6 +137,10 @@ public class PelletManager implements IPelletManager {
         return new PelletModel();
     }
 
+    public IRDFStore createJenaTDBStore(String tdbDirectory) {
+        return new JenaTDBModel(tdbDirectory);
+    }
+
     public void validate(IRDFStore store) throws IOException,
             BioclipseException, CoreException {
         IJsConsoleManager js = net.bioclipse.scripting.ui.Activator

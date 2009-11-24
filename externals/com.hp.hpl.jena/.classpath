@@ -4,13 +4,12 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="jars/antlr-2.7.5.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="jars/arq-2.8.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/arq-extra.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/arq.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/commons-logging-1.1.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/concurrent.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/icu4j_3_4.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/iri.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/jena.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/jenatest.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/json.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/junit.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
@@ -19,5 +18,11 @@
 	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.0.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/xml-apis.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="jars/slf4j-api-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/slf4j-log4j12-1.5.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/slf4j-simple-1.5.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/tdb-0.8.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/xercesImpl-2.7.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-2.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
