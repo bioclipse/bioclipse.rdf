@@ -22,7 +22,6 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
 @PublishedClass(
@@ -42,22 +41,6 @@ public interface IPelletManager extends IBioclipseManager {
     )
     @TestMethods("testCreateInMemoryStore")
     public IRDFStore createInMemoryStore();
-
-    @Recorded
-    @PublishedMethod(
-        params = "String tripleStoreDirectoryPath",
-        methodSummary = "Creates a new scalable Pellet-targeted store, " +
-                "(using the Jena TDB package, which stores on disk as a " +
-                "complement to memory, for scalability). " +
-                "tripleStoreDirectoryPath is the path (relative to the" +
-                "Bioclipse workspace) to a folder to use for the " +
-                "triple store"
-    )
-    @TestMethods("testCreateStore")
-    public IRDFStore createStore(String tripleStoreDirectoryPath); 
-
-    @Recorded
-    public IRDFStore createStore(IFile tripleStoreDirectoryPath); 
 
     @Recorded
     @PublishedMethod(
