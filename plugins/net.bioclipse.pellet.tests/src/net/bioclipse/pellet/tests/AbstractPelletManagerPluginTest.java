@@ -11,9 +11,24 @@
 package net.bioclipse.pellet.tests;
 
 import net.bioclipse.pellet.business.IPelletManager;
+import net.bioclipse.rdf.business.IRDFStore;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public abstract class AbstractPelletManagerPluginTest {
 
-    protected static IPelletManager rdf;
+    protected static IPelletManager pellet;
+
+    @Test public void testCreateInMemoryStore() {
+        IRDFStore store = pellet.createInMemoryStore();
+        Assert.assertNotNull(store);
+    }
+
+    @Test public void testValidate() throws Exception {
+        IRDFStore store = pellet.createInMemoryStore();
+        pellet.validate(store);
+        Assert.assertNotNull(store);
+    }
 
 }

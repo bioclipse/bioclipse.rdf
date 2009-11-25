@@ -17,6 +17,7 @@ import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.core.TestClasses;
+import net.bioclipse.core.TestMethods;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
@@ -39,6 +40,7 @@ public interface IPelletManager extends IBioclipseManager {
     @PublishedMethod(
         methodSummary = "Creates a new Pellet-targeted store"
     )
+    @TestMethods("testCreateInMemoryStore")
     public IRDFStore createInMemoryStore();
 
     @Recorded

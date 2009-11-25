@@ -16,7 +16,7 @@ public class JavaScriptPelletManagerPluginTest
     extends AbstractPelletManagerPluginTest {
 
     @BeforeClass public static void setup() {
-        rdf = net.bioclipse.pellet.Activator.getDefault().getJavaScriptManager();
+        pellet = net.bioclipse.pellet.Activator.getDefault().getJavaScriptManager();
     }
 
 }

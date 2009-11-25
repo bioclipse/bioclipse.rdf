@@ -11,6 +11,7 @@ Require-Bundle: org.eclipse.ui,
  net.bioclipse.core,
  org.eclipse.core.resources,
  net.bioclipse.core.tests;bundle-version="0.1.0",
+ net.bioclipse.rdf,
  net.bioclipse.pellet,
  net.bioclipse.ui;bundle-version="2.0.0"
 Bundle-ActivationPolicy: lazy
