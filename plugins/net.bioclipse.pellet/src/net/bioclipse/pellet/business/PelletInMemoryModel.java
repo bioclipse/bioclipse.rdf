@@ -34,7 +34,7 @@ public class PelletInMemoryModel implements IJenaStore {
     }
     
     public String toString() {
-        return "RDFStore (Pellet): " + model.size() + " triples";
+        return "RDFStore (Pellet in-memory): " + model.size() + " triples";
     }
     
 }
