@@ -70,6 +70,7 @@ public interface IPelletManager extends IBioclipseManager {
         methodSummary = "Validates the consistency of the RDF model in the " +
             "store"
     )
+    @TestMethods("testValidate")
     public void validate(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
 
