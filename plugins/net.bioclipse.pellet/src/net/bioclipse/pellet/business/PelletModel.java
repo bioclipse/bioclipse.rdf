@@ -16,15 +16,14 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class PelletModel implements IJenaStore {
 
     private Model model;
     
-    protected PelletModel() {
-        model = ModelFactory.createOntologyModel(
-            PelletReasonerFactory.THE_SPEC
-        );
+    protected PelletModel(String tdbDirectory) {
+        model = TDBFactory.createModel(tdbDirectory);
     }
     
     public Model getModel() {

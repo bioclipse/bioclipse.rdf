@@ -133,12 +133,12 @@ public class PelletManager implements IPelletManager {
         return table;
     }
 
-    public IRDFStore createStore() {
-        return new PelletModel();
+    public IRDFStore createStore(String tdbDirectory) {
+        return new PelletModel(tdbDirectory);
     }
 
-    public IRDFStore createJenaTDBStore(String tdbDirectory) {
-        return new JenaTDBModel(tdbDirectory);
+    public IRDFStore createInMemoryStore() {
+        return new PelletInMemoryModel();
     }
 
     public void validate(IRDFStore store) throws IOException,

@@ -19,12 +19,14 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import com.hp.hpl.jena.tdb.*;
 
-public class JenaTDBModel implements IJenaStore {
+public class PelletInMemoryModel implements IJenaStore {
 
     private Model model;
     
-    protected JenaTDBModel(String tdbDirectory) {
-        model = TDBFactory.createModel(tdbDirectory);
+    protected PelletInMemoryModel() {
+        model = ModelFactory.createOntologyModel(
+            PelletReasonerFactory.THE_SPEC
+        );
     }
     
     public Model getModel() {
