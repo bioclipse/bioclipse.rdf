@@ -24,11 +24,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IJenaStore;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.scripting.ui.business.IJsConsoleManager;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.mindswap.pellet.exceptions.InternalReasonerException;
 import org.mindswap.pellet.exceptions.UnsupportedFeatureException;
@@ -51,7 +53,7 @@ import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ValidityReport;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
-public class PelletManager implements IPelletManager {
+public class PelletManager implements IBioclipseManager {
 
     public String getManagerName() {
         return "pellet";
@@ -133,8 +135,9 @@ public class PelletManager implements IPelletManager {
         return table;
     }
 
-    public IRDFStore createStore(String tdbDirectory) {
-        return new PelletModel(tdbDirectory);
+    public IRDFStore createStore(IFile tripleStoreDirectoryPath) {
+        String tdbDirectoryFullPath = tripleStoreDirectoryPath.getRawLocation().toString();
+        return new PelletModel(tdbDirectoryFullPath);
     }
 
     public IRDFStore createInMemoryStore() {

@@ -22,8 +22,8 @@ public class PelletModel implements IJenaStore {
 
     private Model model;
     
-    protected PelletModel(String tdbDirectory) {
-        model = TDBFactory.createModel(tdbDirectory);
+    protected PelletModel(String tripleStoreDirectoryPath) {
+        model = TDBFactory.createModel(tripleStoreDirectoryPath);
     }
     
     public Model getModel() {

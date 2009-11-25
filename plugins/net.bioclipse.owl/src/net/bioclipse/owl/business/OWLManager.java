@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.CoreException;
 
 public class OWLManager implements IBioclipseManager {
 
-    IPelletManager rdf = new PelletManager(); 
+    PelletManager rdf = new PelletManager(); 
     
     public String getManagerName() {
         return "owl";
