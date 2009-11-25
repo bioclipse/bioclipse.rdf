@@ -16,6 +16,7 @@ import java.util.List;
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
+import net.bioclipse.core.TestClasses;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
@@ -26,6 +27,11 @@ import org.eclipse.core.runtime.CoreException;
 @PublishedClass(
     value="Contains Pellet related methods",
     doi={"10.1016/j.websem.2007.03.004"}
+)
+@TestClasses(
+     "net.bioclipse.pellet.tests.APITest," +
+     "net.bioclipse.pellet.tests.CoverageTest," +
+     "net.bioclipse.pellet.tests.AbstractPelletManagerPluginTest"
 )
 public interface IPelletManager extends IBioclipseManager {
 
