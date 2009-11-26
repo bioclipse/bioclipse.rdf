@@ -136,8 +136,8 @@ public class PelletManager implements IBioclipseManager {
     }
 
     public IRDFStore createStore(IFile tripleStoreDirectoryPath) {
-        String tdbDirectoryFullPath = tripleStoreDirectoryPath.getRawLocation().toString();
-        return new PelletModel(tdbDirectoryFullPath);
+        String tripleStoreDirectoryPathFull = tripleStoreDirectoryPath.getRawLocation().toString();
+        return new PelletModel(tripleStoreDirectoryPathFull);
     }
 
     public IRDFStore createInMemoryStore() {
