@@ -17,8 +17,6 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-import com.hp.hpl.jena.tdb.*;
-
 public class PelletInMemoryModel implements IJenaStore {
 
     private Model model;

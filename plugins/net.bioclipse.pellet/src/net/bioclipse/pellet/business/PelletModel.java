@@ -12,10 +12,7 @@ package net.bioclipse.pellet.business;
 
 import net.bioclipse.rdf.business.IJenaStore;
 
-import org.mindswap.pellet.jena.PelletReasonerFactory;
-
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class PelletModel implements IJenaStore {
