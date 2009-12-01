@@ -147,7 +147,7 @@ public class PelletManager implements IBioclipseManager {
     public void validate(IRDFStore store) throws IOException,
             BioclipseException, CoreException {
         IJsConsoleManager js = net.bioclipse.scripting.ui.Activator
-            .getDefault().getJsConsoleManager();
+            .getDefault().getJavaJsConsoleManager();
 
         Reasoner reasoner = PelletReasonerFactory.theInstance().create();
 
