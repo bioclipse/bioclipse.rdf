@@ -19,6 +19,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	APITest.class,
 	CoverageTest.class
 })
-public class AllRDFManagerTests {
+public class AllPelletManagerTests {
 
 }

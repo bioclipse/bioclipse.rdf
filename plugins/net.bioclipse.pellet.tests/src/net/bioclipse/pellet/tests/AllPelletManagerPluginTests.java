@@ -19,6 +19,6 @@ import org.junit.runners.Suite.SuiteClasses;
 	JavaPelletManagerPluginTest.class,
 	JavaScriptPelletManagerPluginTest.class
 })
-public class AllRDFManagerPluginTests {
+public class AllPelletManagerPluginTests {
 
 }
