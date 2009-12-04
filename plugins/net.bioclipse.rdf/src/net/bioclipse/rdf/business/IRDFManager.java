@@ -74,6 +74,7 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Loads a XHTML+RDFa file from the URL into the given " +
         		"store"
     )
+    @TestMethods("testImportRDFa")
     public IRDFStore importRDFa(IRDFStore store, String url)
         throws IOException, BioclipseException, CoreException;
 
@@ -157,6 +158,7 @@ public interface IRDFManager extends IBioclipseManager {
         params = "String url, String SPARQL",
         methodSummary = "Queries a remote SPARQL end point."
     )
+    @TestMethods("testSparqlRemote")
     public List<List<String>> sparqlRemote(String url, String SPARQL)
         throws BioclipseException;
 
