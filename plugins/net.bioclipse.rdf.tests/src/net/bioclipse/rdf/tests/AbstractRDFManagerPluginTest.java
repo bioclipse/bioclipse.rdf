@@ -257,6 +257,18 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertTrue(fileContents.toString().contains("foobar"));
     }
 
+    @Test public void testSaveRDFN3() {
+        Assert.fail("Missing unit test");
+    }
+
+    @Test public void testSparqlRemote() {
+        Assert.fail("Missing unit test");
+    }
+
+    @Test public void testImportRDFa() {
+        Assert.fail("Missing unit test");
+    }
+
     private int tripleCount(IRDFStore store, String string) throws Exception {
         return askAllTriplesAbout(store, string).size();
     }
