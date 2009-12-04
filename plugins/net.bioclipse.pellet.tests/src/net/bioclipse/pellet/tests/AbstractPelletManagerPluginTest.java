@@ -25,6 +25,23 @@ public abstract class AbstractPelletManagerPluginTest {
         Assert.assertNotNull(store);
     }
 
+    @Test public void testCreateStore() {
+        IRDFStore store = pellet.createStore("/Virtual/test.store");
+        Assert.assertNotNull(store);
+    }
+
+    @Test public void testIsRDFType() {
+        Assert.fail("Test not implemented");
+    }
+
+    @Test public void testAllAbout() {
+        Assert.fail("Test not implemented");
+    }
+
+    @Test public void testReason() {
+        Assert.fail("Test not implemented");
+    }
+
     @Test public void testValidate() throws Exception {
         IRDFStore store = pellet.createInMemoryStore();
         pellet.validate(store);
