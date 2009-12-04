@@ -53,6 +53,7 @@ public interface IPelletManager extends IBioclipseManager {
                 "Bioclipse workspace) to a folder to use for the " +
                 "triple store"
     )
+    @TestMethods("testCreateStore")
     public IRDFStore createStore(String tripleStoreDirectoryPath); 
 
     @Recorded
@@ -64,6 +65,7 @@ public interface IPelletManager extends IBioclipseManager {
         methodSummary = "Returns the results matching the SPARQL query using" +
             " the Pellet reasoner"
     )
+    @TestMethods("testReason")
     public List<List<String>> reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
@@ -82,6 +84,7 @@ public interface IPelletManager extends IBioclipseManager {
         params = "IRDFStore store, String type",
         methodSummary = "Returns the Objects that are of the given rdf:type."
     )
+    @TestMethods("testIsRDFType")
     public List<String> isRDFType(IRDFStore store, String type)
         throws IOException, BioclipseException, CoreException;
 
@@ -91,6 +94,7 @@ public interface IPelletManager extends IBioclipseManager {
         methodSummary = "Returns all triples about the Object with the given " +
         		"identifier."
     )
+    @TestMethods("testAllAbout")
     public List<List<String>> allAbout(IRDFStore store, String identifier)
         throws BioclipseException, IOException, CoreException;
 }
