@@ -275,14 +275,15 @@ public abstract class AbstractRDFManagerPluginTest {
     @Test public void testSparqlRemote() throws Exception {
         String query =
             "PREFIX mebase: <http://rdf.myexperiment.org/ontologies/base/> " +
-            "    PREFIX dcterms: <http://purl.org/dc/terms/> " +
-            "    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-            "    SELECT ?workflow ?title WHERE { " +
+            "PREFIX dcterms: <http://purl.org/dc/terms/> " +
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "SELECT ?workflow ?title WHERE { " +
             "      ?workflow mebase:has-content-type ?type . " +
             "      ?workflow dcterms:title ?title . " +
             "      ?type rdf:type mebase:ContentType . " +
             "      ?type dcterms:title ?typetitle . " +
-            "      FILTER regex(?typetitle, \"Bioclipse\") . ";
+            "      FILTER regex(?typetitle, \"Bioclipse\") . " +
+            "}";
         List<List<String>> results = rdf.sparqlRemote(
             "http://rdf.myexperiment.org/sparql", query
         );
