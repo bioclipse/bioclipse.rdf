@@ -257,16 +257,50 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertTrue(fileContents.toString().contains("foobar"));
     }
 
-    @Test public void testSaveRDFN3() {
-        Assert.fail("Missing unit test");
+    @Test public void testSaveRDFN3() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.addObjectProperty(store,
+            "http://example.com/#subject",
+            "http://example.com/#predicate",
+            "http://example.com/#object"
+        );
+        String rdfPath = "/Virtual/rdf" + store.hashCode() + ".n3";
+        rdf.saveRDFN3(store, rdfPath);
+
+        IRDFStore loadedStore = rdf.createStore();
+        rdf.importFile(loadedStore, rdfPath, "N3");
+        Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
     }
 
-    @Test public void testSparqlRemote() {
-        Assert.fail("Missing unit test");
+    @Test public void testSparqlRemote() throws Exception {
+        String query =
+            "PREFIX mebase: <http://rdf.myexperiment.org/ontologies/base/> " +
+            "    PREFIX dcterms: <http://purl.org/dc/terms/> " +
+            "    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "    SELECT ?workflow ?title WHERE { " +
+            "      ?workflow mebase:has-content-type ?type . " +
+            "      ?workflow dcterms:title ?title . " +
+            "      ?type rdf:type mebase:ContentType . " +
+            "      ?type dcterms:title ?typetitle . " +
+            "      FILTER regex(?typetitle, \"Bioclipse\") . ";
+        List<List<String>> results = rdf.sparqlRemote(
+            "http://rdf.myexperiment.org/sparql", query
+        );
+        Assert.assertNotSame(0, results.size());
+        Assert.assertNotSame(0, results.get(0).size());
     }
 
-    @Test public void testImportRDFa() {
-        Assert.fail("Missing unit test");
+    @Test public void testImportRDFa() throws Exception {
+        IRDFStore store = rdf.createStore();
+        rdf.importRDFa(store, "http://egonw.github.com/");
+        String query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
+        		"SELECT ?homepage { ?s foaf:workplaceHomepage ?homepage }";
+        List<List<String>> homepages = rdf.sparql(store, query);
+        Assert.assertNotSame(0, homepages.size());
+        for (List<String> homepage : homepages) {
+            Assert.assertEquals(1, homepage.size());
+            Assert.assertTrue(homepage.get(0).contains("http://"));
+        }
     }
 
     private int tripleCount(IRDFStore store, String string) throws Exception {
