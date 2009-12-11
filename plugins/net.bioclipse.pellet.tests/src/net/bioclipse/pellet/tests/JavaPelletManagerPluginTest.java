@@ -16,6 +16,7 @@ public class JavaPelletManagerPluginTest extends AbstractPelletManagerPluginTest
 
     @BeforeClass public static void setup() {
         pellet = net.bioclipse.pellet.Activator.getDefault().getJavaManager();
+        rdf = net.bioclipse.rdf.Activator.getDefault().getJavaManager();
     }
 
 }
