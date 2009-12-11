@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bioclipse Pellet
 Bundle-SymbolicName: net.bioclipse.pellet;singleton:=true
-Bundle-Version: 2.2.0.RC2
+Bundle-Version: 2.2.0
 Bundle-Activator: net.bioclipse.pellet.Activator
 Bundle-Vendor: The Bioclipse Team
 Bundle-ActivationPolicy: lazy
@@ -16,5 +16,6 @@ Require-Bundle: net.bioclipse.core,
  com.hp.hpl.jena;bundle-version="2.5.6",
  net.bioclipse.scripting.ui,
  org.mindswap.pellet;bundle-version="2.0.0",
- net.bioclipse.rdf
+ net.bioclipse.rdf,
+ com.hp.hpl.jena.arq;bundle-version="2.8.2"
 Bundle-ClassPath: .
