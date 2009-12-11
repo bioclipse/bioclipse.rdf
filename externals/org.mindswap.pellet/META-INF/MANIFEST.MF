@@ -2,9 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pellet
 Bundle-SymbolicName: org.mindswap.pellet;singleton:=true
-Bundle-Version: 2.0.0.0rc7
+Bundle-Version: 2.0.0
 Require-Bundle: org.eclipse.core.runtime,
- com.hp.hpl.jena;bundle-version="2.5.6"
+ com.hp.hpl.jena;bundle-version="2.5.6",
+ com.hp.hpl.jena.arq;bundle-version="2.8.2"
 Bundle-ClassPath: .,
  jars/pellet-core.jar,
  jars/pellet-cli.jar,
