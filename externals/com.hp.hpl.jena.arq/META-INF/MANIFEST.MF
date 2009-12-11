@@ -13,7 +13,10 @@ Bundle-Activator: net.bioclipse.jena.arq.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j
-Export-Package: com.hp.hpl.jena.query,
+Export-Package: arq,
+ arq.cmd,
+ arq.cmdline,
+ com.hp.hpl.jena.query,
  com.hp.hpl.jena.query.larq,
  com.hp.hpl.jena.sparql,
  com.hp.hpl.jena.sparql.algebra,
