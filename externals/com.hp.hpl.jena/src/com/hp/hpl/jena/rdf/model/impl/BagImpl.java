@@ -39,7 +39,7 @@ import com.hp.hpl.jena.enhanced.*;
 /** An implementation of Bag
  *
  * @author  bwm
- * @version  Release='$Name:  $' Revision='$Revision: 1.14 $' Date='$Date: 2009/01/27 14:32:45 $' 
+ * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $' 
  */
 public class BagImpl extends ContainerImpl implements Bag {
     

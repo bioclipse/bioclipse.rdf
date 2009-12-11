@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: CannotLoadClassException.java,v 1.7 2008/12/28 19:32:08 andy_seaborne Exp $
+ 	$Id: CannotLoadClassException.java,v 1.1 2009/06/29 08:55:41 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler.exceptions;

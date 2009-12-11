@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 * terminators!
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>.  Updated by hkuno to support GraphRDB.
-* @version $Revision: 1.23 $ on $Date: 2009/04/24 12:52:50 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public class SQLCache {

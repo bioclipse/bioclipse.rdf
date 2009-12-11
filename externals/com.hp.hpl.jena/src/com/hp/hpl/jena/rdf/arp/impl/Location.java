@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- * * $Id: Location.java,v 1.7 2009/01/16 17:23:49 andy_seaborne Exp $
+ * * $Id: Location.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
    
    AUTHOR:  Jeremy J. Carroll
 */

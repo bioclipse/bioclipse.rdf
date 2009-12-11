@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- * * $Id: DefaultErrorHandler.java,v 1.7 2008/12/28 19:32:24 andy_seaborne Exp $
+ * * $Id: DefaultErrorHandler.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
    
    AUTHOR:  Jeremy J. Carroll
 */

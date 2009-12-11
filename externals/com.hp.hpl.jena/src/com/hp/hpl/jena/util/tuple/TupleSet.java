@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author  Andy Seaborne
- * @version $Id: TupleSet.java,v 1.12 2009/04/24 12:52:52 andy_seaborne Exp $
+ * @version $Id: TupleSet.java,v 1.1 2009/06/29 08:55:52 castagna Exp $
  */
 
 public class TupleSet implements Iterator<List<TupleItem>>

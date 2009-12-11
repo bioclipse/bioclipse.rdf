@@ -2,7 +2,7 @@
  *  (c)     Copyright 2000, 2001, 2002, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  *   All rights reserved.
  * [See end of file]
- *  $Id: Unparser.java,v 1.52 2009/04/24 12:52:51 andy_seaborne Exp $
+ *  $Id: Unparser.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  */
 
 package com.hp.hpl.jena.xmloutput.impl;
@@ -87,7 +87,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 /**
  * An Unparser will output a model in the abbreviated syntax. *
  * 
- * @version Release='$Name:  $' Revision='$Revision: 1.52 $' Date='$Date:
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date:
  *          2005/07/13 15:33:51 $'
  * 
  */

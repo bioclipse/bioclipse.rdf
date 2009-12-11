@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: BindingQueryPlan.java,v 1.12 2009/01/26 08:37:08 chris-dollin Exp $
+  $Id: BindingQueryPlan.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.query;

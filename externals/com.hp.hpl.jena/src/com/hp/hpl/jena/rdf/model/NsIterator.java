@@ -41,7 +41,7 @@ import com.hp.hpl.jena.util.iterator.*;
  *    a <CODE>close()</CODE> method that should be called to free
  *    resources if the application does not complete the iteration.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.10 $' Date='$Date: 2009/01/27 14:32:45 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 public interface NsIterator extends ExtendedIterator<String> 
     {

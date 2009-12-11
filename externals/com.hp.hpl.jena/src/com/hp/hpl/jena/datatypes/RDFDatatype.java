@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: RDFDatatype.java,v 1.16 2009/01/17 14:40:18 andy_seaborne Exp $
+ * $Id: RDFDatatype.java,v 1.1 2009/06/29 08:55:50 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.datatypes;
 
@@ -17,7 +17,7 @@ import com.hp.hpl.jena.graph.impl.LiteralLabel;
  * and value forms. 
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.16 $ on $Date: 2009/01/17 14:40:18 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:50 $
  */
 public interface RDFDatatype {
 

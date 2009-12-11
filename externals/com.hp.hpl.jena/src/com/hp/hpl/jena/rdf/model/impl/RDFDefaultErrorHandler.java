@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2001-2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: RDFDefaultErrorHandler.java,v 1.15 2009/04/24 12:52:47 andy_seaborne Exp $
+  $Id: RDFDefaultErrorHandler.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
 */
 
 package com.hp.hpl.jena.rdf.model.impl;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * The default error handler for I/O.
  * This uses log4j as its utility.
  * @author  jjc,bwm
- * @version $Revision: 1.15 $ $Date: 2009/04/24 12:52:47 $
+ * @version $Revision: 1.1 $ $Date: 2009/06/29 08:55:32 $
  */
 public class RDFDefaultErrorHandler extends Object implements RDFErrorHandler {
 
@@ -73,5 +73,5 @@ public class RDFDefaultErrorHandler extends Object implements RDFErrorHandler {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: RDFDefaultErrorHandler.java,v 1.15 2009/04/24 12:52:47 andy_seaborne Exp $
+ * $Id: RDFDefaultErrorHandler.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */

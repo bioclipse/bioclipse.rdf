@@ -24,7 +24,7 @@ import com.hp.hpl.jena.util.CollectionFactory;
 * when the threshold limit is exceeded.
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.10 $ on $Date: 2009/01/17 14:40:18 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public class SimpleCache<K, V> implements ICache<K, V> {

@@ -41,7 +41,7 @@ import com.hp.hpl.jena.util.iterator.*;
  *    that should be called to free resources if the caller does not
  *    complete the iteration.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.10 $' Date='$Date: 2009/01/26 08:37:09 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 public interface ResIterator extends ExtendedIterator<Resource> 
     {

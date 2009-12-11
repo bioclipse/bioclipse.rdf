@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: RSIteratorImpl.java,v 1.9 2009/01/26 08:37:09 chris-dollin Exp $
+  $Id: RSIteratorImpl.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
 */
 
 package com.hp.hpl.jena.rdf.model.impl;

@@ -29,7 +29,7 @@ import com.hp.hpl.jena.rdf.model.*;
  *  </p>
  *
  * @author		Andy Seaborne
- * @version 	$Id: N3JenaWriter.java,v 1.35 2009/04/24 12:52:49 andy_seaborne Exp $
+ * @version 	$Id: N3JenaWriter.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 

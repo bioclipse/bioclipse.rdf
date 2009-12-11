@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 * Version of ResultSetIterator that extracts database rows as Triples.
 *
 * @author hkuno.  Based on ResultSetResource Iterator, by Dave Reynolds, HPLabs, Bristol <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.17 $ on $Date: 2009/04/24 12:52:50 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 public class ResultSetTripleIterator extends ResultSetIterator<Triple> {
 

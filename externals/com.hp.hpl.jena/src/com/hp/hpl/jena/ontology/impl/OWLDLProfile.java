@@ -2,15 +2,15 @@
  * Source code information
  * -----------------------
  * Original author    Ian Dickinson, HP Labs Bristol
- * Author email       Ian.Dickinson@hp.com
+ * Author email       ian_dickinson@users.sourceforge.net
  * Package            Jena 2
  * Web                http://sourceforge.net/projects/jena/
  * Created            10 Feb 2003
  * Filename           $RCSfile: OWLDLProfile.java,v $
- * Revision           $Revision: 1.24 $
+ * Revision           $Revision: 1.3 $
  * Release status     $State: Exp $
  *
- * Last modified on   $Date: 2009/03/13 15:40:07 $
+ * Last modified on   $Date: 2009/10/06 13:04:42 $
  *               by   $Author: ian_dickinson $
  *
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
@@ -40,8 +40,8 @@ import java.util.*;
  * </p>
  *
  * @author Ian Dickinson, HP Labs
- *         (<a  href="mailto:Ian.Dickinson@hp.com" >email</a>)
- * @version CVS $Id: OWLDLProfile.java,v 1.24 2009/03/13 15:40:07 ian_dickinson Exp $
+ *         (<a  href="mailto:ian_dickinson@users.sourceforge.net" >email</a>)
+ * @version CVS $Id: OWLDLProfile.java,v 1.3 2009/10/06 13:04:42 ian_dickinson Exp $
  */
 public class OWLDLProfile
     extends OWLProfile
@@ -107,11 +107,7 @@ public class OWLDLProfile
                 @Override
                 public boolean doCheck( Node n, EnhGraph eg ) {
                     Graph g = eg.asGraph();
-                    Node rdfTypeNode = RDF.type.asNode();
-                    return g.contains( n, rdfTypeNode, OWL.Class.asNode() ) ||
-                           g.contains( n, rdfTypeNode, OWL.Restriction.asNode() ) ||
-                           g.contains( n, rdfTypeNode, RDFS.Class.asNode() ) ||
-                           g.contains( n, rdfTypeNode, RDFS.Datatype.asNode() ) ||
+                    return hasType( n, eg, new Resource[] {OWL.Class, OWL.Restriction, RDFS.Class, RDFS.Datatype} ) ||
                            // These are common cases that we should support
                            n.equals( OWL.Thing.asNode() ) ||
                            n.equals( OWL.Nothing.asNode() ) ||
@@ -134,10 +130,8 @@ public class OWLDLProfile
             {  ObjectProperty.class,        new SupportsCheck() {
                 @Override
                 public boolean doCheck( Node n, EnhGraph g ) {
-                    return g.asGraph().contains( n, RDF.type.asNode(), OWL.ObjectProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.TransitiveProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.SymmetricProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.InverseFunctionalProperty.asNode() );
+                    return hasType( n, g, new Resource[] {OWL.ObjectProperty,OWL.TransitiveProperty,
+                                                          OWL.SymmetricProperty, OWL.InverseFunctionalProperty} );
                 }
             }
             },
@@ -167,14 +161,10 @@ public class OWLDLProfile
             {  OntProperty.class,           new SupportsCheck() {
                 @Override
                 public boolean doCheck( Node n, EnhGraph g ) {
-                    return g.asGraph().contains( n, RDF.type.asNode(), RDF.Property.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.ObjectProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.DatatypeProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.AnnotationProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.TransitiveProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.SymmetricProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.FunctionalProperty.asNode() ) ||
-                    g.asGraph().contains( n, RDF.type.asNode(), OWL.InverseFunctionalProperty.asNode() );
+                    return hasType( n, g, new Resource[] {RDF.Property, OWL.ObjectProperty, OWL.DatatypeProperty,
+                                                          OWL.AnnotationProperty, OWL.TransitiveProperty,
+                                                          OWL.SymmetricProperty, OWL.InverseFunctionalProperty,
+                                                          OWL.FunctionalProperty} );
                 }
             }
             },
@@ -264,14 +254,11 @@ public class OWLDLProfile
             },
             {  Individual.class,    new SupportsCheck() {
                 @Override
-                public boolean doCheck( Node n, EnhGraph eg ) {
+                public boolean doCheck( Node n, EnhGraph g ) {
                     if (n instanceof Node_URI || n instanceof Node_Blank) {
-                        // necessary to be a uri or bNode, but not sufficient
-                        Graph g = eg.asGraph();
-
-                        // this check filters out OWL-full entailments from the OWL-rule reasoner
-                        return !(g.contains( n, RDF.type.asNode(), RDFS.Class.asNode() ) ||
-                                g.contains( n, RDF.type.asNode(), RDF.Property.asNode() ));
+                        return !hasType( n, g, new Resource[] {RDFS.Class, RDF.Property, OWL.Class,
+                                                               OWL.ObjectProperty, OWL.DatatypeProperty, OWL.TransitiveProperty,
+                                                               OWL.FunctionalProperty, OWL.InverseFunctionalProperty} );
                     }
                     else {
                         return false;

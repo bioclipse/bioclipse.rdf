@@ -8,7 +8,7 @@ package com.hp.hpl.jena.util.tuple;
  * The unit found in a line of a tuple.
  * Can be a string (quoted, possibly with the datatype, or unquoted) or a URI.
  * @author   Andy Seaborne
- * @version  $Id: TupleItem.java,v 1.9 2009/01/16 17:24:03 andy_seaborne Exp $
+ * @version  $Id: TupleItem.java,v 1.1 2009/06/29 08:55:52 castagna Exp $
  */
 public class TupleItem
 {

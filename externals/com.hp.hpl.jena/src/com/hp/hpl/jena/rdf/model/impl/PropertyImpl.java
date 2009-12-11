@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 /** An implementation of Property.
  *
  * @author  bwm
- * @version  Release='$Name:  $' Revision='$Revision: 1.21 $' Date='$Date: 2009/04/24 12:52:47 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $'
  */
 
 public class PropertyImpl extends ResourceImpl implements Property

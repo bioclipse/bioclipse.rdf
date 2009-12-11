@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2009 Hewlett-Packard Development Company, LP
  	All rights reserved.
- 	$Id: Fragments.java,v 1.19 2009/03/17 14:45:38 chris-dollin Exp $
+ 	$Id: Fragments.java,v 1.1 2009/06/29 08:55:43 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.impl;

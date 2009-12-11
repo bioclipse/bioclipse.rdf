@@ -29,7 +29,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
  * in the list.
  *
  * @author csayers
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.1 $
  * 
  */
 public interface SpecializedGraph {

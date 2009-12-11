@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- * * $Id: IanaLanguageTag.java,v 1.8 2009/02/28 18:09:56 andy_seaborne Exp $
+ * * $Id: IanaLanguageTag.java,v 1.1 2009/06/29 08:55:44 castagna Exp $
    
    AUTHOR:  Jeremy J. Carroll
 */

@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: CollectionFactory.java,v 1.9 2009/01/16 18:03:19 andy_seaborne Exp $
+  $Id: CollectionFactory.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
 */
 package com.hp.hpl.jena.util;
 

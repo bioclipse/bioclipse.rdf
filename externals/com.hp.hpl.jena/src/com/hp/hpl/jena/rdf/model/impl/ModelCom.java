@@ -1,7 +1,7 @@
 /*
     (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
     [See end of file]
-    $Id: ModelCom.java,v 1.137 2009/01/27 07:57:32 chris-dollin Exp $
+    $Id: ModelCom.java,v 1.3 2009/09/28 10:45:11 chris-dollin Exp $
 */
 
 package com.hp.hpl.jena.rdf.model.impl;
@@ -85,7 +85,7 @@ public class ModelCom
     */
     protected ModelReifier modelReifier = new ModelReifier( this ); 
 	
-    public Resource getResource(String uri, ResourceF f)  {
+    @Deprecated public Resource getResource(String uri, ResourceF f)  {
         try {
             return f.createResource(getResource(uri));
         } catch (Exception e) {
@@ -144,6 +144,9 @@ public class ModelCom
 
     @Deprecated public Model addLiteral( Resource s, Property p, Object o )  
         { return add( s, p, asObject( o ) ); }
+
+    public Model addLiteral( Resource s, Property p, Literal o )  
+        { return add( s, p, o ); }
     
     private RDFNode asObject( Object o )
         { return o instanceof RDFNode ? (RDFNode) o : createTypedLiteral( o ); }
@@ -435,13 +438,13 @@ public class ModelCom
     public Resource createResource( String uri,Resource type )
         { return getResource( uri ).addProperty( RDF.type, type ); }
     
-    public Resource createResource( ResourceF f )  
+    @Deprecated public Resource createResource( ResourceF f )  
         { return createResource( null, f ); }
     
     public Resource createResource( AnonId id )
         { return new ResourceImpl( id, this ); }
         
-    public Resource createResource( String uri, ResourceF f )  
+    @Deprecated public Resource createResource( String uri, ResourceF f )  
         { return f.createResource( createResource( uri ) ); }
     
  
@@ -514,7 +517,7 @@ public class ModelCom
      * @return a new literal representing the value v
      */
     public Literal createTypedLiteral(String v)  {
-        LiteralLabel ll = new LiteralLabel(v);
+        LiteralLabel ll = LiteralLabelFactory.create(v);
         return new LiteralImpl(Node.createLiteral(ll), this);
     }
 
@@ -523,7 +526,7 @@ public class ModelCom
      */
     public Literal createTypedLiteral(Calendar cal) {
         Object value = new XSDDateTime(cal);
-        LiteralLabel ll = new LiteralLabel(value, "", XSDDatatype.XSDdateTime);
+        LiteralLabel ll = LiteralLabelFactory.create(value, "", XSDDatatype.XSDdateTime);
         return new LiteralImpl(Node.createLiteral(ll), this);
         
     }
@@ -549,7 +552,7 @@ public class ModelCom
      * @param dtype the type of the literal, null for old style "plain" literals
      */
     public Literal createTypedLiteral(Object value, RDFDatatype dtype) {
-        LiteralLabel ll = new LiteralLabel(value, "", dtype);
+        LiteralLabel ll = LiteralLabelFactory.create(value, "", dtype);
         return new LiteralImpl( Node.createLiteral(ll), this );
     }
 
@@ -564,7 +567,7 @@ public class ModelCom
      */
     public Literal createTypedLiteral(String lex, String typeURI)  {
         RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(typeURI);
-        LiteralLabel ll = LiteralLabel.createLiteralLabel( lex, "", dt );
+        LiteralLabel ll = LiteralLabelFactory.createLiteralLabel( lex, "", dt );
         return new LiteralImpl( Node.createLiteral(ll), this );
     }
         
@@ -576,7 +579,7 @@ public class ModelCom
      */
     public Literal createTypedLiteral(Object value, String typeURI) {
         RDFDatatype dt = TypeMapper.getInstance().getSafeTypeByName(typeURI);
-        LiteralLabel ll = new LiteralLabel(value, "", dt);
+        LiteralLabel ll = LiteralLabelFactory.create(value, "", dt);
         return new LiteralImpl(Node.createLiteral(ll), this);
     }
         
@@ -591,7 +594,7 @@ public class ModelCom
         // Catch special case of a Calendar which we want to act as if it were an XSDDateTime
         if (value instanceof Calendar) 
             return createTypedLiteral( (Calendar)value );
-        LiteralLabel ll = new LiteralLabel( value );
+        LiteralLabel ll = LiteralLabelFactory.create( value );
         return new LiteralImpl( Node.createLiteral( ll ), this);
         }
     

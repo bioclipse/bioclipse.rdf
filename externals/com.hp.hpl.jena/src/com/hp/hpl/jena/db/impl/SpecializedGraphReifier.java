@@ -15,7 +15,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
  * Interface for a specialized graphs that are optimized for reification.
  *
  * @author csayers
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.1 $
  * 
  */
 public interface SpecializedGraphReifier extends SpecializedGraph {

@@ -12,7 +12,7 @@ import com.hp.hpl.jena.JenaRuntime ;
  *  Does not cope with tabs or newlines in output strings.
  * 
  * @author		Andy Seaborne
- * @version 	$Id: N3IndentedWriter.java,v 1.2 2008/12/28 19:31:52 andy_seaborne Exp $
+ * @version 	$Id: N3IndentedWriter.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 // Not robust/complete enough for public use

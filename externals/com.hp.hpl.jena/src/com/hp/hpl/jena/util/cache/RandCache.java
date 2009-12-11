@@ -174,5 +174,5 @@ public class RandCache implements Cache, CacheControl {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: RandCache.java,v 1.14 2009/04/24 12:52:51 andy_seaborne Exp $
+ * $Id: RandCache.java,v 1.1 2009/06/29 08:55:53 castagna Exp $
  */

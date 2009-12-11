@@ -3,7 +3,7 @@
      All rights reserved.
      See end of file.
      
-     $Id: CacheManager.java,v 1.10 2008/12/28 19:32:36 andy_seaborne Exp $
+     $Id: CacheManager.java,v 1.1 2009/06/29 08:55:53 castagna Exp $
 */
 package com.hp.hpl.jena.util.cache;
 
@@ -71,5 +71,5 @@ public class CacheManager {
      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
      THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
      
-     $Id: CacheManager.java,v 1.10 2008/12/28 19:32:36 andy_seaborne Exp $
+     $Id: CacheManager.java,v 1.1 2009/06/29 08:55:53 castagna Exp $
 */

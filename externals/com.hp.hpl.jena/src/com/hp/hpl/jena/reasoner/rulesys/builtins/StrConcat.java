@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2007, Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: StrConcat.java,v 1.4 2009/01/16 17:23:51 andy_seaborne Exp $
+ * $Id: StrConcat.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  *****************************************************************/
 
 package com.hp.hpl.jena.reasoner.rulesys.builtins;
@@ -21,7 +21,7 @@ import com.hp.hpl.jena.reasoner.rulesys.RuleContext;
  * for a bNode argument its internal ID.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.1 $
  */
 public class StrConcat extends BaseBuiltin {
 

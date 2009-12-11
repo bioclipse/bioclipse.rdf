@@ -1,7 +1,7 @@
 /*
       (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
       [See end of file]
-      $Id: GraphExtract.java,v 1.12 2009/01/28 12:01:15 chris-dollin Exp $
+      $Id: GraphExtract.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph;

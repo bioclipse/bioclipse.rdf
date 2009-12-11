@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: rdfparse.java,v 1.13 2009/04/24 12:52:50 andy_seaborne Exp $
+  $Id: rdfparse.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
 */
 
 package jena;

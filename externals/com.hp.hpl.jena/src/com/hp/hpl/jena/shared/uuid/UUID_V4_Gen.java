@@ -12,7 +12,7 @@ import com.hp.hpl.jena.shared.uuid.JenaUUID.FormatException;
 
 /** Generator for for random number based UUIDs (version 2, variant 4)
  * @author		Andy Seaborne
- * @version 	$Id: UUID_V4_Gen.java,v 1.4 2008/12/28 19:32:00 andy_seaborne Exp $
+ * @version 	$Id: UUID_V4_Gen.java,v 1.1 2009/06/29 08:55:40 castagna Exp $
  */
 public class UUID_V4_Gen implements UUIDFactory
 {

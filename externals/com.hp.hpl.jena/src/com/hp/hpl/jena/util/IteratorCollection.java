@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: IteratorCollection.java,v 1.8 2009/01/27 14:32:45 chris-dollin Exp $
+  $Id: IteratorCollection.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
 */
 
 package com.hp.hpl.jena.util;

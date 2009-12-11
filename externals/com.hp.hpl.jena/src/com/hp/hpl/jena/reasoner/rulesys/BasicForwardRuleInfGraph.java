@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: BasicForwardRuleInfGraph.java,v 1.55 2009/04/24 12:52:49 andy_seaborne Exp $
+ * $Id: BasicForwardRuleInfGraph.java,v 1.4 2009/10/06 07:59:55 der Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys;
 
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * can call out to a rule engine and build a real rule engine (e.g. Rete style). </p>
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.55 $ on $Date: 2009/04/24 12:52:49 $
+ * @version $Revision: 1.4 $ on $Date: 2009/10/06 07:59:55 $
  */
 public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRuleInfGraphI {
 
@@ -45,6 +45,9 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
     /** The set of deduced triples, this is in addition to base triples in the fdata graph */
     protected FGraph fdeductions;
     
+    /** A safe wrapped version of the deductions graph used for reporting getDeductions */
+    protected Graph safeDeductions;
+    
     /** Reference to any schema graph data bound into the parent reasoner */
     protected Graph schemaGraph;
     
@@ -53,6 +56,9 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
     
     /** The original rule set as supplied */
     private List<Rule> rules;
+    
+    /** Flag, if true then find results will be filtered to remove functors and illegal RDF */
+    public boolean filterFunctors = true;
     
     /** Flag which, if true, enables tracing of rule actions to logger.info */
     protected boolean traceOn = false;
@@ -224,6 +230,14 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
     public void addDeduction(Triple t) {
         getDeductionsGraph().add(t);
     }
+    
+    /**
+     * Set to true to cause functor-valued literals to be dropped from rule output.
+     * Default is true.
+     */
+    public void setFunctorFiltering(boolean param) {
+        filterFunctors = param;
+    }
    
     /**
      * Extended find interface used in situations where the implementator
@@ -238,6 +252,14 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
      */
     @Override
     public ExtendedIterator<Triple> findWithContinuation(TriplePattern pattern, Finder continuation) {
+        return findWithContinuation(pattern, continuation, true);
+    }
+    
+    /**
+     * Internals of findWithContinuation implementation which allows control
+     * over functor filtering.
+     */
+    private ExtendedIterator<Triple> findWithContinuation(TriplePattern pattern, Finder continuation, boolean filter) {
         checkOpen();
         if (!isPrepared) prepare();
         ExtendedIterator<Triple> result = null;
@@ -250,7 +272,11 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
                 result = fdata.findWithContinuation(pattern, FinderUtil.cascade(fdeductions, continuation) );
             }
         }
-        return result.filterDrop(Functor.acceptFilter);
+        if (filter && filterFunctors) {
+          return result.filterDrop(Functor.acceptFilter);
+        } else {
+            return result;
+        }
     }
    
     /** 
@@ -358,36 +384,44 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
     
     /**
      * Return the Graph containing all the static deductions available so far.
+     * Will force a prepare.
      */
     @Override
     public Graph getDeductionsGraph() {
         prepare();
-        return fdeductions.getGraph();
+        return safeDeductions; 
     }
    
     /** 
      * Create the graph used to hold the deductions. Can be overridden
      * by subclasses that need special purpose graph implementations here.
-     * Assumes the graph underlying fdeductions can be reused if present. 
+     * Assumes the graph underlying fdeductions and associated SafeGraph
+     * wrapper can be reused if present thus enabling preservation of
+     * listeners. 
      */
     protected Graph createDeductionsGraph() {
         if (fdeductions != null) {
             Graph dg = fdeductions.getGraph();
             if (dg != null) {
                 // Reuse the old graph in order to preserve any listeners
-                dg.getBulkUpdateHandler().removeAll();
+                safeDeductions.getBulkUpdateHandler().removeAll();
                 return dg;
             }
         }
-        return Factory.createGraphMem( style );
+        Graph dg = Factory.createGraphMem( style ); 
+        safeDeductions = new SafeGraph( dg );
+        return dg;
     }
     
     /**
      * Return the Graph containing all the static deductions available so far.
-     * Does not trigger a prepare action.
+     * Does not trigger a prepare action. Returns a SafeWrapper and so
+     * can be used for update (thus triggering listeners) but not
+     * for access to generalized triples
      */
     public Graph getCurrentDeductionsGraph() {
-        return fdeductions.getGraph();
+        return safeDeductions;
+//        return fdeductions.getGraph();
     }
     
     /**
@@ -396,7 +430,7 @@ public class BasicForwardRuleInfGraph extends BaseInfGraph implements ForwardRul
      * where we are side-stepping the backward deduction step.
      */
     public ExtendedIterator<Triple> findDataMatches(Node subject, Node predicate, Node object) {
-        return find(subject, predicate, object);
+        return findWithContinuation(new TriplePattern(subject, predicate, object), null, false);
     }
    
 

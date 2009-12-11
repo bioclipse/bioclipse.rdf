@@ -61,7 +61,7 @@ package com.hp.hpl.jena.rdf.model;
  *    the extra behaviour.  Factory objects are used to construct such
  *    enhanced resources.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.8 $' Date='$Date: 2008/12/28 19:31:54 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 public interface Container extends Resource {
     

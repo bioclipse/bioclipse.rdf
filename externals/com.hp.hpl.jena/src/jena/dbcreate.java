@@ -23,7 +23,7 @@ import com.hp.hpl.jena.rdf.model.* ;
   *  </p>
   * 
   * @author Andy Seaborne
-  * @version $Id: dbcreate.java,v 1.14 2009/01/16 17:23:57 andy_seaborne Exp $
+  * @version $Id: dbcreate.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
   */ 
  
 public class dbcreate extends DBcmd

@@ -34,7 +34,7 @@ package com.hp.hpl.jena.rdf.model;
 /**
  *
  * @author  bwm
- * @version  Release='$Name:  $' Revision='$Revision: 1.12 $' Date='$Date: 2009/01/26 08:37:09 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 
 import com.hp.hpl.jena.util.iterator.*;
@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
  *   that should be called to free resources if the application does 
  *   not complete the iteration.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.12 $' Date='$Date: 2009/01/26 08:37:09 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 public interface StmtIterator extends ExtendedIterator<Statement> 
     {

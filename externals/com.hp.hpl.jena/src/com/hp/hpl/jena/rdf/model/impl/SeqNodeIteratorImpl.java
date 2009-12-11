@@ -41,7 +41,7 @@ import java.util.Iterator;
  *  A sequence node iterator.
  *
  * @author  bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.14 $' Date='$Date: 2009/01/27 07:57:30 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $'
  */
 public class SeqNodeIteratorImpl extends NiceIterator<RDFNode> implements NodeIterator 
     {

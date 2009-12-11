@@ -30,7 +30,7 @@ import com.hp.hpl.jena.graph.Node;
 * Based in part on the Jena 1.0 implementation by der.
 * 
 * @author csayers
-* @version $Revision: 1.28 $
+* @version $Revision: 1.1 $
 */
 
 public interface IRDBDriver {

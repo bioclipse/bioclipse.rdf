@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: CountLiteralValues.java,v 1.11 2009/01/29 09:37:02 chris-dollin Exp $
+ * $Id: CountLiteralValues.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys.builtins;
 
@@ -18,7 +18,7 @@ import java.util.*;
  * distinct values for P on resource X. This is expensive.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.11 $ on $Date: 2009/01/29 09:37:02 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:36 $
  */
 public class CountLiteralValues extends BaseBuiltin {
 

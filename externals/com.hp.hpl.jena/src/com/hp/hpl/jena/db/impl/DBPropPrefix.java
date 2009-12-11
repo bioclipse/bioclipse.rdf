@@ -25,7 +25,7 @@ import com.hp.hpl.jena.vocabulary.DB;
  * @since Jena 2.0
  * 
  * @author csayers
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.1 $
  */
 public class DBPropPrefix extends DBProp {
 

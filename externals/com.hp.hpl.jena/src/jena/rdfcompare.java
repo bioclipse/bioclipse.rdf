@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: rdfcompare.java,v 1.12 2008/12/28 19:32:20 andy_seaborne Exp $
+ * $Id: rdfcompare.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  */
 
 package jena;
@@ -54,7 +54,7 @@ import java.io.FileInputStream;
  *  </pre>
  *
  * @author  bwm
- * @version $Name:  $ $Revision: 1.12 $ $Date: 2008/12/28 19:32:20 $
+ * @version $Name:  $ $Revision: 1.1 $ $Date: 2009/06/29 08:55:51 $
  */
 public class rdfcompare extends java.lang.Object {
 

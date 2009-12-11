@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: LocationMapperAssembler.java,v 1.7 2009/01/16 17:23:55 andy_seaborne Exp $
+ 	$Id: LocationMapperAssembler.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler.assemblers;

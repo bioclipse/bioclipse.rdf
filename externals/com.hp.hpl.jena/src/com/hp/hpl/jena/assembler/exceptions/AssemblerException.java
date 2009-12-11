@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: AssemblerException.java,v 1.10 2009/01/20 15:12:28 chris-dollin Exp $
+ 	$Id: AssemblerException.java,v 1.1 2009/06/29 08:55:41 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler.exceptions;

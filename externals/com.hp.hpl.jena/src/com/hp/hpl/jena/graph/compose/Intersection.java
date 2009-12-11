@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: Intersection.java,v 1.12 2009/01/28 12:27:16 chris-dollin Exp $
+  $Id: Intersection.java,v 1.1 2009/06/29 08:55:58 castagna Exp $
 */
 
 /*

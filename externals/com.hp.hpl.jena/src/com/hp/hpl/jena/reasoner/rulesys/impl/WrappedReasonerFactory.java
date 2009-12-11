@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: WrappedReasonerFactory.java,v 1.11 2009/01/13 14:05:59 chris-dollin Exp $
+  $Id: WrappedReasonerFactory.java,v 1.1 2009/06/29 08:55:33 castagna Exp $
 */
 package com.hp.hpl.jena.reasoner.rulesys.impl;
 

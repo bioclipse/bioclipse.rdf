@@ -21,7 +21,7 @@ import jena.util.DBcmd;
 
   * 
   * @author Andy Seaborne
-  * @version $Id: dbdump.java,v 1.14 2009/01/16 17:23:57 andy_seaborne Exp $
+  * @version $Id: dbdump.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
   */ 
  
 public class dbdump extends DBcmd

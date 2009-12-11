@@ -27,7 +27,7 @@ import com.hp.hpl.jena.vocabulary.DB;
  * 
  * 
  * @author csayers
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.1 $
  */
 public abstract class DBProp {
 

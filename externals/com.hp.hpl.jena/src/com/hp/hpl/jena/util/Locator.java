@@ -11,7 +11,7 @@ package com.hp.hpl.jena.util;
  *  Interface to things that open streams by some string reference
  * 
  * @author Andy Seaborne
- * @version $Id: Locator.java,v 1.7 2008/12/28 19:32:09 andy_seaborne Exp $
+ * @version $Id: Locator.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
 
 public interface Locator

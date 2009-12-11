@@ -9,11 +9,7 @@
 package com.hp.hpl.jena.n3;
 
 
-/** Turtle writer.  It is actually an appropriately configured   
- *
- * @author		Andy Seaborne
- * @version 	$Id: N3TurtleJenaWriter.java,v 1.5 2009/01/17 22:01:20 andy_seaborne Exp $
- */
+/** Turtle writer */
 
 
 
@@ -23,8 +19,10 @@ public class N3TurtleJenaWriter extends N3JenaWriter
     {
         super() ;
         
-        if ( writer.getPropValue("usePropertySymbols") == null )
-            writer.useWellKnownPropertySymbols = false ;
+//        if ( writer.getPropValue("usePropertySymbols") == null )
+//            writer.useWellKnownPropertySymbols = false ;
+        // Only allow "a" for rdf:type.
+        writer.wellKnownPropsMap = N3JenaWriterPP.wellKnownPropsMapTurtle ;
         writer.allowTripleQuotedStrings = true ;
     }
 }

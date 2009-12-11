@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: EarlyBindingIterator.java,v 1.9 2009/01/27 14:05:56 chris-dollin Exp $
+  $Id: EarlyBindingIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
 */
 package com.hp.hpl.jena.util.iterator;
 import java.util.*;

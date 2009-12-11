@@ -11,7 +11,7 @@ import com.hp.hpl.jena.shared.JenaException;
  *  from the various parsers where the error is to do with the syntax of a query.
  *  
  * @author		Andy Seaborne
- * @version 	$Id: TurtleParseException.java,v 1.5 2008/12/28 19:32:26 andy_seaborne Exp $
+ * @version 	$Id: TurtleParseException.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
  */
 
 

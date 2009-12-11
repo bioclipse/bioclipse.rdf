@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
-   $Id: ALiteral.java,v 1.11 2009/01/19 14:18:07 chris-dollin Exp $
+   $Id: ALiteral.java,v 1.1 2009/06/29 08:55:46 castagna Exp $
    AUTHOR:  Jeremy J. Carroll
 */
  /*

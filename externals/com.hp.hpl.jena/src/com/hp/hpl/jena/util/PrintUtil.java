@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: PrintUtil.java,v 1.25 2009/01/29 08:54:45 chris-dollin Exp $
+ * $Id: PrintUtil.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.util;
 
@@ -27,7 +27,7 @@ import com.hp.hpl.jena.shared.PrefixMapping;
  * specialised tables.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.25 $ on $Date: 2009/01/29 08:54:45 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:47 $
  */
 public class PrintUtil {
     

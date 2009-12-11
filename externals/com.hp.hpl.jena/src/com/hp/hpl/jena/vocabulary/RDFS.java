@@ -8,7 +8,7 @@ import com.hp.hpl.jena.graph.*;
 /**
     RDFS vocabulary items
     @author  bwm, updated by kers/daniel/christopher
-    @version $Id: RDFS.java,v 1.20 2009/01/19 14:18:17 chris-dollin Exp $
+    @version $Id: RDFS.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  */
 public class RDFS {
 

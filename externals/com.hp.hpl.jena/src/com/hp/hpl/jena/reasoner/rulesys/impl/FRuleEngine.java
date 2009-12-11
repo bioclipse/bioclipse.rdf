@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: FRuleEngine.java,v 1.31 2009/04/24 12:52:48 andy_seaborne Exp $
+ * $Id: FRuleEngine.java,v 1.1 2009/06/29 08:55:33 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys.impl;
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * an enclosing ForwardInfGraphI which holds the raw data and deductions.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.31 $ on $Date: 2009/04/24 12:52:48 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:33 $
  */
 public class FRuleEngine implements FRuleEngineI {
     

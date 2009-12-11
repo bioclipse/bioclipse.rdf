@@ -68,6 +68,6 @@ public interface Cache extends CacheControl {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: Cache.java,v 1.8 2008/12/28 19:32:36 andy_seaborne Exp $
+ * $Id: Cache.java,v 1.1 2009/06/29 08:55:53 castagna Exp $
  */
 

@@ -27,7 +27,7 @@ import java.util.*;
  * 
  * 
  * @author csayers
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.1 $
  */
 public class DBPropDatabase extends DBProp {
 

@@ -24,7 +24,7 @@ import com.hp.hpl.jena.util.CollectionFactory;
 * the same as SimpleCache.
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.13 $ on $Date: 2009/01/17 14:40:18 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public class LRUCache<K,T> implements ICache<K,T>

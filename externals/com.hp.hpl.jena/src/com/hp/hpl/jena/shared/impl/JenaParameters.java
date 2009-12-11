@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: JenaParameters.java,v 1.13 2008/12/28 19:32:40 andy_seaborne Exp $
+ * $Id: JenaParameters.java,v 1.1 2009/06/29 08:56:02 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.shared.impl;
 
@@ -20,7 +20,7 @@ package com.hp.hpl.jena.shared.impl;
  * moved to being model-specific rather than global.
  * </p>
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.13 $ on $Date: 2008/12/28 19:32:40 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:56:02 $
  */
 public class JenaParameters {
     

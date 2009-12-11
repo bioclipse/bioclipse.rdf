@@ -57,8 +57,8 @@ import com.hp.hpl.jena.graph.Node;
  *    enhanced resources.</p>
  * @author bwm
  * @version Release='$Name:  $'
-            Revision='$Revision: 1.34 $'
-            Date='$Date: 2009/01/19 12:07:12 $'
+            Revision='$Revision: 1.2 $'
+            Date='$Date: 2009/09/28 10:45:11 $'
  */
 public interface ModelCon {
 
@@ -72,7 +72,7 @@ public interface ModelCon {
  * @param f the factory object
   
  */    
-    Resource getResource(String uri, ResourceF f) ;
+@Deprecated Resource getResource(String uri, ResourceF f) ;
 
 /** Return a Property instance in this model.
  *
@@ -203,7 +203,7 @@ public interface ModelCon {
  * @param f A factory object to create the returned object.
  .
  */
-    public Resource createResource(ResourceF f) ;
+    @Deprecated public Resource createResource(ResourceF f) ;
  
 /** Create a new resource using the supplied factory.
  *
@@ -214,7 +214,7 @@ public interface ModelCon {
  * @param f A factory to create the returned object.
  .
  */   
-    public Resource createResource(String uri, ResourceF f) ;
+    @Deprecated public Resource createResource(String uri, ResourceF f) ;
 
 /** Create a property.
  *
@@ -552,6 +552,15 @@ public interface ModelCon {
      * @deprecated Freshly (should have been done a while ago)
      */ 
       @Deprecated Model addLiteral( Resource s, Property p, Object o );
+
+      /** add a statement to this model.
+       *
+       * @return this model
+       * @param s the subject of the statement to add
+       * @param p the predicate of the statement to add
+       * @param o the object of the statement to add
+       */ 
+        Model addLiteral( Resource s, Property p, Literal o );
 
     /** add a statement to this model.
      *

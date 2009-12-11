@@ -2,16 +2,16 @@
  * Source code information
  * -----------------------
  * Original author    Ian Dickinson, HP Labs Bristol
- * Author email       Ian.Dickinson@hp.com
+ * Author email       ian_dickinson@users.sourceforge.net
  * Package            Jena 2
  * Web                http://sourceforge.net/projects/jena/
  * Created            22 Feb 2003
  * Filename           $RCSfile: OntModelImpl.java,v $
- * Revision           $Revision: 1.120 $
+ * Revision           $Revision: 1.2 $
  * Release status     $State: Exp $
  *
- * Last modified on   $Date: 2009/04/24 12:52:50 $
- *               by   $Author: andy_seaborne $
+ * Last modified on   $Date: 2009/10/06 13:04:42 $
+ *               by   $Author: ian_dickinson $
  *
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * (see footer for full conditions)
@@ -54,8 +54,8 @@ import com.hp.hpl.jena.vocabulary.*;
  * </p>
  *
  * @author Ian Dickinson, HP Labs
- *         (<a  href="mailto:Ian.Dickinson@hp.com" >email</a>)
- * @version CVS $Id: OntModelImpl.java,v 1.120 2009/04/24 12:52:50 andy_seaborne Exp $
+ *         (<a  href="mailto:ian_dickinson@users.sourceforge.net" >email</a>)
+ * @version CVS $Id: OntModelImpl.java,v 1.2 2009/10/06 13:04:42 ian_dickinson Exp $
  */
 public class OntModelImpl extends ModelCom implements OntModel
 {

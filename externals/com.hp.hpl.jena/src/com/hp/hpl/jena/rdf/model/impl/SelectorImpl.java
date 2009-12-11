@@ -57,7 +57,7 @@ import com.hp.hpl.jena.rdf.model.*;
  * selects</CODE> method to test for any application supplied constraint.  The
  * default <CODE>selects</CODE> method simply returns true.</p>
  * @author bwm, kers
- * @version Release='$Name:  $ $Revision: 1.11 $ $Date: 2009/01/16 17:23:48 $
+ * @version Release='$Name:  $ $Revision: 1.1 $ $Date: 2009/06/29 08:55:32 $
  */
 
 public final class SelectorImpl extends SimpleSelector  {

@@ -24,7 +24,7 @@ import com.hp.hpl.jena.util.iterator.*;
  *  </p>
  * 
  * @author Andy Seaborne
- * @version $Id: dblist.java,v 1.14 2009/01/26 16:19:49 andy_seaborne Exp $
+ * @version $Id: dblist.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  */ 
  
 public class dblist extends DBcmd

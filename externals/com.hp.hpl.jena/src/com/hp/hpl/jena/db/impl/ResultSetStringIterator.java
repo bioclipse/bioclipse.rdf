@@ -27,7 +27,7 @@ import java.util.List;
 * of the raw row contents.
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.1 $ on $Date: 2009/01/26 15:24:27 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public class ResultSetStringIterator extends ResultSetIterator<List<String>> {

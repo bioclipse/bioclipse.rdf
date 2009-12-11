@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: PairEntry.java,v 1.12 2009/01/16 18:24:40 andy_seaborne Exp $
+ * $Id: PairEntry.java,v 1.2 2009/08/08 11:25:32 andy_seaborne Exp $
  *
  */
 
@@ -32,14 +32,14 @@ package com.hp.hpl.jena.xmloutput.impl;
 
 /*
  * @author jjc
- * @version  Release='$Name:  $' Revision='$Revision: 1.12 $' Date='$Date: 2009/01/16 18:24:40 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.2 $' Date='$Date: 2009/08/08 11:25:32 $'
  */
 class PairEntry<K,V>  implements java.util.Map.Entry<K,V>  {
     K a;
     V b;
     @Override
     public boolean equals(Object o) {
-        if (o != null && (o instanceof PairEntry)) {
+        if (o != null && (o instanceof PairEntry<?,?>)) {
             PairEntry<?,?> e = (PairEntry<?,?>) o;
             return e.a.equals(a) && e.b.equals(b);
         } 

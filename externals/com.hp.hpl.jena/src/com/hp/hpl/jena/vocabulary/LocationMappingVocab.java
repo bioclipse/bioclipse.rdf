@@ -3,7 +3,7 @@
  * [See end of file]
  */
 
-/* CVS $Id: LocationMappingVocab.java,v 1.7 2008/12/28 19:32:07 andy_seaborne Exp $ */
+/* CVS $Id: LocationMappingVocab.java,v 1.1 2009/06/29 08:55:36 castagna Exp $ */
 
 package com.hp.hpl.jena.vocabulary;
 import com.hp.hpl.jena.rdf.model.*;

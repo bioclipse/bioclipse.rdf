@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved.
- 	$Id: AmbiguousSpecificTypeException.java,v 1.4 2009/01/20 15:12:28 chris-dollin Exp $
+ 	$Id: AmbiguousSpecificTypeException.java,v 1.1 2009/06/29 08:55:41 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler.exceptions;

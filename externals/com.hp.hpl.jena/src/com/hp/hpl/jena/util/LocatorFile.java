@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *  location mapping (see @link{LocationMapping}) as it applies only to files.
  * 
  * @author Andy Seaborne
- * @version $Id: LocatorFile.java,v 1.19 2009/04/24 12:52:49 andy_seaborne Exp $
+ * @version $Id: LocatorFile.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
 
 public class LocatorFile implements Locator

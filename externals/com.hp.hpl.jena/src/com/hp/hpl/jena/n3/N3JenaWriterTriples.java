@@ -13,7 +13,7 @@ import com.hp.hpl.jena.rdf.model.*;
  *  Very simple.  
  *
  * @author		Andy Seaborne
- * @version 	$Id: N3JenaWriterTriples.java,v 1.11 2009/01/16 17:23:51 andy_seaborne Exp $
+ * @version 	$Id: N3JenaWriterTriples.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 public class N3JenaWriterTriples extends N3JenaWriterCommon

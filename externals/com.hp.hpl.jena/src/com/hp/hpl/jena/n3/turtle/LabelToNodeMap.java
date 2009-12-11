@@ -14,7 +14,7 @@ import com.hp.hpl.jena.graph.Node;
 /** Map from _:* form to bNodes
  * 
  * @author Andy Seaborne
- * @version $Id: LabelToNodeMap.java,v 1.6 2009/01/16 18:24:40 andy_seaborne Exp $
+ * @version $Id: LabelToNodeMap.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
  */
 
 public class LabelToNodeMap

@@ -33,7 +33,7 @@ import com.hp.hpl.jena.graph.*;
  * </code>
  * 
  * @author csayers (based on ModelMem written by bwm and the Jena 1 version of Model RDB by der.)
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.1 $
  */
 
 public class ModelRDB extends ModelCom implements Model {    

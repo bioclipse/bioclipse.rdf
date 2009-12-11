@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: IteratorIterator.java,v 1.9 2009/01/26 15:24:18 andy_seaborne Exp $
+ * $Id: IteratorIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
  *
  */
 
@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
  * Iterator over the next level values.
  * Similar to list splicing in lisp.
  * @author jjc
- * @version Release='$Name:  $' Revision='$Revision: 1.9 $' Date='$Date: 2009/01/26 15:24:18 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:49 $'
  */
 public class IteratorIterator<T> implements Iterator<T>
 {

@@ -18,7 +18,7 @@ package com.hp.hpl.jena.db.impl;
 * are needed but could specialize it to RDFNodes.
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.9 $ on $Date: 2009/01/17 14:40:18 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 

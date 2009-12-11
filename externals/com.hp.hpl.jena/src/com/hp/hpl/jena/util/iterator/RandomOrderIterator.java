@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: RandomOrderIterator.java,v 1.9 2009/01/26 15:24:18 andy_seaborne Exp $
+  $Id: RandomOrderIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
 */
 
 package com.hp.hpl.jena.util.iterator;

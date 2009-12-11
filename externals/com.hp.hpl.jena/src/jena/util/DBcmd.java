@@ -16,7 +16,7 @@ import java.util.* ;
 /** Framework for the database commands.
  * 
  * @author Andy Seaborne
- * @version $Id: DBcmd.java,v 1.12 2009/01/16 18:28:40 andy_seaborne Exp $
+ * @version $Id: DBcmd.java,v 1.1 2009/06/29 08:56:05 castagna Exp $
  */ 
  
 public abstract class DBcmd

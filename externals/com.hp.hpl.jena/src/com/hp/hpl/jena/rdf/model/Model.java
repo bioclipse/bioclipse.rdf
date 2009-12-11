@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: Model.java,v 1.78 2009/03/27 15:55:05 andy_seaborne Exp $
+  $Id: Model.java,v 1.3 2009/09/28 14:15:52 chris-dollin Exp $
 */
 
 package com.hp.hpl.jena.rdf.model;
@@ -61,7 +61,7 @@ import java.util.*;
  * </pre></code>
  *
  * @author bwm
- * @version $Name:  $ $Revision: 1.78 $Date: 2009/03/27 15:55:05 $'
+ * @version $Name:  $ $Revision: 1.3 $Date: 2009/09/28 14:15:52 $'
  */
 public interface Model
     extends ModelCon, ModelGraphInterface,
@@ -366,10 +366,15 @@ public interface Model
 
 	/** Add statements from an RDF/XML serialization.
 	 * @param in the source of the RDF/XML
-	 * @param base the base to use when converting relative to absolute uri's.
-	 * The base URI may be null if there are no relative URIs to convert.
-	 * A base URI of "" may permit relative URIs to be used in the
-	 * model unconverted.
+
+     @param base the base uri to be used when converting relative
+         URI's to absolute URI's. (Resolving relative URIs and fragment IDs is done
+         by prepending the base URI to the relative URI/fragment.) If there are no 
+         relative URIs in the source, this argument may safely be <code>null</code>. 
+         If the base is the empty string, then relative URIs <i>will be retained in
+         the model</i>. This is typically unwise and will usually generate errors
+         when writing the model back out.
+         
 	 * @return the current model
 	 */
 	public Model read(InputStream in, String base) ;
@@ -382,18 +387,20 @@ public interface Model
      * <br />
 	 *
 	 * @return this model
-	 * @param base the base uri to be used when converting relative
-	 * URI's to absolute URI's.
-	  The base URI may be null if there are no relative URIs to
-	  convert.
-	  A base URI of "" may permit relative URIs to be used in the
-	   model.
+	 
+	 @param base the base uri to be used when converting relative
+	     URI's to absolute URI's. (Resolving relative URIs and fragment IDs is done
+	     by prepending the base URI to the relative URI/fragment.) If there are no 
+	     relative URIs in the source, this argument may safely be <code>null</code>. 
+	     If the base is the empty string, then relative URIs <i>will be retained in
+	     the model</i>. This is typically unwise and will usually generate errors
+	     when writing the model back out.
+	     
 	 * @param lang the langauge of the serialization <code>null</code>
 	 * selects the default
 	 * @param in the source of the input serialization
 	 */
-	public Model read(InputStream in, String base, String lang)
-		;
+	public Model read(InputStream in, String base, String lang);
 
     /** Using this method is often a mistake.
 	 * Add statements from an RDF/XML serialization.
@@ -402,11 +409,15 @@ public interface Model
      * mismatch between the character encoding of say the FileReader and the
      * character encoding of the data in the file.
 	 * @param reader the source of the RDF/XML
-	 * @param base the base to use when converting relative to absolute uri's.
-	  The base URI may be null if there are no relative URIs to
-	  convert.
-	  A base URI of "" may permit relative URIs to be used in the
-	   model.
+	 
+     @param base the base uri to be used when converting relative
+         URI's to absolute URI's. (Resolving relative URIs and fragment IDs is done
+         by prepending the base URI to the relative URI/fragment.) If there are no 
+         relative URIs in the source, this argument may safely be <code>null</code>. 
+         If the base is the empty string, then relative URIs <i>will be retained in
+         the model</i>. This is typically unwise and will usually generate errors
+         when writing the model back out.
+         
 	 * * @return the current model
 	 */
 	public Model read(Reader reader, String base) ;
@@ -440,13 +451,14 @@ public interface Model
      * mismatch between the character encoding of say the FileReader and the
      * character encoding of the data in the file.
 	 * @return this model
-	 * @param base the base uri to be used when converting relative
-	 * URI's to absolute URI's.
-
-	  The base URI may be null if there are no relative URIs to
-	  convert.
-	  A base URI of "" may permit relative URIs to be used in the
-	   model.
+	 
+     @param base the base uri to be used when converting relative
+         URI's to absolute URI's. (Resolving relative URIs and fragment IDs is done
+         by prepending the base URI to the relative URI/fragment.) If there are no 
+         relative URIs in the source, this argument may safely be <code>null</code>. 
+         If the base is the empty string, then relative URIs <i>will be retained in
+         the model</i>. This is typically unwise and will usually generate errors
+         when writing the model back out.
 
 	 * @param lang the langauge of the serialization <code>null</code>
 	 * selects the default
@@ -1014,6 +1026,4 @@ public interface Model
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * $Id: Model.java,v 1.78 2009/03/27 15:55:05 andy_seaborne Exp $
  */

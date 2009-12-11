@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: GenericTripleMatchFrame.java,v 1.10 2009/01/16 17:23:53 andy_seaborne Exp $
+ * $Id: GenericTripleMatchFrame.java,v 1.1 2009/06/29 08:55:33 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys.impl;
 
@@ -23,7 +23,7 @@ import com.hp.hpl.jena.reasoner.rulesys.Node_RuleVariable;
  * </p>
  *  
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.10 $ on $Date: 2009/01/16 17:23:53 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:33 $
  */
 public class GenericTripleMatchFrame extends GenericChoiceFrame {
     

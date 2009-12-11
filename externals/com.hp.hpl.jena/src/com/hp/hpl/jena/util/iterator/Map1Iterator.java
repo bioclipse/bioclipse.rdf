@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: Map1Iterator.java,v 1.14 2009/03/27 15:55:06 andy_seaborne Exp $
+  $Id: Map1Iterator.java,v 1.2 2009/09/28 13:27:30 chris-dollin Exp $
 */
 
 package com.hp.hpl.jena.util.iterator;
@@ -12,7 +12,7 @@ import java.util.Iterator;
     An iterator that consumes an underlying iterator and maps its results before
     delivering them; supports remove if the underlying iterator does.
     @author jjc + kers
-    @version  Release='$Name:  $' Revision='$Revision: 1.14 $' Date='$Date: 2009/03/27 15:55:06 $'
+    @version  Release='$Name:  $' Revision='$Revision: 1.2 $' Date='$Date: 2009/09/28 13:27:30 $'
 */
 
 public class Map1Iterator<From, To> extends NiceIterator<To> implements ClosableIterator<To>
@@ -39,6 +39,9 @@ public class Map1Iterator<From, To> extends NiceIterator<To> implements Closable
 	
 	public @Override void remove()
 	    { base.remove(); }
+	
+	@Override public void close()
+	    { NiceIterator.close( base ); }
     }
 /*
  * (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP

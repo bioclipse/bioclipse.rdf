@@ -1,7 +1,7 @@
 /*
      (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
      [See end of file]
-     $Id: ReifierFragmentHandler.java,v 1.8 2008/12/28 19:31:53 andy_seaborne Exp $
+     $Id: ReifierFragmentHandler.java,v 1.1 2009/06/29 08:55:43 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.impl;

@@ -2,16 +2,16 @@
  * Source code information
  * -----------------------
  * Original author    Ian Dickinson, HP Labs Bristol
- * Author email       Ian.Dickinson@hp.com
+ * Author email       ian_dickinson@users.sourceforge.net
  * Package            Jena 2
  * Web                http://sourceforge.net/projects/jena/
  * Created            24 Jan 2003
  * Filename           $RCSfile: RDFList.java,v $
- * Revision           $Revision: 1.17 $
+ * Revision           $Revision: 1.2 $
  * Release status     @releaseStatus@ $State: Exp $
  *
- * Last modified on   $Date: 2009/01/27 09:48:56 $
- *               by   $Author: chris-dollin $
+ * Last modified on   $Date: 2009/10/06 13:04:43 $
+ *               by   $Author: ian_dickinson $
  *
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * (see footer for full conditions)
@@ -53,8 +53,8 @@ import java.util.*;
  * </p>
  * 
  * @author Ian Dickinson, HP Labs 
- *         (<a  href="mailto:Ian.Dickinson@hp.com" >email</a>)
- * @version Release ($Id: RDFList.java,v 1.17 2009/01/27 09:48:56 chris-dollin Exp $)
+ *         (<a  href="mailto:ian_dickinson@users.sourceforge.net" >email</a>)
+ * @version Release ($Id: RDFList.java,v 1.2 2009/10/06 13:04:43 ian_dickinson Exp $)
  */
 public interface RDFList
     extends Resource

@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: IllegalDateTimeFieldException.java,v 1.13 2008/12/28 19:32:38 andy_seaborne Exp $
+ * $Id: IllegalDateTimeFieldException.java,v 1.1 2009/06/29 08:56:03 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.datatypes.xsd;
 
@@ -17,7 +17,7 @@ import com.hp.hpl.jena.shared.*;
  * accessing the day from a gYearMonth object.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.13 $ on $Date: 2008/12/28 19:32:38 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:56:03 $
  */
 public class IllegalDateTimeFieldException extends JenaException {
     

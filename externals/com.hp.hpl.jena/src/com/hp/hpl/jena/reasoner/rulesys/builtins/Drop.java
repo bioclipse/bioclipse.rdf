@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2005, Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: Drop.java,v 1.8 2009/01/16 17:23:51 andy_seaborne Exp $
+ * $Id: Drop.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  *****************************************************************/
 
 package com.hp.hpl.jena.reasoner.rulesys.builtins;
@@ -26,7 +26,7 @@ import com.hp.hpl.jena.reasoner.rulesys.Util;
  * useful for rewrite rules.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.1 $
  */
 
 public class Drop  extends BaseBuiltin  {

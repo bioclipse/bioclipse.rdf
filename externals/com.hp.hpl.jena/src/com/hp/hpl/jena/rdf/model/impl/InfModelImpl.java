@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: InfModelImpl.java,v 1.14 2009/03/17 15:30:10 chris-dollin Exp $
+ * $Id: InfModelImpl.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.rdf.model.impl;
 
@@ -19,7 +19,7 @@ import java.util.Iterator;
  * an InfGraph.
 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.14 $ on $Date: 2009/03/17 15:30:10 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:32 $
  */
 public class InfModelImpl extends ModelCom implements InfModel {
 

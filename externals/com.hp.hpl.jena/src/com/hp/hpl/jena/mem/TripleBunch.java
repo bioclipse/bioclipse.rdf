@@ -1,7 +1,7 @@
 /*
     (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
     All rights reserved - see end of file.
-    $Id: TripleBunch.java,v 1.11 2009/01/27 15:32:17 chris-dollin Exp $
+    $Id: TripleBunch.java,v 1.1 2009/06/29 08:55:55 castagna Exp $
 */
 package com.hp.hpl.jena.mem;
 

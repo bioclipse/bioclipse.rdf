@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: Util.java,v 1.11 2009/01/20 21:50:19 andy_seaborne Exp $
+  $Id: Util.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.query;

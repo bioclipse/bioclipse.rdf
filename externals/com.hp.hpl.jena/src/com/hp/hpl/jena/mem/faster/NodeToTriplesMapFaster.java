@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: NodeToTriplesMapFaster.java,v 1.33 2009/03/18 10:11:05 chris-dollin Exp $
+ 	$Id: NodeToTriplesMapFaster.java,v 1.1 2009/06/29 08:55:55 castagna Exp $
 */
 
 package com.hp.hpl.jena.mem.faster;

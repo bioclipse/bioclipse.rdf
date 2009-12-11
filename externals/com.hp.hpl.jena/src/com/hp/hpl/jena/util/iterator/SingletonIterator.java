@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: SingletonIterator.java,v 1.13 2009/01/26 15:24:18 andy_seaborne Exp $
+ * $Id: SingletonIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.util.iterator;
 
@@ -13,7 +13,7 @@ package com.hp.hpl.jena.util.iterator;
  * A ClosableIterator that contains only one element
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.13 $ on $Date: 2009/01/26 15:24:18 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:49 $
  */
 public class SingletonIterator<T> extends NiceIterator<T> implements ExtendedIterator<T> {
     

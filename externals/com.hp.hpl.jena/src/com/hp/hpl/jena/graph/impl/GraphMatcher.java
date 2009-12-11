@@ -28,7 +28,7 @@ import com.hp.hpl.jena.shared.*;
  * performance.
  *<p>
  * @author  jjc
- * @version  Release='$Name:  $' Revision='$Revision: 1.21 $' Date='$Date: 2009/01/27 12:17:41 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:43 $'
  */
 public class GraphMatcher extends java.lang.Object {
     static private Random random = new Random(0);
@@ -951,5 +951,5 @@ public class GraphMatcher extends java.lang.Object {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: GraphMatcher.java,v 1.21 2009/01/27 12:17:41 chris-dollin Exp $
+ * $Id: GraphMatcher.java,v 1.1 2009/06/29 08:55:43 castagna Exp $
  */

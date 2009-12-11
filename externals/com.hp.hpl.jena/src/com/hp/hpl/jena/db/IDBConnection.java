@@ -16,7 +16,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 * simplify the calling pattern for ModelRDB factory methods.
 *
 * @author csayers (based on earlier code by der)
-* @version $Revision: 1.12 $ on $Date: 2009/01/26 15:24:31 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:52 $
 */
 
 public interface IDBConnection {

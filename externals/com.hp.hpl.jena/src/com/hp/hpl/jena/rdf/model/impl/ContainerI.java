@@ -35,7 +35,7 @@ import com.hp.hpl.jena.rdf.model.*;
 
 /** An internal interface, not normally of interest to application developers.
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.8 $' Date='$Date: 2008/12/28 19:31:52 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $'
  */
 interface ContainerI {
 

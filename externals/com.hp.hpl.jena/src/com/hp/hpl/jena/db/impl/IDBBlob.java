@@ -22,7 +22,7 @@ import java.sql.SQLException;
 * Interface for database blob objects.
 * 
 * @author <a href="mailto:harumi.kuno@hp.com">Harumi Kuno</a>
-* @version $Revision: 1.8 $ on $Date: 2008/12/28 19:32:21 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public interface IDBBlob {

@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- * * $Id: URIref.java,v 1.10 2009/01/16 17:23:56 andy_seaborne Exp $
+ * * $Id: URIref.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
    
    AUTHOR:  Jeremy J. Carroll
 *//*

@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: NTripleReader.java,v 1.20 2009/04/24 12:52:47 andy_seaborne Exp $
+ * $Id: NTripleReader.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 package com.hp.hpl.jena.rdf.model.impl;
@@ -44,7 +44,7 @@ import java.util.*;
 /** N-Triple Reader
  *
  * @author  Brian McBride, Jeremy Carroll, Dave Banks
- * @version  Release=$Name:  $ Date=$Date: 2009/04/24 12:52:47 $
+ * @version  Release=$Name:  $ Date=$Date: 2009/06/29 08:55:32 $
  */
 public class NTripleReader extends Object implements RDFReader {
     static final Logger log = LoggerFactory.getLogger(NTripleReader.class);

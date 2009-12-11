@@ -10,7 +10,7 @@ import java.util.* ;
 /** A command line argument that has been foundspecification.
  *
  * @author  Andy Seaborne
- * @version $Id: Arg.java,v 1.11 2009/01/16 18:28:40 andy_seaborne Exp $
+ * @version $Id: Arg.java,v 1.1 2009/06/29 08:55:59 castagna Exp $
  */
 public class Arg
 {

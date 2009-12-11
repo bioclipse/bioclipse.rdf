@@ -1,7 +1,7 @@
 /* (c) Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
      [See end of file]
 
-     $Id: NullIterator.java,v 1.16 2009/03/18 12:29:25 chris-dollin Exp $
+     $Id: NullIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
  */
 
 package com.hp.hpl.jena.util.iterator;

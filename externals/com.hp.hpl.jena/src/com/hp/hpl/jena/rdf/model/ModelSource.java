@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: ModelSource.java,v 1.14 2008/12/28 19:31:54 andy_seaborne Exp $
+  $Id: ModelSource.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
 */
 
 package com.hp.hpl.jena.rdf.model;

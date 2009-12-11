@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: LPBRuleEngine.java,v 1.20 2009/04/24 12:52:48 andy_seaborne Exp $
+ * $Id: LPBRuleEngine.java,v 1.1 2009/06/29 08:55:33 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys.impl;
 
@@ -26,7 +26,7 @@ import java.util.*;
  * of the LPInterpreter - one per query.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.20 $ on $Date: 2009/04/24 12:52:48 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:33 $
  */
 public class LPBRuleEngine {
     

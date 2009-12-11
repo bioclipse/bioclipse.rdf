@@ -54,7 +54,7 @@ import com.hp.hpl.jena.shared.*;
  * 
  * 
  * @author     Andy Seaborne
- * @version    $Id: FileManager.java,v 1.47 2009/05/07 20:17:38 andy_seaborne Exp $
+ * @version    $Id: FileManager.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
  
 public class FileManager

@@ -19,7 +19,7 @@ import com.hp.hpl.jena.shared.JenaException;
  *  {@link #guessLang(String) guessLang}
  *
  * @author Andy Seaborne
- * @version $Id: ModelLoader.java,v 1.31 2009/04/24 12:52:49 andy_seaborne Exp $
+ * @version $Id: ModelLoader.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
 
 public class ModelLoader

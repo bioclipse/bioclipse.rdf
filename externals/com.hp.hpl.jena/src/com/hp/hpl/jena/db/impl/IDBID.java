@@ -19,7 +19,7 @@ package com.hp.hpl.jena.db.impl;
 * Interface for database identifiers.
 * Now only used for used for Graph IDs and long literals. 
 
-* @version $Revision: 1.9 $ on $Date: 2008/12/28 19:32:21 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public interface IDBID {

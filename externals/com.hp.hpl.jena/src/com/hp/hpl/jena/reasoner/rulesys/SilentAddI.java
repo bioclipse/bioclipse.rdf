@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: SilentAddI.java,v 1.8 2008/12/28 19:32:09 andy_seaborne Exp $
+ * $Id: SilentAddI.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys;
 
@@ -17,7 +17,7 @@ import com.hp.hpl.jena.graph.Triple;
  * any processing machinery.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.8 $ on $Date: 2008/12/28 19:32:09 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:38 $
  */
 public interface SilentAddI {
     

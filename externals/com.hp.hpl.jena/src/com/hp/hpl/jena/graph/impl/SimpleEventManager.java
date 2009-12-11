@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: SimpleEventManager.java,v 1.21 2009/01/27 10:52:52 chris-dollin Exp $
+  $Id: SimpleEventManager.java,v 1.1 2009/06/29 08:55:43 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.impl;

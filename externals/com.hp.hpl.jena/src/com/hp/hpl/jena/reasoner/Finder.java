@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: Finder.java,v 1.12 2009/01/26 10:28:23 chris-dollin Exp $
+ * $Id: Finder.java,v 1.1 2009/06/29 08:55:50 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner;
 
@@ -17,7 +17,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
  * Should be implemented by reasoners, caches and related datastructures.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.12 $ on $Date: 2009/01/26 10:28:23 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:50 $
  */
 public interface Finder {
 

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 * Based on Driver* classes by Dave Reynolds.
 *
 * @author <a href="mailto:harumi.kuno@hp.com">Harumi Kuno</a>
-* @version $Revision: 1.34 $ on $Date: 2009/04/24 12:52:50 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public class PSet_ReifStore_RDB extends PSet_TripleStore_RDB {

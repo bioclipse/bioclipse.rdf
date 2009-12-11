@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: TransitiveGraphCache.java,v 1.33 2009/03/19 10:57:29 chris-dollin Exp $
+ * $Id: TransitiveGraphCache.java,v 1.1 2009/06/29 08:55:57 castagna Exp $
  *****************************************************************/
 
 package com.hp.hpl.jena.reasoner.transitiveReasoner;
@@ -42,7 +42,7 @@ import java.util.*;
  * expensive. The interval index would handle predecessor closure nicely.
  * </p>
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.1 $
  */
 
 // Note to maintainers. The GraphNode object is treated as a record structure

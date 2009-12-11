@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: Sequence.java,v 1.10 2009/01/29 10:07:27 chris-dollin Exp $
+  $Id: Sequence.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
 */
 
 package com.hp.hpl.jena.graph.query.regexptrees;

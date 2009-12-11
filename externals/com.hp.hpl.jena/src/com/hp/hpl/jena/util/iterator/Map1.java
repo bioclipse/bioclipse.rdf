@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: Map1.java,v 1.9 2009/01/26 08:37:09 chris-dollin Exp $
+ * $Id: Map1.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
  *
  */
 
@@ -32,7 +32,7 @@ package com.hp.hpl.jena.util.iterator;
 
 /** Converts an Object to another Object.
  * @author jjc
- * @version Release='$Name:  $' Revision='$Revision: 1.9 $' Date='$Date: 2009/01/26 08:37:09 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:49 $'
  */
 public interface Map1<From, To>
 {  /** Convert an object.

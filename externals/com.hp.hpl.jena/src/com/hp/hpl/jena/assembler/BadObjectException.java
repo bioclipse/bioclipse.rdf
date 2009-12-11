@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: BadObjectException.java,v 1.5 2008/12/28 19:31:55 andy_seaborne Exp $
+ 	$Id: BadObjectException.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler;

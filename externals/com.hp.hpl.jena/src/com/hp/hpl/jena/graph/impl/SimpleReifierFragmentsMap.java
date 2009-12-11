@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: SimpleReifierFragmentsMap.java,v 1.29 2009/03/17 14:45:38 chris-dollin Exp $
+  $Id: SimpleReifierFragmentsMap.java,v 1.1 2009/06/29 08:55:43 castagna Exp $
 */
 package com.hp.hpl.jena.graph.impl;
 

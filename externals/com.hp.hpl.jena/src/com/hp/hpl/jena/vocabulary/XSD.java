@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: XSD.java,v 1.15 2009/01/13 13:22:49 der Exp $
+ * $Id: XSD.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.vocabulary;
 
@@ -18,7 +18,7 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
  * the XSD primitive datatypes which are known to Jena. 
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.15 $ on $Date: 2009/01/13 13:22:49 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:36 $
  */
 public class XSD {    
     /**

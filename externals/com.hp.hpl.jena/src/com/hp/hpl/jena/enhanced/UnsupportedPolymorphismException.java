@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: UnsupportedPolymorphismException.java,v 1.11 2009/01/26 10:28:22 chris-dollin Exp $
+  $Id: UnsupportedPolymorphismException.java,v 1.1 2009/06/29 08:55:56 castagna Exp $
 */
 
 package com.hp.hpl.jena.enhanced;

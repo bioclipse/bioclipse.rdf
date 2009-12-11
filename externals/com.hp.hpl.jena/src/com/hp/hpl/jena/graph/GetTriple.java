@@ -1,7 +1,7 @@
 /*
 	(c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
 	[see end of file]
-	$Id: GetTriple.java,v 1.9 2008/12/28 19:32:03 andy_seaborne Exp $
+	$Id: GetTriple.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
 */
 package com.hp.hpl.jena.graph;
 

@@ -21,7 +21,7 @@ import jena.util.DBcmd;
   *  </p>
   * 
   * @author Andy Seaborne
-  * @version $Id: dbremove.java,v 1.12 2009/01/16 17:23:57 andy_seaborne Exp $
+  * @version $Id: dbremove.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
   */ 
  
 public class dbremove extends DBcmd

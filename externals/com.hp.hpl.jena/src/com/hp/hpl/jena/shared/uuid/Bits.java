@@ -13,7 +13,7 @@ package com.hp.hpl.jena.shared.uuid;
  *  (java.util.BitSet does not allow getting the pattern as a long) 
  *  
  * @author Andy Seaborne
- * @version $Id: Bits.java,v 1.5 2008/12/28 19:32:00 andy_seaborne Exp $
+ * @version $Id: Bits.java,v 1.1 2009/06/29 08:55:39 castagna Exp $
  */ 
 public final class Bits
 {

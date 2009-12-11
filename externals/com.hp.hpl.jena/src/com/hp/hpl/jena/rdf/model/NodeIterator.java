@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
  *    thatshould be called to free resources if the application does
  *    not complete the iteration.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.14 $' Date='$Date: 2009/03/18 12:14:18 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 public interface NodeIterator extends ExtendedIterator<RDFNode>
     {

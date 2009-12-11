@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
  * [See end of file]
- * $Id: RuleMap.java,v 1.17 2009/01/22 10:55:55 chris-dollin Exp $
+ * $Id: RuleMap.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  *****************************************************************/
 package jena;
 
@@ -39,7 +39,7 @@ import java.io.*;
  * </p>
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.17 $ on $Date: 2009/01/22 10:55:55 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:51 $
  */
 public class RuleMap {
     

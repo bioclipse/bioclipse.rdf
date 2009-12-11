@@ -60,7 +60,7 @@ package com.hp.hpl.jena.rdf.model;
  *    the extra behaviour.  Factory objects are used to construct such
  *    enhanced resources.</p>
  * @author bwm
- * @version Release='$Name:  $' Revision='$Revision: 1.14 $' Date='$Date: 2009/04/23 08:47:29 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:38 $'
  */
 
 
@@ -206,19 +206,7 @@ public interface Alt extends Container {
      * object returned.
      
      */
-    public Resource getDefaultResource(ResourceF f);
-    
-    /** Return the default value for this resource.
-     *
-     * <p>The object returned is created by calling the
-     * <CODE>createObject</CODE> method of the factory object <CODE>f</CODE>.
-     * </p>
-     * @return the default value for this resource as an object created
-     * by the factory object f.
-     * @param f A factory object used to create the object returned.
-     
-     */
-    @Deprecated public Object getDefaultObject(ObjectF f);
+    @Deprecated public Resource getDefaultResource(ResourceF f);
     
     /** Return the default value for this resource. 
      * @return the default value for this resource interpreted as the return

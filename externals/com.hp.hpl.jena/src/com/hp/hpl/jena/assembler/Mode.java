@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: Mode.java,v 1.8 2008/12/28 19:31:54 andy_seaborne Exp $
+ 	$Id: Mode.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler;

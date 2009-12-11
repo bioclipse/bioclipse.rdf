@@ -12,7 +12,7 @@ import com.hp.hpl.jena.shared.JenaException;
 /** com.hp.hpl.jena.query.util.RelativeURIException
  * 
  * @author Andy Seaborne
- * @version $Id: JenaURIException.java,v 1.4 2008/12/28 19:31:52 andy_seaborne Exp $
+ * @version $Id: JenaURIException.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 public class JenaURIException extends JenaException

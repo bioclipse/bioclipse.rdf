@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: FilterKeepIterator.java,v 1.7 2009/01/26 08:37:09 chris-dollin Exp $
+ 	$Id: FilterKeepIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
 */
 
 package com.hp.hpl.jena.util.iterator;

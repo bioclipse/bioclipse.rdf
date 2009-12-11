@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: ProcessedTriple.java,v 1.18 2009/01/16 17:24:00 andy_seaborne Exp $
+ 	$Id: ProcessedTriple.java,v 1.1 2009/06/29 08:55:55 castagna Exp $
 */
 
 package com.hp.hpl.jena.mem.faster;

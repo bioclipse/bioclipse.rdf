@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 * of the raw row contents.
 *
 * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.20 $ on $Date: 2009/04/24 12:52:50 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 
 public abstract class ResultSetIterator<T> implements ExtendedIterator<T>{

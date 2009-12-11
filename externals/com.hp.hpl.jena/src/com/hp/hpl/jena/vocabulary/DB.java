@@ -15,7 +15,7 @@ import com.hp.hpl.jena.rdf.model.*;
  * Vocabulary for Database properties.
  *
  * @author csayers
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.1 $
  */
 public class DB {
 

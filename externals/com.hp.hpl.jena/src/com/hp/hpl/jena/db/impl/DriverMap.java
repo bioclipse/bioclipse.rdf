@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: DriverMap.java,v 1.6 2009/01/16 18:03:18 andy_seaborne Exp $
+ 	$Id: DriverMap.java,v 1.1 2009/06/29 08:55:37 castagna Exp $
 */
 
 package com.hp.hpl.jena.db.impl;

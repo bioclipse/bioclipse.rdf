@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
   [See end of file]
-  $Id: GraphTripleStore.java,v 1.31 2009/01/16 20:53:22 andy_seaborne Exp $
+  $Id: GraphTripleStore.java,v 1.1 2009/06/29 08:55:55 castagna Exp $
 */
 package com.hp.hpl.jena.mem;
 

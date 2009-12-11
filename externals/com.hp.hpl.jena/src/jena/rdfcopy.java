@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: rdfcopy.java,v 1.16 2009/01/19 15:23:49 andy_seaborne Exp $
+ * $Id: rdfcopy.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  */
 
 package jena;
@@ -59,7 +59,7 @@ import java.io.*;
  *  </pre>
  *
  * @author  bwm
- * @version $Name:  $ $Revision: 1.16 $ $Date: 2009/01/19 15:23:49 $
+ * @version $Name:  $ $Revision: 1.1 $ $Date: 2009/06/29 08:55:51 $
  */
 public class rdfcopy extends java.lang.Object {
 

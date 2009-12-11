@@ -19,7 +19,7 @@ import com.hp.hpl.jena.shared.JenaException;
 /** Location files in a zip file
  *  
  * @author Andy Seaborne
- * @version $Id: LocatorZip.java,v 1.9 2009/04/24 12:52:49 andy_seaborne Exp $
+ * @version $Id: LocatorZip.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
  
 

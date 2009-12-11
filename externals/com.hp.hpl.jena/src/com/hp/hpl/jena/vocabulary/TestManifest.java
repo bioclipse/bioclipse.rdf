@@ -1,6 +1,6 @@
 package com.hp.hpl.jena.vocabulary ;
 
-/* CVS $Id: TestManifest.java,v 1.10 2007/03/23 11:59:43 andy_seaborne Exp $ */
+/* CVS $Id: TestManifest.java,v 1.1 2009/06/29 08:55:36 castagna Exp $ */
  
 import com.hp.hpl.jena.rdf.model.*;
  

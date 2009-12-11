@@ -1,7 +1,7 @@
 /*
   (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
   [See end of file]
-  $Id: ModelListenerAdapter.java,v 1.23 2009/03/17 15:30:10 chris-dollin Exp $
+  $Id: ModelListenerAdapter.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
 */
 
 package com.hp.hpl.jena.rdf.model.impl;

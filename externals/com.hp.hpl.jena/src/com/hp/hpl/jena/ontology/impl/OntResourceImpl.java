@@ -2,16 +2,16 @@
  * Source code information
  * -----------------------
  * Original author    Ian Dickinson, HP Labs Bristol
- * Author email       Ian.Dickinson@hp.com
+ * Author email       ian_dickinson@users.sourceforge.net
  * Package            Jena 2
  * Web                http://sourceforge.net/projects/jena/
  * Created            25-Mar-2003
  * Filename           $RCSfile: OntResourceImpl.java,v $
- * Revision           $Revision: 1.74 $
+ * Revision           $Revision: 1.2 $
  * Release status     $State: Exp $
  *
- * Last modified on   $Date: 2009/04/24 12:52:50 $
- *               by   $Author: andy_seaborne $
+ * Last modified on   $Date: 2009/10/06 13:04:42 $
+ *               by   $Author: ian_dickinson $
  *
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * (see footer for full conditions)
@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author Ian Dickinson, HP Labs
- *         (<a  href="mailto:Ian.Dickinson@hp.com" >email</a>)
- * @version CVS $Id: OntResourceImpl.java,v 1.74 2009/04/24 12:52:50 andy_seaborne Exp $
+ *         (<a  href="mailto:ian_dickinson@users.sourceforge.net" >email</a>)
+ * @version CVS $Id: OntResourceImpl.java,v 1.2 2009/10/06 13:04:42 ian_dickinson Exp $
  */
 public class OntResourceImpl
     extends ResourceImpl
@@ -239,8 +239,8 @@ public class OntResourceImpl
     }
 
     /**
-     * <p>Add a resource that is declared to be equivalent to this resource.</p>
-     * @param res A resource that declared to be the same as this resource
+     * <p>Add a statement declaring that this resource is distinct from the given resource.</p>
+     * @param res A resource that declared to be distinct from this resource
      * @exception OntProfileException If the {@link Profile#DIFFERENT_FROM()} property is not supported in the current language profile.
      */
     public void addDifferentFrom( Resource res ) {

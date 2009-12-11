@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: RDFWriter.java,v 1.14 2008/12/28 19:31:54 andy_seaborne Exp $
+ * $Id: RDFWriter.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
  */
 
 package com.hp.hpl.jena.rdf.model;
@@ -36,7 +36,7 @@ import java.io.OutputStream;
  * to some RDF serializaion language.  RDF/XML, n-triple and n3 are
  * examples of serialization languages.</p>
  * @author bwm
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.1 $
  */
 public interface RDFWriter {
 

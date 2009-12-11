@@ -26,7 +26,7 @@ import java.util.*;
  * 
  * 
  * @author csayers
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.1 $
  * @since Jena 2.0
  */
 public class DBPropGraph extends DBProp {

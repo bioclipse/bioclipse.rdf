@@ -37,7 +37,7 @@ import java.util.* ;
  * <li>Arguments with values can use "="</li>
  * </ul>
  * @author Andy Seaborne
- * @version $Id: CommandLine.java,v 1.16 2009/01/16 18:28:40 andy_seaborne Exp $
+ * @version $Id: CommandLine.java,v 1.1 2009/06/29 08:55:59 castagna Exp $
  */
 
 

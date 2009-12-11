@@ -23,7 +23,7 @@ import com.hp.hpl.jena.vocabulary.DB;
  * 
  * 
  * @author csayers
-* @version $Revision: 1.14 $
+* @version $Revision: 1.1 $
  */
 public class DBPropPSet extends DBProp {
 

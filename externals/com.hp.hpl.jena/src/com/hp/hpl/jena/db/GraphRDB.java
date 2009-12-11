@@ -48,7 +48,7 @@ import java.util.*;
  * @since Jena 2.0
  * 
  * @author csayers (based in part on GraphMem by bwm).
- * @version $Revision: 1.55 $
+ * @version $Revision: 1.1 $
  */
 public class GraphRDB extends GraphBase implements Graph {
 

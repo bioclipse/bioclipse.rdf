@@ -30,7 +30,7 @@ import com.hp.hpl.jena.shared.JenaException;
  * @see FileManager
  *  
  * @author Andy Seaborne
- * @version $Id: LocationMapper.java,v 1.25 2009/04/24 12:52:49 andy_seaborne Exp $
+ * @version $Id: LocationMapper.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  */
 
 public class LocationMapper

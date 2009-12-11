@@ -44,7 +44,7 @@ The least significant long consists of the following unsigned fields:
 /** Timebased UUIDs.
  * 
  * @author		Andy Seaborne
- * @version 	$Id: UUID_V1.java,v 1.9 2009/01/16 17:23:59 andy_seaborne Exp $
+ * @version 	$Id: UUID_V1.java,v 1.1 2009/06/29 08:55:39 castagna Exp $
  */
 
 

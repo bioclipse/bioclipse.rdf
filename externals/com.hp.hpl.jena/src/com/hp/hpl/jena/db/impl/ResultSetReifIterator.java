@@ -29,7 +29,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 * Version of ResultSetIterator that extracts database rows as Triples from a reified statement table.
 *
 * @author hkuno.  Based on ResultSetResource Iterator, by Dave Reynolds, HPLabs, Bristol <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
-* @version $Revision: 1.18 $ on $Date: 2009/04/24 12:52:50 $
+* @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:37 $
 */
 public class ResultSetReifIterator extends ResultSetIterator<Triple> {
 

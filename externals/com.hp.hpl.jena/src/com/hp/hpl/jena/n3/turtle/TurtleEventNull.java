@@ -10,7 +10,7 @@ import com.hp.hpl.jena.graph.Triple;
 
 /**
  * @author Andy Seaborne
- * @version $Id: TurtleEventNull.java,v 1.3 2008/12/28 19:32:27 andy_seaborne Exp $
+ * @version $Id: TurtleEventNull.java,v 1.1 2009/06/29 08:55:45 castagna Exp $
  */
 public class TurtleEventNull implements TurtleEventHandler
 {

@@ -1,7 +1,7 @@
 /*
  	(c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: TransactionAbortedException.java,v 1.8 2009/01/26 17:35:45 chris-dollin Exp $
+ 	$Id: TransactionAbortedException.java,v 1.1 2009/06/29 08:55:41 castagna Exp $
 */
 
 package com.hp.hpl.jena.assembler.exceptions;

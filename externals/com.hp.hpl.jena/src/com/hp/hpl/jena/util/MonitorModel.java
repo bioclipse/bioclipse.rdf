@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2005, Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: MonitorModel.java,v 1.6 2009/01/29 08:54:45 chris-dollin Exp $
+ * $Id: MonitorModel.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
  *****************************************************************/
 
 package com.hp.hpl.jena.util;
@@ -25,7 +25,7 @@ import com.hp.hpl.jena.rdf.model.impl.ModelCom;
  * fire change notification.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.1 $
  */
 
 public class MonitorModel extends ModelCom {

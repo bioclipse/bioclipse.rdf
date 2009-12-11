@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
  * [See end of file]
- * $Id: XSDbase64Binary.java,v 1.13 2009/01/16 17:23:57 andy_seaborne Exp $
+ * $Id: XSDbase64Binary.java,v 1.1 2009/06/29 08:56:03 castagna Exp $
  *****************************************************************/
 package com.hp.hpl.jena.datatypes.xsd;
 
@@ -20,7 +20,7 @@ import com.hp.hpl.jena.graph.impl.LiteralLabel;
  * This only needs to implement the unparsing.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.13 $ on $Date: 2009/01/16 17:23:57 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:56:03 $
  */
 public class XSDbase64Binary extends XSDDatatype {
     

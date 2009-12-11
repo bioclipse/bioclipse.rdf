@@ -1,7 +1,7 @@
 /*
     (c) Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  [See end of file]
-  $Id: Relation.java,v 1.15 2009/01/28 09:24:49 andy_seaborne Exp $
+  $Id: Relation.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
 */
 
 package com.hp.hpl.jena.xmloutput.impl;
@@ -22,7 +22,7 @@ import com.hp.hpl.jena.util.iterator.Map1Iterator;
  *
  * Complete with transitive closure algorithm.
  * @author jjc
- * @version  Release='$Name:  $' Revision='$Revision: 1.15 $' Date='$Date: 2009/01/28 09:24:49 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:51 $'
  */
 class Relation<T> {
     final private Map<T, Set<T>> rows;
@@ -284,6 +284,6 @@ class Relation<T> {
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: Relation.java,v 1.15 2009/01/28 09:24:49 andy_seaborne Exp $
+ * $Id: Relation.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
  *
  */

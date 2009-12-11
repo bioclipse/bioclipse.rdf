@@ -2,7 +2,7 @@
  *  (c)     Copyright 2000, 2001, 2002, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  *   All rights reserved.
   [See end of file]
-  $Id: Basic.java,v 1.22 2009/01/19 14:18:16 chris-dollin Exp $
+  $Id: Basic.java,v 1.1 2009/06/29 08:55:51 castagna Exp $
 */
 
 package com.hp.hpl.jena.xmloutput.impl;
@@ -23,7 +23,7 @@ import com.hp.hpl.jena.vocabulary.RDFSyntax;
 /** Writes out an XML serialization of a model.
  *
  * @author  bwm
- * @version   Release='$Name:  $' Revision='$Revision: 1.22 $' Date='$Date: 2009/01/19 14:18:16 $'
+ * @version   Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:51 $'
  */
 public class Basic extends BaseXMLWriter 
     {

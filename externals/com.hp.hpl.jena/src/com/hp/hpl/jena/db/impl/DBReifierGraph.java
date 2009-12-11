@@ -24,7 +24,7 @@ import java.util.*;
  * @since Jena 2.0
  * 
  * @author csayers 
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.1 $
  */
 public class DBReifierGraph implements Graph {
 

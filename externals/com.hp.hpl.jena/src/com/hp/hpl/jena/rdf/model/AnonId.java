@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: AnonId.java,v 1.13 2009/01/16 17:23:52 andy_seaborne Exp $
+ * $Id: AnonId.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
  */
 
 package com.hp.hpl.jena.rdf.model;
@@ -38,7 +38,7 @@ import com.hp.hpl.jena.shared.impl.JenaParameters;
  * <p>This id is guaranteed to be unique on this machine.</p>
  *
  * @author bwm
- * @version $Name:  $ $Revision: 1.13 $ $Date: 2009/01/16 17:23:52 $
+ * @version $Name:  $ $Revision: 1.1 $ $Date: 2009/06/29 08:55:38 $
  */
 
 // This version contains experimental modifications by der to 

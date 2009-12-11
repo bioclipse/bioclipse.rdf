@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: LateBindingIterator.java,v 1.8 2009/01/27 14:05:56 chris-dollin Exp $
+ * $Id: LateBindingIterator.java,v 1.1 2009/06/29 08:55:49 castagna Exp $
  *
  *
  * LateBindingIterator.java
@@ -43,7 +43,7 @@ import java.util.Iterator ;
  * code, while delaying the evaluation of what actually
  * is going to be iterated over.
  * @author jjc
- * @version Release='$Name:  $' Revision='$Revision: 1.8 $' Date='$Date: 2009/01/27 14:05:56 $'
+ * @version Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:49 $'
  */
 abstract public class LateBindingIterator<T> implements Iterator<T> {
 

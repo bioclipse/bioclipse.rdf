@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: XSDDatatype.java,v 1.20 2009/05/08 14:09:37 der Exp $
+ * $Id: XSDDatatype.java,v 1.1 2009/06/29 08:56:03 castagna Exp $
  *****************************************************************/
 
 package com.hp.hpl.jena.datatypes.xsd;
@@ -41,7 +41,7 @@ import org.apache.xerces.xni.grammars.XSGrammar;
  * XSD implementation.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.20 $ on $Date: 2009/05/08 14:09:37 $
+ * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:56:03 $
  */
 public class XSDDatatype extends BaseDatatype {
 

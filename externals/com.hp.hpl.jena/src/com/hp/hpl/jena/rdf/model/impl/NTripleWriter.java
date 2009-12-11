@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: NTripleWriter.java,v 1.24 2009/04/24 12:52:47 andy_seaborne Exp $
+ * $Id: NTripleWriter.java,v 1.1 2009/06/29 08:55:32 castagna Exp $
  */
 
 package com.hp.hpl.jena.rdf.model.impl;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /** Writes out an XML serialization of a model.
  *
  * @author  bwm
- * @version   Release='$Name:  $' Revision='$Revision: 1.24 $' Date='$Date: 2009/04/24 12:52:47 $'
+ * @version   Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $'
  */
 public class NTripleWriter extends Object implements RDFWriter {
 

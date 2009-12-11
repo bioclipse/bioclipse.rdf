@@ -8,7 +8,7 @@ package com.hp.hpl.jena.vocabulary;
 
 /* Current Dublin Core version
  * Currently, version 1.1
- * @version $Id: DC.java,v 1.10 2008/12/28 19:32:07 andy_seaborne Exp $
+ * @version $Id: DC.java,v 1.1 2009/06/29 08:55:36 castagna Exp $
  */
 
 public class DC  extends DC_11

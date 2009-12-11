@@ -1,7 +1,7 @@
 /*
     (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP, all rights reserved.
     [See end of file]
-    $Id: RuleReasoner.java,v 1.7 2009/01/27 07:57:36 chris-dollin Exp $
+    $Id: RuleReasoner.java,v 1.1 2009/06/29 08:55:38 castagna Exp $
 */
 package com.hp.hpl.jena.reasoner.rulesys;
 
