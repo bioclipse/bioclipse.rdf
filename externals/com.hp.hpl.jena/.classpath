@@ -4,15 +4,12 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="jars/antlr-2.7.5.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/commons-logging-1.1.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/concurrent.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="jars/icu4j-3.4.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/iri.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/json.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/junit.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/lucene-core-2.3.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry kind="lib" path="jars/log4j-1.2.13.jar"/>
-	<classpathentry kind="lib" path="jars/stax-api-1.0.1.jar"/>
-	<classpathentry kind="lib" path="jars/wstx-asl-3.2.9.jar"/>
-	<classpathentry kind="lib" path="jars/icu4j-3.4.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.2.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
