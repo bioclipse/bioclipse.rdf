@@ -21,7 +21,6 @@ import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.structuredb.domain.DBMolecule;
-import net.bioclipse.structuredb.rdf.business.IStructureRDFManager;
 import net.bioclipse.structuredb.rdf.business.StructureRDFManager;
 
 import org.junit.Assert;
@@ -30,7 +29,7 @@ import org.junit.Test;
 
 public class StructureRDFManagerTest extends AbstractManagerTest {
 
-    private static IStructureRDFManager manager;
+    private static StructureRDFManager manager;
     private final static String database1 = "database1";
     private final static String database2 = "database2";
 

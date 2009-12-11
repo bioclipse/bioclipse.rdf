@@ -12,33 +12,23 @@ package net.bioclipse.structuredb.rdf.business;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.core.domain.IMolecule;
 import net.bioclipse.core.domain.RecordableList;
-import net.bioclipse.jobs.BioclipseUIJob;
+import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.RDFManager;
-import net.bioclipse.structuredb.business.IStructureDBChangeListener;
-import net.bioclipse.structuredb.domain.Annotation;
-import net.bioclipse.structuredb.domain.ChoiceAnnotation;
 import net.bioclipse.structuredb.domain.DBMolecule;
-import net.bioclipse.structuredb.domain.RealNumberAnnotation;
-import net.bioclipse.structuredb.domain.TextAnnotation;
-import net.bioclipse.structuredb.domain.User;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class StructureRDFManager implements IStructureRDFManager {
+public class StructureRDFManager implements IBioclipseManager {
 
     Map<String,IRDFStore> stores = new HashMap<String,IRDFStore>();
     
@@ -52,39 +42,6 @@ public class StructureRDFManager implements IStructureRDFManager {
     
     public String getManagerName() {
         return "structrdf";
-    }
-
-    public void addMoleculesFromSDF(String databaseName, String filePath)
-            throws BioclipseException {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void addMoleculesFromSDF(String databaseName, IFile file,
-            IProgressMonitor monitor) throws BioclipseException {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void addMoleculesFromSDF(String databaseName, IFile file)
-            throws BioclipseException {
-        // TODO Auto-generated method stub
-
-    }
-
-    public List<Annotation> allAnnotations(String databaseName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<String> allDatabaseNames() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<TextAnnotation> allLabels(String databaseName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public List<DBMolecule> allMolecules(String databaseName) {
@@ -111,13 +68,10 @@ public class StructureRDFManager implements IStructureRDFManager {
                     allMolecules.add(mol);
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (BioclipseException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (CoreException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -126,17 +80,6 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     public List<DBMolecule> allMoleculesByName(String databaseName,
             String structureName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<User> allUsers(String databaseName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ChoiceAnnotation createChoiceAnnotation(String databaseName,
-            String propertyName, String value) throws IllegalArgumentException {
         // TODO Auto-generated method stub
         return null;
     }
@@ -171,29 +114,6 @@ public class StructureRDFManager implements IStructureRDFManager {
         return m;
     }
 
-    public RealNumberAnnotation createRealNumberAnnotation(String databaseName,
-            String propertyName, double value) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public TextAnnotation createTextAnnotation(String databaseName,
-            String propertyName, String value) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public User createUser(String databaseName, String username,
-            String password, boolean sudoer) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void deleteAnnotation(String database, Annotation annotation) {
-        // TODO Auto-generated method stub
-
-    }
-
     public void deleteDatabase(String databaseName) {
         if (stores.containsKey(databaseName)) {
             stores.remove(databaseName);
@@ -205,127 +125,8 @@ public class StructureRDFManager implements IStructureRDFManager {
 
     }
 
-    public void deleteWithMolecules(String databaseName, Annotation annotation) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void deleteWithMolecules(String name, Annotation annotation,
-            IProgressMonitor monitor) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public DBMolecule moleculeAtIndexInLabel(String databaseName, int index,
-            TextAnnotation annotation) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public int numberOfMoleculesInLabel(String databaseName,
-            TextAnnotation annotation) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void save(String database, DBMolecule molecule) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void save(String database, Annotation annotation) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public List<DBMolecule> smartsQuery(String database, String smarts) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<DBMolecule> smartsQuery(String database, String smarts,
-            IProgressMonitor monitor) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Iterator<DBMolecule> smartsQueryIterator(String database,
-            String smarts) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Iterator<DBMolecule> smartsQueryIterator(String database,
-            String smarts, IProgressMonitor monitor) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<DBMolecule> subStructureSearch(String databaseName,
-            IMolecule molecule) throws BioclipseException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<DBMolecule> subStructureSearch(String databaseName,
-            IMolecule molecule, IProgressMonitor monitor)
-            throws BioclipseException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Iterator<DBMolecule> subStructureSearchIterator(String databaseName,
-            IMolecule molecule) throws BioclipseException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public User userByName(String databaseName, String username) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public IRDFStore getStore(String databaseName) {
         return stores.get(databaseName);
     }
-
-    public void addListener(IStructureDBChangeListener listener) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public int numberOfMoleculesInDatabaseInstance(String databaseName) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    public void removeListener(IStructureDBChangeListener listener) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void addMoleculesFromFiles(String dbName, List<?> files) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void addMoleculesFromFiles(String dbName, List<?> files,
-            IProgressMonitor monitor) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void smartsQuery(String dbName, String smarts,
-            BioclipseUIJob<List<?>> uiJob) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void subStructureSearch(String dbName, IMolecule molecule,
-            BioclipseUIJob<List<?>> uijob) {
-        // TODO Auto-generated method stub
-        
-    }
-
 
 }
