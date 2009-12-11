@@ -18,7 +18,5 @@
 	<classpathentry exported="true" kind="lib" path="jars/lucene-core-2.3.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.0.0.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/xml-apis.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry kind="lib" path="jars/xercesImpl-2.9.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
