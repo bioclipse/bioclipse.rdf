@@ -860,7 +860,7 @@ GNU AGPL, see
    </url>
 
    <requires>
-      <import feature="net.bioclipse.rdf_feature" version="2.2.0.RC2" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.2.0.RC2"/>
    </requires>
 
    <plugin
@@ -882,6 +882,13 @@ GNU AGPL, see
          download-size="0"
          install-size="0"
          version="2.0.0.0rc7"
+         unpack="false"/>
+
+   <plugin
+         id="com.hp.hpl.jena.tdb"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
