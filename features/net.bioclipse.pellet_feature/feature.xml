@@ -881,7 +881,7 @@ GNU AGPL, see
          id="org.mindswap.pellet"
          download-size="0"
          install-size="0"
-         version="2.0.0.0rc7"
+         version="2.0.0"
          unpack="false"/>
 
    <plugin
