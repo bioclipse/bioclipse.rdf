@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf_feature"
       label="RDF Feature"
-      version="2.2.0.RC2"
+      version="2.2.0.RC3"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.rdf">
 
@@ -40,7 +40,7 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.2.0.RC2" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.core_feature" version="2.2.0.RC3" match="greaterOrEqual"/>
    </requires>
 
    <plugin
