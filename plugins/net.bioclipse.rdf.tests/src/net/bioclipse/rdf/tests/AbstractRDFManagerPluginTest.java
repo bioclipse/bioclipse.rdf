@@ -107,6 +107,25 @@ public abstract class AbstractRDFManagerPluginTest {
         Assert.assertEquals("http://example.com/#object", triple.get(1));
     }
 
+    @Test public void testImportFromStream_NTriple() throws Exception {
+        URI uri = getClass().getResource("/testFiles/example.nt").toURI();
+        URL url=FileLocator.toFileURL(uri.toURL());
+        IRDFStore store = rdf.createStore();
+        long originalTripleCount = rdf.size(store);
+        rdf.importFromStream(store, url.openStream(), "N-TRIPLE");
+        Assert.assertEquals(
+            originalTripleCount+1,
+            rdf.size(store)
+        );
+        List<List<String>> results = askAllTriplesAbout(
+            store, "http://example.com/#subject"
+        );
+        Assert.assertEquals(1, results.size());
+        List<String> triple = results.get(0);
+        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
+        Assert.assertEquals("http://example.com/#object", triple.get(1));
+    }
+
     @Test public void testImportFile_RDFXML() throws Exception {
         URI uri = getClass().getResource("/testFiles/example.rdfxml").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());

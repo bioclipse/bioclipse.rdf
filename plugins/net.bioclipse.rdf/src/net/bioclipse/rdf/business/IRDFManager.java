@@ -11,6 +11,7 @@
 package net.bioclipse.rdf.business;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
@@ -49,6 +50,17 @@ public interface IRDFManager extends IBioclipseManager {
     @TestMethods("testImportFile_RDFXML,testImportFile_NTriple")
     public IRDFStore importFile(IRDFStore store, String target, String format)
         throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, InputStream stream, String format",
+        methodSummary = "Loads an RDF file in the given content format " +
+                "(\"RDF/XML\", \"N-TRIPLE\", \"TURTLE\" and \"N3\") into " +
+                "the given store"
+    )
+    public IRDFStore importFromStream(
+            IRDFStore store, InputStream stream, String format
+        ) throws IOException, BioclipseException, CoreException;
 
     @Recorded
     public IRDFStore importFile(IRDFStore store, IFile target, String format,
