@@ -35,10 +35,23 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
-        methodSummary = "Creates a new RDF store"
+        methodSummary = "Creates a new in-memory store."
+    )
+    @TestMethods("testCreateInMemoryStore")
+    public IRDFStore createInMemoryStore();
+
+    @Recorded
+    @PublishedMethod(
+        params = "String tripleStoreDirectoryPath",
+        methodSummary = "Creates a new on-disk store, " +
+            "(using the Jena TDB package, which stores on disk as a " +
+            "complement to memory, for scalability). " +
+            "tripleStoreDirectoryPath is the path (relative to the" +
+            "Bioclipse workspace) to a folder to use for the " +
+            "triple store"
     )
     @TestMethods("testCreateStore")
-    public IRDFStore createStore();
+    public IRDFStore createStore(String tripleStoreDirectoryPath);
 
     @Recorded
     @PublishedMethod(

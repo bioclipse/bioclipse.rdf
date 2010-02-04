@@ -30,12 +30,17 @@ public abstract class AbstractRDFManagerPluginTest {
     protected static IRDFManager rdf;
 
     @Test public void testCreateStore() {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createStore("/Virtual/test.store");
+        Assert.assertNotNull(store);
+    }
+    
+    @Test public void testCreateInMemoryStore() {
+        IRDFStore store = rdf.createInMemoryStore();
         Assert.assertNotNull(store);
     }
 
     @Test public void testDump() {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         Assert.assertNotNull(store);
         String dump = rdf.dump(store);
         Assert.assertNotNull(dump);
@@ -43,14 +48,14 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testSize() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         Assert.assertNotNull(store);
         long size = rdf.size(store);
         Assert.assertNotSame(0, size);
     }
 
     @Test public void testAddObjectProperty() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         Assert.assertNotNull(store);
         long originalSize = rdf.size(store);
         rdf.addObjectProperty(store,
@@ -69,7 +74,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testAddDataProperty() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         Assert.assertNotNull(store);
         long originalSize = rdf.size(store);
         rdf.addDataProperty(store,
@@ -91,7 +96,7 @@ public abstract class AbstractRDFManagerPluginTest {
         URI uri = getClass().getResource("/testFiles/example.nt").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());
         String path=url.getFile();
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         long originalTripleCount = rdf.size(store);
         rdf.importFile(store, path, "N-TRIPLE");
         Assert.assertEquals(
@@ -110,7 +115,7 @@ public abstract class AbstractRDFManagerPluginTest {
     @Test public void testImportFromStream_NTriple() throws Exception {
         URI uri = getClass().getResource("/testFiles/example.nt").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         long originalTripleCount = rdf.size(store);
         rdf.importFromStream(store, url.openStream(), "N-TRIPLE");
         Assert.assertEquals(
@@ -130,7 +135,7 @@ public abstract class AbstractRDFManagerPluginTest {
         URI uri = getClass().getResource("/testFiles/example.rdfxml").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());
         String path=url.getFile();
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         long originalTripleCount = rdf.size(store);
         rdf.importFile(store, path, "RDF/XML");
         Assert.assertEquals(
@@ -149,7 +154,7 @@ public abstract class AbstractRDFManagerPluginTest {
     @Test public void testImportURL() throws Exception {
         URI uri = getClass().getResource("/testFiles/example.rdfxml").toURI();
         URL url=FileLocator.toFileURL(uri.toURL());
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         long originalTripleCount = rdf.size(store);
         System.out.println(url.toExternalForm());
         rdf.importURL(store, url.toExternalForm());
@@ -167,7 +172,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testSaveRDFXML() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
             "http://example.com/#predicate",
@@ -176,13 +181,13 @@ public abstract class AbstractRDFManagerPluginTest {
         String rdfPath = "/Virtual/rdf" + store.hashCode() + ".xml";
         rdf.saveRDFXML(store, rdfPath);
 
-        IRDFStore loadedStore = rdf.createStore();
+        IRDFStore loadedStore = rdf.createInMemoryStore();
         rdf.importFile(loadedStore, rdfPath, "RDF/XML");
         Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
     }
 
     @Test public void testSaveRDFNTriple() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
             "http://example.com/#predicate",
@@ -191,13 +196,13 @@ public abstract class AbstractRDFManagerPluginTest {
         String rdfPath = "/Virtual/rdf" + store.hashCode() + ".nt";
         rdf.saveRDFNTriple(store, rdfPath);
 
-        IRDFStore loadedStore = rdf.createStore();
+        IRDFStore loadedStore = rdf.createInMemoryStore();
         rdf.importFile(loadedStore, rdfPath, "N-TRIPLE");
         Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
     }
 
     @Test public void testCopy() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
             "http://example.com/#predicate",
@@ -209,7 +214,7 @@ public abstract class AbstractRDFManagerPluginTest {
             "someDataObject"
         );
 
-        IRDFStore secondStore = rdf.createStore();
+        IRDFStore secondStore = rdf.createInMemoryStore();
         Assert.assertEquals(0,
             tripleCount(secondStore, "http://example.com/#subject")
         );
@@ -228,7 +233,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testAddPrefix_WithoutPrefix() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
             "http://example.com/#predicate",
@@ -252,7 +257,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testAddPrefix_WithPrefix() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addPrefix(store, "foobar", "http://example.com/#");
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
@@ -277,7 +282,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testSaveRDFN3() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.addObjectProperty(store,
             "http://example.com/#subject",
             "http://example.com/#predicate",
@@ -286,7 +291,7 @@ public abstract class AbstractRDFManagerPluginTest {
         String rdfPath = "/Virtual/rdf" + store.hashCode() + ".n3";
         rdf.saveRDFN3(store, rdfPath);
 
-        IRDFStore loadedStore = rdf.createStore();
+        IRDFStore loadedStore = rdf.createInMemoryStore();
         rdf.importFile(loadedStore, rdfPath, "N3");
         Assert.assertEquals(rdf.size(store), rdf.size(loadedStore));
     }
@@ -311,7 +316,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     @Test public void testImportRDFa() throws Exception {
-        IRDFStore store = rdf.createStore();
+        IRDFStore store = rdf.createInMemoryStore();
         rdf.importRDFa(store, "http://egonw.github.com/");
         String query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
         		"SELECT ?homepage { ?s foaf:workplaceHomepage ?homepage }";

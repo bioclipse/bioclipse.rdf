@@ -200,8 +200,12 @@ public class RDFManager implements IBioclipseManager {
         return split;
     }
 
-    public IRDFStore createStore() {
+    public IRDFStore createInMemoryStore() {
         return new JenaModel();
+    }
+
+    public IRDFStore createStore(String tripleStoreDirectoryPath) {
+    	return new TDBModel(tripleStoreDirectoryPath);
     }
 
     public void addObjectProperty(IRDFStore store,
