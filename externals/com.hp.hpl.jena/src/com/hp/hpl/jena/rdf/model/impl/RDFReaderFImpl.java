@@ -42,6 +42,8 @@ import com.hp.hpl.jena.JenaRuntime ;
  */
 public class RDFReaderFImpl extends Object implements RDFReaderF {
 
+	private static ClassLoader classLoader = null;
+	
     private static final String GRDDLREADER = "com.hp.hpl.jena.grddl.GRDDLReader";
     private static final String TURTLEREADER = "com.hp.hpl.jena.n3.turtle.TurtleReader" ;
     
@@ -98,6 +100,10 @@ public class RDFReaderFImpl extends Object implements RDFReaderF {
         return getReader(DEFAULTLANG);
     }
 
+    public static void setClassLoader(ClassLoader classLoader) {
+    	RDFReaderFImpl.classLoader = classLoader;
+    }
+
     public RDFReader getReader(String lang)  {
 
         // setup default language
@@ -110,8 +116,11 @@ public class RDFReaderFImpl extends Object implements RDFReaderF {
             throw new NoReaderForLangException( lang );
         }
         try {
-          return (RDFReader) Class.forName(className)
-                                  .newInstance();
+        	if (classLoader != null) {
+        		return (RDFReader)classLoader.loadClass(className).newInstance();
+        	} else {
+        		return (RDFReader)Class.forName(className).newInstance();
+        	}
         } catch (ClassNotFoundException e) {
         	if (className.equals(GRDDLREADER))
                 throw new ConfigException("The GRDDL reader must be downloaded separately from Sourceforge, and included on the classpath.",e);
