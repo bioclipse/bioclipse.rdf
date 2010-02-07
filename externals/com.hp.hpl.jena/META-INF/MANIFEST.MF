@@ -22,8 +22,7 @@ Bundle-ClassPath: .,
 Bundle-Activator: net.bioclipse.jena.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
-Import-Package: com.hp.hpl.jena.riot,
- org.apache.log4j
+Import-Package: org.apache.log4j
 Export-Package: com.hp.hpl.jena,
  com.hp.hpl.jena.assembler,
  com.hp.hpl.jena.assembler.assemblers,
