@@ -13,6 +13,7 @@ package net.bioclipse.pellet.business;
 import net.bioclipse.rdf.business.IJenaStore;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class PelletModel implements IJenaStore {
@@ -20,6 +21,7 @@ public class PelletModel implements IJenaStore {
     private Model model;
 
     protected PelletModel(String tripleStoreDirectoryPath) {
+    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
         model = TDBFactory.createModel(tripleStoreDirectoryPath);
     }
 

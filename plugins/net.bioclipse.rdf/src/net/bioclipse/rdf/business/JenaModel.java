@@ -12,12 +12,14 @@ package net.bioclipse.rdf.business;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class JenaModel implements IJenaStore {
 
     private Model model;
     
     protected JenaModel() {
+    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
         model = ModelFactory.createOntologyModel();
     }
     

@@ -16,12 +16,14 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class PelletInMemoryModel implements IJenaStore {
 
     private Model model;
     
     protected PelletInMemoryModel() {
+    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
         model = ModelFactory.createOntologyModel(
             PelletReasonerFactory.THE_SPEC
         );
