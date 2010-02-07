@@ -328,6 +328,30 @@ public abstract class AbstractRDFManagerPluginTest {
         }
     }
 
+    @Test public void testAllClasses() throws Exception  {
+        IRDFStore store = rdf.createInMemoryStore();
+        rdf.importRDFa(store, "http://egonw.github.com/");
+        List<String> classes = rdf.allClasses(store);
+        Assert.assertNotSame(0, classes.size());
+        for (String classURI : classes) {
+        	System.out.println("Class: " + classURI);
+            Assert.assertNotNull(classURI);
+            Assert.assertNotSame(0, classURI.length());
+        }
+    }
+    
+    @Test public void testAllPredicates() throws Exception  {
+        IRDFStore store = rdf.createInMemoryStore();
+        rdf.importRDFa(store, "http://egonw.github.com/");
+        List<String> predicates = rdf.allPredicates(store);
+        Assert.assertNotSame(0, predicates.size());
+        for (String predicateURI : predicates) {
+        	System.out.println("Predicate: " + predicateURI);
+            Assert.assertNotNull(predicateURI);
+            Assert.assertNotSame(0, predicateURI.length());
+        }
+    }
+
     private int tripleCount(IRDFStore store, String string) throws Exception {
         return askAllTriplesAbout(store, string).size();
     }

@@ -206,4 +206,19 @@ public interface IRDFManager extends IBioclipseManager {
     public void addPrefix(IRDFStore store, String prefix, String namespace)
         throws BioclipseException;
 
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store",
+        methodSummary = "Lists all existing classes."
+    )
+    @TestMethods("testAllClasses")
+    public List<String> allClasses(IRDFStore store) throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store",
+        methodSummary = "Lists all existing predicates."
+    )
+    @TestMethods("testAllPredicates")
+    public List<String> allPredicates(IRDFStore store) throws BioclipseException;
 }

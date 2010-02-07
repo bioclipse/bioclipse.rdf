@@ -382,4 +382,53 @@ public class RDFManager implements IBioclipseManager {
         return importURL(store, pyrdfaURL, monitor);
     }
     
+    public List<String> allClasses(IRDFStore store) throws BioclipseException {
+    	try {
+			List<List<String>> results = sparql(store,
+				"SELECT DISTINCT ?class WHERE {" +
+				" [] a ?class" +
+				"}"
+			);
+			List<String> classes = new ArrayList<String>();
+			for (List<String> resultRow : results) {
+				classes.add(resultRow.get(0));
+			}
+			return classes;
+		} catch (IOException exception) {
+			throw new BioclipseException(
+			    "Could not query to store: " + exception.getMessage(),
+			    exception
+			);
+		} catch (CoreException exception) {
+			throw new BioclipseException(
+				"Could not query to store: " + exception.getMessage(),
+				exception
+			);
+		}
+    }
+
+    public List<String> allPredicates(IRDFStore store) throws BioclipseException {
+    	try {
+			List<List<String>> results = sparql(store,
+				"SELECT DISTINCT ?predicate WHERE {" +
+				" [] ?predicate []" +
+				"}"
+			);
+			List<String> predicates = new ArrayList<String>();
+			for (List<String> resultRow : results) {
+				predicates.add(resultRow.get(0));
+			}
+			return predicates;
+		} catch (IOException exception) {
+			throw new BioclipseException(
+			    "Could not query to store: " + exception.getMessage(),
+			    exception
+			);
+		} catch (CoreException exception) {
+			throw new BioclipseException(
+				"Could not query to store: " + exception.getMessage(),
+				exception
+			);
+		}
+    }
 }
