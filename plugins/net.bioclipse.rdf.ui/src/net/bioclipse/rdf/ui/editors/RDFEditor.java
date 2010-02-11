@@ -246,6 +246,7 @@ extends EditorPart implements ISelectionListener ,
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			setPartName(file.getName());
 		}
 	}
 
