@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.ui,
  net.bioclipse.rdf,
  com.hp.hpl.jena;bundle-version="2.6.2",
  net.bioclipse.core,
- net.bioclipse.cdk.business;bundle-version="2.2.0"
+ net.bioclipse.cdk.business;bundle-version="2.2.0",
+ net.bioclipse.ui.business;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

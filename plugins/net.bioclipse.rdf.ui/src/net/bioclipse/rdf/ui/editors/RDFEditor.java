@@ -11,6 +11,7 @@
 package net.bioclipse.rdf.ui.editors;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 import net.bioclipse.cdk.business.CDKManager;
@@ -19,12 +20,16 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
 import net.bioclipse.rdf.business.RDFManager;
+import net.bioclipse.ui.business.UIManager;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -90,13 +95,56 @@ extends EditorPart implements ISelectionListener ,
 		}
 	}
 
-	private GraphViewer viewer;
+    private final class ResourceDoubleClickedListener implements
+    IDoubleClickListener {
+
+		@Override
+		public void doubleClick(DoubleClickEvent event) {
+			ISelection selection = event.getSelection();
+			if (selection instanceof StructuredSelection) {
+				Object firstElem = ((StructuredSelection)selection).getFirstElement();
+				if (firstElem instanceof Resource) {
+					Resource res = (Resource)firstElem;
+					Model model = ((JenaModel)store).getModel();
+					StmtIterator iter = model.listStatements(
+						res, RDF.type, model.createResource("http://www.bioclipse.net/structuredb/#Molecule")
+					);
+					if (iter.hasNext()) {
+						// it's a molecule :)
+						NodeIterator smileses = model.listObjectsOfProperty(
+							res, model.createProperty("http://rdf.openmolecules.net/?smiles")
+						);
+						if (smileses.hasNext()) {
+							Literal smiles = (Literal)smileses.next();
+							// just take the first
+							try {
+								ICDKMolecule mol = cdk.fromSMILES(smiles.getString());
+								ui.open(mol);
+							} catch (BioclipseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (CoreException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
+    }
+
+    private GraphViewer viewer;
     private RDFContentProvider contentProvider;
 
     private IRDFStore store = null; 
     
     RDFManager rdf = new RDFManager();
     CDKManager cdk = new CDKManager();
+    UIManager  ui  = new UIManager();
 
 	public RDFEditor() {
 		super();
