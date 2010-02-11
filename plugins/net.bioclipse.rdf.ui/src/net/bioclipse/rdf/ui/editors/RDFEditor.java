@@ -187,6 +187,9 @@ extends EditorPart implements ISelectionListener ,
         viewer.addSelectionChangedListener(
         	new ResourceSelectedListener()
         );
+        viewer.addDoubleClickListener(
+        	new ResourceDoubleClickedListener()
+        );
         updateModel();
         getEditorSite().getPage().addSelectionListener(this);
         getSite().setSelectionProvider(this);
