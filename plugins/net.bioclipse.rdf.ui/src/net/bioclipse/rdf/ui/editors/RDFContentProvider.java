@@ -32,7 +32,6 @@ public class RDFContentProvider implements IGraphContentProvider {
     }
     
     public Object getDestination( Object rel ) {
-        System.out.println("getDestination: " + rel);
         if (rel instanceof Statement) {
         	RDFNode resource = ((Statement)rel).getObject();
         	if (resource.isLiteral())
@@ -48,7 +47,6 @@ public class RDFContentProvider implements IGraphContentProvider {
     }
 
     public Object[] getElements( Object input ) {
-        System.out.println("getElements");
         List<Object> elements = new ArrayList<Object>();
         StmtIterator iter = model.listStatements();
         while (iter.hasNext()) {
@@ -62,7 +60,6 @@ public class RDFContentProvider implements IGraphContentProvider {
     }
 
     public Object getSource( Object rel ) {
-        System.out.println("getSource: " + rel);
         if (rel instanceof Statement) {
         	Resource resource = ((Statement)rel).getSubject();
         	if (!resource.getURI().startsWith("http://www.w3.org/"))
