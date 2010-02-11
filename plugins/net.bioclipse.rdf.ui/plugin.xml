@@ -6,7 +6,7 @@
       <editor
             name="RDF Graph Viewer"
             extensions="n3"
-            icon="icons/sample.gif"
+            icon="icons/rdf.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="net.bioclipse.rdf.ui.editors.RDFEditor"
             id="net.bioclipse.rdf.ui.editors.RDFEditor">
