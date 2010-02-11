@@ -139,6 +139,7 @@ extends EditorPart implements ISelectionListener ,
 
     private GraphViewer viewer;
     private RDFContentProvider contentProvider;
+    private RDFLabelProvider labelProvider;
 
     private IRDFStore store = null; 
     
@@ -181,8 +182,9 @@ extends EditorPart implements ISelectionListener ,
 	public void createPartControl(Composite parent) {
         viewer = new GraphViewer(parent, SWT.NONE);
         contentProvider = new RDFContentProvider();
+        labelProvider = new RDFLabelProvider();
         viewer.setContentProvider(contentProvider);
-        viewer.setLabelProvider(new RDFLabelProvider());
+        viewer.setLabelProvider(labelProvider);
         viewer.setLayoutAlgorithm(new SpringLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), true);
         viewer.addSelectionChangedListener(
         	new ResourceSelectedListener()
@@ -201,6 +203,7 @@ extends EditorPart implements ISelectionListener ,
 				this.store = rdf.createInMemoryStore();
 				readEditorInputIntoStore(store);
 				contentProvider.setModel(((JenaModel)store).getModel());
+				labelProvider.setModel(((JenaModel)store).getModel());
 				List<List<String>> results = rdf.sparql(store,
 					"SELECT ?s WHERE {?s a [] } LIMIT 1"
 				);
