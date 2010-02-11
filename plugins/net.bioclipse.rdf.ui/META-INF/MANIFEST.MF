@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.zest.layouts;bundle-version="1.1.0",
  net.bioclipse.rdf,
  com.hp.hpl.jena;bundle-version="2.6.2",
- net.bioclipse.core
+ net.bioclipse.core,
+ net.bioclipse.cdk.business;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
