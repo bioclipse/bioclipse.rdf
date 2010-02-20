@@ -12,9 +12,6 @@ package net.bioclipse.rdf.ui.editors;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
-
-import javax.print.attribute.standard.Media;
 
 import net.bioclipse.cdk.business.CDKManager;
 import net.bioclipse.cdk.domain.ICDKMolecule;
@@ -22,6 +19,7 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
 import net.bioclipse.rdf.business.RDFManager;
+import net.bioclipse.rdf.model.IStringMatrix;
 import net.bioclipse.ui.business.UIManager;
 
 import org.eclipse.core.resources.IFile;
@@ -207,10 +205,10 @@ extends EditorPart implements ISelectionListener ,
 				readEditorInputIntoStore(store);
 				contentProvider.setModel(((JenaModel)store).getModel());
 				labelProvider.setModel(((JenaModel)store).getModel());
-				List<List<String>> results = rdf.sparql(store,
+				IStringMatrix results = rdf.sparql(store,
 					"SELECT ?s WHERE {?s a [] } LIMIT 1"
 				);
-				viewer.setInput(results.get(0).get(0));
+				viewer.setInput(results.get(1,1));
 			} catch (Exception exception) {
 				exception.printStackTrace();
 				viewer.setInput(exception.getMessage());

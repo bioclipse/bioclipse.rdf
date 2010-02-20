@@ -19,6 +19,7 @@ import java.util.List;
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
+import net.bioclipse.rdf.model.IStringMatrix;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
@@ -64,13 +65,12 @@ public abstract class AbstractRDFManagerPluginTest {
             "http://example.com/#object"
         );
         Assert.assertEquals(1, rdf.size(store)-originalSize);
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("http://example.com/#object", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("http://example.com/#object", results.get(1,"obj"));
     }
 
     @Test public void testAddDataProperty() throws Exception {
@@ -83,13 +83,12 @@ public abstract class AbstractRDFManagerPluginTest {
             "someDataObject"
         );
         Assert.assertEquals(1, rdf.size(store)-originalSize);
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("someDataObject", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("someDataObject", results.get(1,"obj"));
     }
 
     @Test public void testImportFile_NTriple() throws Exception {
@@ -103,13 +102,12 @@ public abstract class AbstractRDFManagerPluginTest {
             originalTripleCount+1,
             rdf.size(store)
         );
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("http://example.com/#object", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("http://example.com/#object", results.get(1,"obj"));
     }
 
     @Test public void testImportFromStream_NTriple() throws Exception {
@@ -122,13 +120,12 @@ public abstract class AbstractRDFManagerPluginTest {
             originalTripleCount+1,
             rdf.size(store)
         );
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("http://example.com/#object", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("http://example.com/#object", results.get(1,"obj"));
     }
 
     @Test public void testImportFile_RDFXML() throws Exception {
@@ -142,13 +139,12 @@ public abstract class AbstractRDFManagerPluginTest {
             originalTripleCount+1,
             rdf.size(store)
         );
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("http://example.com/#object", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("http://example.com/#object", results.get(1,"obj"));
     }
 
     @Test public void testImportURL() throws Exception {
@@ -162,13 +158,12 @@ public abstract class AbstractRDFManagerPluginTest {
             originalTripleCount+1,
             rdf.size(store)
         );
-        List<List<String>> results = askAllTriplesAbout(
+        IStringMatrix results = askAllTriplesAbout(
             store, "http://example.com/#subject"
         );
-        Assert.assertEquals(1, results.size());
-        List<String> triple = results.get(0);
-        Assert.assertEquals("http://example.com/#predicate", triple.get(0));
-        Assert.assertEquals("http://example.com/#object", triple.get(1));
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://example.com/#predicate", results.get(1,"pred"));
+        Assert.assertEquals("http://example.com/#object", results.get(1,"obj"));
     }
 
     @Test public void testSaveRDFXML() throws Exception {
@@ -224,7 +219,7 @@ public abstract class AbstractRDFManagerPluginTest {
         );
     }
 
-    private List<List<String>> askAllTriplesAbout(
+    private IStringMatrix askAllTriplesAbout(
             IRDFStore store, String string) throws Exception {
         String query =
             "SELECT ?pred ?obj " +
@@ -308,11 +303,11 @@ public abstract class AbstractRDFManagerPluginTest {
             "      ?type dcterms:title ?typetitle . " +
             "      FILTER regex(?typetitle, \"Bioclipse\") . " +
             "}";
-        List<List<String>> results = rdf.sparqlRemote(
+        IStringMatrix results = rdf.sparqlRemote(
             "http://rdf.myexperiment.org/sparql", query
         );
-        Assert.assertNotSame(0, results.size());
-        Assert.assertNotSame(0, results.get(0).size());
+        Assert.assertNotSame(0, results.getRowCount());
+        Assert.assertNotSame(0, results.getColumnCount());
     }
 
     @Test public void testImportRDFa() throws Exception {
@@ -320,11 +315,10 @@ public abstract class AbstractRDFManagerPluginTest {
         rdf.importRDFa(store, "http://egonw.github.com/");
         String query = "PREFIX foaf: <http://xmlns.com/foaf/0.1/> " +
         		"SELECT ?homepage { ?s foaf:workplaceHomepage ?homepage }";
-        List<List<String>> homepages = rdf.sparql(store, query);
-        Assert.assertNotSame(0, homepages.size());
-        for (List<String> homepage : homepages) {
-            Assert.assertEquals(1, homepage.size());
-            Assert.assertTrue(homepage.get(0).contains("http://"));
+        IStringMatrix homepages = rdf.sparql(store, query);
+        Assert.assertNotSame(0, homepages.getRowCount());
+        for (String homepage : homepages.getColumn("homepage")) {
+            Assert.assertTrue(homepage.contains("http://"));
         }
     }
 
@@ -353,7 +347,7 @@ public abstract class AbstractRDFManagerPluginTest {
     }
 
     private int tripleCount(IRDFStore store, String string) throws Exception {
-        return askAllTriplesAbout(store, string).size();
+        return askAllTriplesAbout(store, string).getRowCount();
     }
 
 }
