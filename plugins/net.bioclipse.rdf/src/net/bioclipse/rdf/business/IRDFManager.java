@@ -21,6 +21,7 @@ import net.bioclipse.core.TestClasses;
 import net.bioclipse.core.TestMethods;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.rdf.model.IStringMatrix;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -118,7 +119,7 @@ public interface IRDFManager extends IBioclipseManager {
     )
     @TestMethods("testAddDataProperty,testAddObjectProperty," +
         "testImportFile_NTriple,testImportURL")
-    public List<List<String>> sparql(IRDFStore store, String query)
+    public IStringMatrix sparql(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded

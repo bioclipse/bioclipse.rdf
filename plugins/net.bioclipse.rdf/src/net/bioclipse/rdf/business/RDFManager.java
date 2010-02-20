@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import java.util.Set;
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.rdf.model.StringMatrix;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -118,14 +118,14 @@ public class RDFManager implements IBioclipseManager {
         return dump.toString();
     }
 
-    public List<List<String>> sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
+    public StringMatrix sparql(IRDFStore store, String queryString) throws IOException, BioclipseException,
     CoreException {
         if (!(store instanceof IJenaStore))
             throw new RuntimeException(
                 "Can only handle IJenaStore's for now."
             );
 
-        List<List<String>> table = null;
+        StringMatrix table = null;
         Model model = ((IJenaStore)store).getModel();
         Query query = QueryFactory.create(queryString);
         PrefixMapping prefixMap = query.getPrefixMapping();
@@ -139,15 +139,21 @@ public class RDFManager implements IBioclipseManager {
         return table;
     }
 
-    private List<List<String>> convertIntoTable(
+    private StringMatrix convertIntoTable(
             PrefixMapping prefixMap, ResultSet results) {
-        List<List<String>> table = new ArrayList<List<String>>();
+    	StringMatrix table = new StringMatrix();
+    	int rowCount = 0;
+    	int colCount = 0;
         while (results.hasNext()) {
+        	colCount = 0;
+        	rowCount++;
             QuerySolution soln = results.nextSolution();
-            List<String> row = new ArrayList<String>();
             Iterator<String> varNames = soln.varNames();
             while (varNames.hasNext()) {
-                RDFNode node = soln.get(varNames.next());
+            	colCount++;
+            	String varName = varNames.next();
+            	table.setColumnName(colCount, varName);
+                RDFNode node = soln.get(varName);
                 if (node != null) {
                     String nodeStr = node.toString();
                     if (node.isResource()) {
@@ -156,18 +162,17 @@ public class RDFManager implements IBioclipseManager {
                         // use some custom code
                         String[] uriLocalSplit = split(prefixMap, resource);
                         if (uriLocalSplit[0] == null) {
-                            row.add(resource.getURI());
+                        	table.set(rowCount, colCount, resource.getURI());
                         } else {
-                            row.add(
+                        	table.set(rowCount, colCount,
                                 uriLocalSplit[0] + ":" + uriLocalSplit[1]
                             );
                         }
                     } else {
-                        row.add(nodeStr);
+                    	table.set(rowCount, colCount, nodeStr);
                     }
                 }
             }
-            table.add(row);
         }
         return table;
     }
@@ -347,7 +352,7 @@ public class RDFManager implements IBioclipseManager {
         ((IJenaStore)store).getModel().setNsPrefix(prefix, namespace);
     }
 
-    public List<List<String>> sparqlRemote(
+    public StringMatrix sparqlRemote(
            String serviceURL,
            String sparqlQueryString, IProgressMonitor monitor) {
         if (monitor == null)
@@ -359,7 +364,7 @@ public class RDFManager implements IBioclipseManager {
         PrefixMapping prefixMap = query.getPrefixMapping();
         monitor.worked(80);
 
-        List<List<String>> table = null;
+        StringMatrix table = null;
         try {
             ResultSet results = qexec.execSelect();
             table = convertIntoTable(prefixMap, results);
@@ -384,16 +389,12 @@ public class RDFManager implements IBioclipseManager {
     
     public List<String> allClasses(IRDFStore store) throws BioclipseException {
     	try {
-			List<List<String>> results = sparql(store,
+			StringMatrix results = sparql(store,
 				"SELECT DISTINCT ?class WHERE {" +
 				" [] a ?class" +
 				"}"
 			);
-			List<String> classes = new ArrayList<String>();
-			for (List<String> resultRow : results) {
-				classes.add(resultRow.get(0));
-			}
-			return classes;
+			return results.getColumn("class");
 		} catch (IOException exception) {
 			throw new BioclipseException(
 			    "Could not query to store: " + exception.getMessage(),
@@ -409,16 +410,12 @@ public class RDFManager implements IBioclipseManager {
 
     public List<String> allPredicates(IRDFStore store) throws BioclipseException {
     	try {
-			List<List<String>> results = sparql(store,
+			StringMatrix results = sparql(store,
 				"SELECT DISTINCT ?predicate WHERE {" +
 				" [] ?predicate []" +
 				"}"
 			);
-			List<String> predicates = new ArrayList<String>();
-			for (List<String> resultRow : results) {
-				predicates.add(resultRow.get(0));
-			}
-			return predicates;
+			return results.getColumn("predicate");
 		} catch (IOException exception) {
 			throw new BioclipseException(
 			    "Could not query to store: " + exception.getMessage(),
