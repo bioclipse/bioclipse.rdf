@@ -185,7 +185,7 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Queries a remote SPARQL end point."
     )
     @TestMethods("testSparqlRemote")
-    public List<List<String>> sparqlRemote(String url, String SPARQL)
+    public IStringMatrix sparqlRemote(String url, String SPARQL)
         throws BioclipseException;
 
     @Recorded
