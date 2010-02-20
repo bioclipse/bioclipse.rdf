@@ -14,6 +14,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import javax.print.attribute.standard.Media;
+
 import net.bioclipse.cdk.business.CDKManager;
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.core.business.BioclipseException;
@@ -28,6 +30,7 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -247,6 +250,7 @@ extends EditorPart implements ISelectionListener ,
 					"N3", null
 				);
 			} catch (Exception e) {
+				MessageDialog.openError(null, "Error", e.getMessage());
 				e.printStackTrace();
 			}
 			setPartName(file.getName());
