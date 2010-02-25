@@ -45,7 +45,6 @@ public class StringMatrix implements IStringMatrix {
 			);
 	}
 
-	@Override
 	public String get(int row, int col) {
 		checkDimensions(row, col);
 
@@ -56,18 +55,15 @@ public class StringMatrix implements IStringMatrix {
 		return matrixRow.get(col);
 	}
 
-	@Override
 	public String get(int row, String col) {
 		checkRows(row);
 		return get(row, getColumnNumber(col));
 	}
 
-	@Override
 	public int getColumnCount() {
 		return this.cols;
 	}
 
-	@Override
 	public int getColumnNumber(String col) {
 		if (colHeaders != null) {
 			for (Integer colIndex : colHeaders.keySet()) {
@@ -81,7 +77,6 @@ public class StringMatrix implements IStringMatrix {
 		);
 	}
 
-	@Override
 	public String getColumnName(int index) {
 		checkCols(index);
 
@@ -89,12 +84,10 @@ public class StringMatrix implements IStringMatrix {
 		return colHeaders.get(index);
 	}
 
-	@Override
 	public int getRowCount() {
 		return this.rows;
 	}
 
-	@Override
 	public String getRowName(int index) {
 		checkRows(index);
 
@@ -102,17 +95,14 @@ public class StringMatrix implements IStringMatrix {
 		return rowHeaders.get(index);
 	}
 
-	@Override
 	public boolean hasColHeader() {
 		return colHeaders != null;
 	}
 
-	@Override
 	public boolean hasRowHeader() {
 		return rowHeaders != null;
 	}
 
-	@Override
 	public void set(int row, int col, String value) {
 		if (row > rows) rows = row;
 		if (col > cols) cols = col;
@@ -129,7 +119,6 @@ public class StringMatrix implements IStringMatrix {
 		matrixRow.put(col, value);
 	}
 
-	@Override
 	public void setColumnName(int index, String name) {
 		if (index > cols) cols = index;
 		checkCols(index);
@@ -139,7 +128,6 @@ public class StringMatrix implements IStringMatrix {
 		colHeaders.put(index, name);
 	}
 
-	@Override
 	public void setRowName(int index, String name) {
 		checkRows(index);
 
@@ -148,19 +136,16 @@ public class StringMatrix implements IStringMatrix {
 		rowHeaders.put(index, name);
 	}
 
-	@Override
 	public void setSize(int row, int col) {
 		this.rows = row;
 		this.cols = col;
 	}
 
-	@Override
 	public void set(int row, String col, String value) {
 		checkRows(row);
 		set(row, getColumnNumber(col), value);
 	}
 
-	@Override
 	public List<String> getColumn(int col) {
 		checkCols(col);
 
@@ -173,7 +158,6 @@ public class StringMatrix implements IStringMatrix {
 		return results;
 	}
 
-	@Override
 	public List<String> getColumn(String col) {
 		int colNo = getColumnNumber(col);
 		return getColumn(colNo);
