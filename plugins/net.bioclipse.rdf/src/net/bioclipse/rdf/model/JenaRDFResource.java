@@ -63,7 +63,6 @@ public class JenaRDFResource implements IRDFResource {
 		return "";
 	}
 
-	@Override
 	public Object getAdapter(Class adapter) {
 		// TODO Auto-generated method stub
 		return null;

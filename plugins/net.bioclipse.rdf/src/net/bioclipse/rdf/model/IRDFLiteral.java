@@ -11,22 +11,18 @@
 package net.bioclipse.rdf.model;
 
 /**
- * Generalization of an RDF Resource.
+ * Generalization of an RDF Literal.
  */
-public interface IRDFResource extends IRDFClass {
+public interface IRDFLiteral extends IRDFResource {
 
 	/**
-	 * Returns the rdfs:label value, or an empty String if not defined.
-	 *
-	 * @return A non-null, possibly zero-length String.
+	 * Language tag for plain literals.
 	 */
-	public String getRDFSLabel();
+	public String getLanguage();
 
 	/**
-	 * Returns the rdf:type value, or an empty String if not defined.
-	 *
-	 * @return A non-null, possibly zero-length String.
+	 * Datatype URI for types literals.
 	 */
-	public String getRDFType();
+	public String getDatatype();
     
 }
