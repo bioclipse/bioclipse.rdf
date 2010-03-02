@@ -10,10 +10,12 @@
  *******************************************************************************/
 package net.bioclipse.rdf.model;
 
+import org.eclipse.core.runtime.IAdaptable;
+
 /**
  * Generalization of an RDF Resource.
  */
-public interface IRDFResource {
+public interface IRDFResource extends IAdaptable {
 
 	/**
 	 * Returns the rdfs:label value, or an empty String if not defined.
