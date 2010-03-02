@@ -54,7 +54,9 @@ import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -70,9 +72,9 @@ extends EditorPart implements ISelectionListener ,
 			ISelection selection = event.getSelection();
 			if (selection instanceof StructuredSelection) {
 				Object firstElem = ((StructuredSelection)selection).getFirstElement();
+				Model model = ((JenaModel)store).getModel();
 				if (firstElem instanceof Resource) {
 					Resource res = (Resource)firstElem;
-					Model model = ((JenaModel)store).getModel();
 					StmtIterator iter = model.listStatements(
 						res, RDF.type, model.createResource("http://www.bioclipse.net/structuredb/#Molecule")
 					);
@@ -97,6 +99,13 @@ extends EditorPart implements ISelectionListener ,
 						IRDFClass resource = new JenaRDFResource(model, res);
 						setSelection(new StructuredSelection(resource));
 					}
+				} else if (firstElem instanceof Statement) {
+					Statement statement = (Statement)firstElem;
+					Property property = statement.getPredicate();
+					IRDFClass resource = new JenaRDFResource(model, property);
+					setSelection(new StructuredSelection(resource));
+				} else {
+					setSelection(StructuredSelection.EMPTY);
 				}
 			}
 		}
