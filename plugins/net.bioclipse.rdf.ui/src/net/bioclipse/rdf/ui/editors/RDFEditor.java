@@ -19,7 +19,9 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
 import net.bioclipse.rdf.business.RDFManager;
+import net.bioclipse.rdf.model.IRDFResource;
 import net.bioclipse.rdf.model.IStringMatrix;
+import net.bioclipse.rdf.model.JenaRDFResource;
 import net.bioclipse.ui.business.UIManager;
 
 import org.eclipse.core.resources.IFile;
@@ -90,6 +92,10 @@ extends EditorPart implements ISelectionListener ,
 								e.printStackTrace();
 							}
 						}
+					} else {
+						// ok, not a molecule. Send around a general IRDFResource selection
+						IRDFResource resource = new JenaRDFResource(model, res);
+						setSelection(new StructuredSelection(resource));
 					}
 				}
 			}
