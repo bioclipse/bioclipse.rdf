@@ -25,4 +25,9 @@ public interface IRDFLiteral extends IRDFResource {
 	 */
 	public String getDatatype();
     
+	/**
+	 * Returns the {@link String} value of this literal.
+	 */
+	public String getValue();
+    
 }

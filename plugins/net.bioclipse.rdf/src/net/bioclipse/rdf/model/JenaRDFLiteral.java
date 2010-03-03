@@ -10,16 +10,17 @@
  *******************************************************************************/
 package net.bioclipse.rdf.model;
 
-
 /**
  * Jena-based implementation of {@link IRDFResource}.
  */
 public class JenaRDFLiteral implements IRDFLiteral {
 
+	private String value = null;
 	private String language = null;
 	private String datatype = null;
 
-	public JenaRDFLiteral(String language, String datatype) {
+	public JenaRDFLiteral(String value, String language, String datatype) {
+		this.value = value;
 		this.language = language;
 		this.datatype = datatype;
 	}
@@ -43,6 +44,10 @@ public class JenaRDFLiteral implements IRDFLiteral {
 	public Object getAdapter(Class adapter) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String getValue() {
+		return this.value;
 	}
     
 }
