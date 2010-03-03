@@ -74,6 +74,7 @@ public class JenaRDFLiteral implements IRDFLiteral {
 
 	    public static final String PROPERTY_LANGUAGE = "Language";
 	    public static final String PROPERTY_DATATYPE = "Data type";
+	    public static final String PROPERTY_VALUE    = "Value";
 
 	    public PropertySource(JenaRDFLiteral literal) {
 	        this.literal = literal;
@@ -89,7 +90,8 @@ public class JenaRDFLiteral implements IRDFLiteral {
                     = new ArrayList<IPropertyDescriptor>();
 
                 for ( String p : new String[] { PROPERTY_LANGUAGE,
-                                                PROPERTY_DATATYPE } ) {
+                                                PROPERTY_DATATYPE,
+                                                PROPERTY_VALUE } ) {
                     PropertyDescriptor descriptor
                         = new TextPropertyDescriptor(p, p);
                     descriptor.setCategory("RDF");
@@ -108,6 +110,9 @@ public class JenaRDFLiteral implements IRDFLiteral {
             }
             if ( PROPERTY_DATATYPE.equals( id ) ) {
                 return literal.datatype;
+            }
+            if ( PROPERTY_VALUE.equals( id ) ) {
+                return literal.value;
             }
             return null;
         }
