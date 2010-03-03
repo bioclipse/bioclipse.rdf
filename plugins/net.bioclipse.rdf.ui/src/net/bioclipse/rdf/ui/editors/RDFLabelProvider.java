@@ -13,6 +13,7 @@ package net.bioclipse.rdf.ui.editors;
 import org.eclipse.jface.viewers.LabelProvider;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -42,6 +43,11 @@ public class RDFLabelProvider extends LabelProvider {
     		String prefix = model.getNsURIPrefix(resource.getNameSpace());
     		if (prefix != null)
     			return prefix + ":" + resource.getLocalName();
+    	}
+
+    	if (element instanceof Literal) {
+    		Literal literal = (Literal)element;
+    		return literal.getString();
     	}
 
     	return element.toString();

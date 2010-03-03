@@ -35,7 +35,7 @@ public class RDFContentProvider implements IGraphContentProvider {
         if (rel instanceof Statement) {
         	RDFNode resource = ((Statement)rel).getObject();
         	if (resource.isLiteral())
-        		return (((Literal)resource).getValue());
+        		return (Literal)resource;
         	if (resource.isResource()) {
         		Resource res = (Resource)resource;
             	if (!res.getURI().startsWith("http://www.w3.org/"))
