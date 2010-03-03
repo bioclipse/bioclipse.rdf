@@ -21,6 +21,7 @@ import net.bioclipse.rdf.business.JenaModel;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.rdf.model.IRDFClass;
 import net.bioclipse.rdf.model.IStringMatrix;
+import net.bioclipse.rdf.model.JenaRDFLiteral;
 import net.bioclipse.rdf.model.JenaRDFResource;
 import net.bioclipse.ui.business.UIManager;
 
@@ -99,6 +100,14 @@ extends EditorPart implements ISelectionListener ,
 						IRDFClass resource = new JenaRDFResource(model, res);
 						setSelection(new StructuredSelection(resource));
 					}
+				} else if (firstElem instanceof Literal) {
+					Literal literal = (Literal)firstElem;
+					IRDFClass literalSelection = new JenaRDFLiteral(
+						literal.getString(),
+						literal.getLanguage(),
+						literal.getDatatypeURI()
+					);
+					setSelection(new StructuredSelection(literalSelection));
 				} else if (firstElem instanceof Statement) {
 					Statement statement = (Statement)firstElem;
 					Property property = statement.getPredicate();
