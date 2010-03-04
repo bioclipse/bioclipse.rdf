@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="net.bioclipse.rdf.rdf2bioobjectfactory" name="RDF2BioObjectFactory" schema="schema/net.bioclipse.rdf.rdf2bioobjectfactory.exsd"/>
+   <extension-point id="net.bioclipse.rdf.rdf2bioobjectfactory"
+      name="RDF2BioObjectFactory"
+      schema="schema/net.bioclipse.rdf.rdf2bioobjectfactory.exsd"/>
 
    <extension point="org.eclipse.ui.editors">
       <editor
