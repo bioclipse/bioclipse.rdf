@@ -13,6 +13,8 @@ package net.bioclipse.rdf.ui;
 import net.bioclipse.core.domain.IBioObject;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -31,5 +33,5 @@ public interface IRDFToBioObjectFactory {
      */
     public IBioObject rdfToBioObject( Model model, Resource res );
     
-    
+    public ImageDescriptor getImageDescriptor();
 }

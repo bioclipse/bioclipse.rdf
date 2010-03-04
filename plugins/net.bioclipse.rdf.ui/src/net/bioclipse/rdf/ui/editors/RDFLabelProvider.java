@@ -10,14 +10,25 @@
  ******************************************************************************/
 package net.bioclipse.rdf.ui.editors;
 
+import net.bioclipse.rdf.ui.IRDFToBioObjectFactory;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.graphics.Image;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RDFLabelProvider extends LabelProvider {
 
@@ -53,4 +64,62 @@ public class RDFLabelProvider extends LabelProvider {
     	return element.toString();
     }
 
+    @Override
+    public Image getImage( Object element ) {
+
+        IExtensionPoint serviceObjectExtensionPoint
+            = Platform.getExtensionRegistry().getExtensionPoint(
+                  "net.bioclipse.rdf.rdf2bioobjectfactory" );
+
+        IExtension[] serviceObjectExtensions
+            = serviceObjectExtensionPoint.getExtensions();
+        for ( IExtension extension : serviceObjectExtensions ) {
+            for ( IConfigurationElement e
+                            : extension.getConfigurationElements() ) {
+
+                String serviceURI = e.getAttribute("uri");
+    
+                if ( !(element instanceof Resource) ) {
+                    continue;
+                }
+                // check if this extension supports this Resource
+                NodeIterator iter =
+                    model.listObjectsOfProperty( (Resource) element, RDF.type );
+                boolean match = false;
+                while (iter.hasNext()) {
+                    RDFNode node = iter.next();
+                    if (node.isURIResource() &&
+                        ((Resource)node).getURI().equals(serviceURI))
+                        match = true;
+                }
+    
+                if (!match) continue;
+    
+                Object service = null;
+                try {
+                    service
+                     = e.createExecutableExtension("instance");
+                }
+                catch (CoreException ex) {
+                    throw new IllegalStateException(
+                                  "Failed to get a service: "
+                                      + ex.getMessage(),
+                                  ex );
+                } 
+                if ( service == null ) {
+                    return super.getImage( element );
+                }
+                if ( !(service instanceof IRDFToBioObjectFactory) ) {
+                    throw new IllegalStateException(
+                         "Service object: " + service + " does not "
+                         + "implement IRDFToBioObjectFactory" );
+                }
+                return ( (IRDFToBioObjectFactory)service ).getImageDescriptor()
+                                                          .createImage();
+            }
+        }
+        return super.getImage( element );
+    }
+    
+    
 }

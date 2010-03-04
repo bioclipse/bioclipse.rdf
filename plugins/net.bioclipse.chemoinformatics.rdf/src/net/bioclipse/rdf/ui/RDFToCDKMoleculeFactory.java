@@ -16,6 +16,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import net.bioclipse.cdk.business.Activator;
 import net.bioclipse.core.business.BioclipseException;
@@ -86,5 +89,11 @@ public class RDFToCDKMoleculeFactory
 
     public Object create() throws CoreException {
         return instance;
+    }
+
+    public ImageDescriptor getImageDescriptor() {
+        return AbstractUIPlugin.imageDescriptorFromPlugin( 
+                   "net.bioclipse.chemoinformatics.rdf", 
+                   "icons/chemistry_32.jpeg" );
     }
 }
