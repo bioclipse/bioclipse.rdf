@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+  <osgi:service id="javaChEMBLManagerOSGI"
+                ref="javaChEMBLManager"
+                interface="net.bioclipse.chembl.business.IJavaChEMBLManager" />
+
+  <osgi:service id="javaScriptChEMBLManagerOSGI"
+                ref="javaScriptChEMBLManager"
+                interface="net.bioclipse.chembl.business.IJavaScriptChEMBLManager" />
+
+  <osgi:reference id="recordingAdvice"
+                  interface="net.bioclipse.recording.IRecordingAdvice" />
+
+  <osgi:reference id="javaManagerDispatcherAdvisor"
+                  interface="net.bioclipse.managers.business.IJavaManagerDispatcherAdvisor" />
+
+  <osgi:reference id="javaScriptManagerDispatcherAdvisor"
+                  interface="net.bioclipse.managers.business.IJavaScriptManagerDispatcherAdvisor" />
+
+  <osgi:reference id="wrapInProxyAdvice"
+                  interface="net.bioclipse.recording.IWrapInProxyAdvice" />
+
+  <bean id="recordingAdvisor"
+        class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="advice"  ref="recordingAdvice" />
+        <property name="pattern" value=".*" /> <!-- See also class implementation -->
+  </bean>
+
+  <bean id="ChEMBLManagerTarget"
+        class="net.bioclipse.chembl.business.ChEMBLManager">
+  </bean>
+
+  <bean id="javaScriptChEMBLManager"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target"
+              ref="ChEMBLManagerTarget" />
+    <property name="proxyInterfaces"
+              value="net.bioclipse.chembl.business.IJavaScriptChEMBLManager" />
+    <property name="interceptorNames" >
+        <list>
+            <value>recordingAdvisor</value>
+            <value>wrapInProxyAdvice</value>
+            <value>javaScriptManagerDispatcherAdvisor</value>
+        </list>
+    </property>
+  </bean>
+
+  <bean id="javaChEMBLManager"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target"
+              ref="ChEMBLManagerTarget" />
+    <property name="proxyInterfaces"
+              value="net.bioclipse.chembl.business.IJavaChEMBLManager" />
+    <property name="interceptorNames" >
+        <list>
+                <value>recordingAdvisor</value>
+                <value>wrapInProxyAdvice</value>
+                <value>javaManagerDispatcherAdvisor</value>
+        </list>
+    </property>
+  </bean>
+</beans>
