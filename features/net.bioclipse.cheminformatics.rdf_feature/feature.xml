@@ -19,6 +19,7 @@ Eclipse Public License.
       <import feature="net.bioclipse.core_feature" version="2.2.0.v20100127" match="greaterOrEqual"/>
       <import feature="net.bioclipse.rdf.ui_feature" version="2.2.0.v20100127"/>
       <import feature="net.bioclipse.rdf_feature" version="2.2.0.v20100127"/>
+      <import feature="net.bioclipse.chemoinformatics_feature" version="2.2.0.v20100127"/>
    </requires>
 
    <plugin
