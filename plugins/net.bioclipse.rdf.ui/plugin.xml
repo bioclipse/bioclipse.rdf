@@ -18,13 +18,5 @@
          </contentTypeBinding>
       </editor>
    </extension>
-   
-   <extension
-         point="net.bioclipse.rdf.rdf2bioobjectfactory">
-      <Factory
-            instance="net.bioclipse.rdf.ui.RDFToCDKMoleculeFactory"
-            uri="http://www.bioclipse.net/structuredb/#Molecule" >
-      </Factory>
-   </extension>
 
 </plugin>
