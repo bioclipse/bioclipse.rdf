@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bioclipse.bioinformatics.rdf
+Bundle-SymbolicName: net.bioclipse.bioinformatics.rdf;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: net.bioclipse.bioinformatics.rdf.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ net.bioclipse.core;bundle-version="2.2.0",
+ com.hp.hpl.jena;bundle-version="2.6.2",
+ net.bioclipse.rdf.ui;bundle-version="2.3.0",
+ org.eclipse.ui;bundle-version="3.5.1",
+ net.bioclipse.biojava.business;bundle-version="2.2.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.apache.log4j
