@@ -56,9 +56,12 @@ import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RDFEditor
 extends EditorPart implements ISelectionListener ,
@@ -150,15 +153,21 @@ extends EditorPart implements ISelectionListener ,
                 for ( IExtension extension : serviceObjectExtensions ) {
                     for ( IConfigurationElement element
                               : extension.getConfigurationElements() ) {
-                        /*
-                         * TODO: Egon give this string the right value.
-                         */
-                        String uri
-                         = "http://www.bioclipse.net/structuredb/#Molecule";
 
-                        if ( !element.getAttribute("uri").equals( uri ) ) {
-                            continue;
-                        }
+                    	String serviceURI = element.getAttribute("uri");
+
+                    	// check if this extension supports this Resource
+                    	NodeIterator iter =
+                    		model.listObjectsOfProperty(res, RDF.type);
+                    	boolean match = false;
+                    	while (iter.hasNext()) {
+                    		RDFNode node = iter.next();
+                    		if (node.isURIResource() &&
+                    			((Resource)node).getURI().equals(serviceURI))
+                    			match = true;
+                    	}
+
+                    	if (!match) continue;
 
                         Object service = null;
                         try {
