@@ -26,7 +26,7 @@ public interface IChEMBLManager extends IBioclipseManager {
 	@PublishedMethod(
 		params="Integer targetID",
 		methodSummary="Downloads the QSAR data for a certain target" +
-			"and activity."
+			"and activity. Automatically removes entries with NaN values."
 	)
 	public Map<String, Double> getQSARData(Integer targetID, String activity)
 	throws BioclipseException;

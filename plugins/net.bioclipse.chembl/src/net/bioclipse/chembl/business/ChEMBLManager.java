@@ -57,8 +57,12 @@ public class ChEMBLManager implements IBioclipseManager {
 	    IStringMatrix matrix = rdf.sparqlRemote(CHEMBL_SPARQL_ENDPOINT, sparql);
 	    for (int i=0; i<matrix.getRowCount(); i++) {
 	    	try {
-	    		Double value = Double.valueOf(matrix.get(i, "val"));
-	    		results.put(matrix.get(i, "smiles"), value);
+	    		String smiles = matrix.get(i, "smiles");
+	    		if (smiles != null && smiles.length() != 0) {
+	    			Double value = Double.valueOf(matrix.get(i, "val"));
+	    			if (value != Double.NaN)
+	    				results.put(matrix.get(i, "smiles"), value);
+	    		}
 	    	} catch (NumberFormatException exception) {
 	    		results.put(matrix.get(i, "smiles"), Double.NaN);
 	    	}
