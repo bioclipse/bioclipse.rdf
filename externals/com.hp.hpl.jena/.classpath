@@ -11,5 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="jars/lucene-core-2.3.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.2.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/stax-1.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

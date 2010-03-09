@@ -18,12 +18,19 @@ Bundle-ClassPath: .,
  jars/log4j-1.2.13.jar,
  jars/lucene-core-2.3.1.jar,
  jars/stax-api-1.0.1.jar,
- jars/wstx-asl-3.2.9.jar
+ jars/wstx-asl-3.2.9.jar,
+ jars/stax-1.2.0.jar
 Bundle-Activator: net.bioclipse.jena.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j
-Export-Package: com.hp.hpl.jena,
+Export-Package: com.bea.xml.stream,
+ com.bea.xml.stream.events,
+ com.bea.xml.stream.filters,
+ com.bea.xml.stream.reader,
+ com.bea.xml.stream.samples,
+ com.bea.xml.stream.util,
+ com.hp.hpl.jena,
  com.hp.hpl.jena.assembler,
  com.hp.hpl.jena.assembler.assemblers,
  com.hp.hpl.jena.assembler.exceptions,
@@ -70,6 +77,7 @@ Export-Package: com.hp.hpl.jena,
  com.hp.hpl.jena.vocabulary,
  com.hp.hpl.jena.xmloutput,
  com.hp.hpl.jena.xmloutput.impl,
+ com.wutka.dtd,
  javax.xml.stream,
  javax.xml.stream.events,
  javax.xml.stream.util,
