@@ -24,7 +24,7 @@ import net.bioclipse.managers.business.IBioclipseManager;
 public interface IChEMBLManager extends IBioclipseManager {
 
 	@PublishedMethod(
-		params="Integer targetID",
+		params="Integer targetID, String activity",
 		methodSummary="Downloads the QSAR data for a certain target" +
 			"and activity. Automatically removes entries with NaN values."
 	)
