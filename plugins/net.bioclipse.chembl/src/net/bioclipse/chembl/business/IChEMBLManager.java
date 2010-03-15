@@ -17,6 +17,7 @@ import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.rdf.model.IStringMatrix;
 
 @PublishedClass(
     value="Manager to interact with ChEMBL."
@@ -38,4 +39,11 @@ public interface IChEMBLManager extends IBioclipseManager {
 	public List<String> getActivities(Integer targetID)
 	throws BioclipseException;
 
+	@PublishedMethod(
+		params="Integer targetID",
+		methodSummary="Returns the properties of the given target." +
+			"It returns 'organism', 'title', and 'type'."
+	)
+	public IStringMatrix getProperties(Integer targetID)
+	throws BioclipseException;
 }

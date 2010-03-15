@@ -93,4 +93,20 @@ public class ChEMBLManager implements IBioclipseManager {
 	    return activities;
 	}
 
+	public IStringMatrix getProperties(Integer targetID)
+	throws BioclipseException {
+        String sparql =
+        	"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+        	"PREFIX dc: <http://purl.org/dc/elements/1.1/> " +
+        	"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
+        	"SELECT DISTINCT ?title ?type ?organism " +
+        	"WHERE { " +
+        	"  <http://rdf.farmbio.uu.se/chembl/target/t" + targetID + "> " +
+        	"  dc:title ?title ;" +
+        	"  chembl:hasTargetType ?type ;" +
+        	" chembl:organism ?organism ." +
+        	"}";
+
+	    return rdf.sparqlRemote(CHEMBL_SPARQL_ENDPOINT, sparql);
+	}
 }
