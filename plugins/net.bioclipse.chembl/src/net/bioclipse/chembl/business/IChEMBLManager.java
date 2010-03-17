@@ -57,10 +57,10 @@ public interface IChEMBLManager extends IBioclipseManager {
 	    throws BioclipseException;
 
 	    @PublishedMethod(
-	            params="",
-	            methodSummary="Returns targets"
+	            params="String activity, String ion, String vgc",
+	            methodSummary="Returns target id, pubmed id, smiles, classifications"
 	    )
-	    public IStringMatrix getForMaris(String ion, String vgc)
+	    public IStringMatrix getPCM(String activity, String classL6, String classL3)
 	    throws BioclipseException;
 
 	    @PublishedMethod(
@@ -120,6 +120,13 @@ public interface IChEMBLManager extends IBioclipseManager {
 	    public List<String> getCompoundInfo(String chebiID)
 	    throws BioclipseException;
 	    
+	    @PublishedMethod(
+	    		params ="String smiles",
+	    		methodSummary = "Returns information about a compound given a SMILES,"+
+	    		"OBS! its a slow run"
+	    			)
+	    			public IStringMatrix getCompoundInfoWithSmiles(String smiles)
+	throws BioclipseException;
 	    
 	    @PublishedMethod(
 	        params = "String file, StringMatrix matrix",

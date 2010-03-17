@@ -235,26 +235,31 @@ public class ChEMBLManager implements IBioclipseManager {
 	}
 
 
-	public IStringMatrix getForMaris(String ion, String vgc)
+	public IStringMatrix getPCM(String actType, String classL6, String classL3)
 	throws BioclipseException{
 
 		String sparql =
 			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/> "+
 			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#>"+
-			" SELECT DISTINCT ?target ?pubmed ?smiles WHERE{"+
-			"  ?act chembl:type ?type;"+
+			" SELECT DISTINCT ?target ?pubmed ?smiles ?l3 ?l4 ?l5 ?l6 ?seq ?val WHERE{"+
+			"  ?act chembl:type ?type;"+ 
 			"    chembl:onAssay ?ass;"+
 			"    chembl:forMolecule ?mol;"+
 			"    chembl:standardValue ?val."+
 			"  ?mol bo:smiles ?smiles."+
 			"  ?target a <http://rdf.farmbio.uu.se/chembl/onto/#Target> ;" +
-			"    chembl:classL3" + " \"" + vgc + "\" ;" +
-			"    chembl:classL6 ?l6."+
+			"    chembl:classL3 ?l3;" +  //+ " \"" + classL3 + "\" ;" +
+			"    chembl:classL4 ?l4;" +
+			"    chembl:classL5 ?l5;" +
+			"    chembl:classL6 ?l6;" +
+			"    chembl:sequence ?seq." +
+			"  FILTER regex(?l3, " + "\"" + classL3 + "\" , \"i\")." +
 			"  ?ass chembl:hasTarget ?target;"+
 			"    chembl:extractedFrom ?journal."+
 			"  ?ass chembl:hasTargetCount 1 ."+
-			"  ?journal <http://purl.org/ontology/bibo/pmid> ?pubmed."+
-			"  FILTER (?l6 = " + "\""+ ion+ "\"" +")"+
+			"  ?journal <http://purl.org/ontology/bibo/pmid> ?pubmed." +
+			"  FILTER regex(?l6, " + "\"^" + classL6 + "$\" , \"i\")." +
+			"  FILTER regex(?type,  \"^" + actType + "$\", \"i\" )"+
 			"}"
 			;
 
@@ -370,8 +375,38 @@ public class ChEMBLManager implements IBioclipseManager {
 		IStringMatrix matrix = rdf.sparqlRemote(CHEMBL_SPARQL_ENDPOINT, sparql);
 //		cutter(matrix);
 		return matrix;
-
 	}
+	public IStringMatrix getCompoundInfoWithSmiles(String smiles)
+	throws BioclipseException{
+		smiles = smiles.replaceAll("\\(","\\\\\\\\(");
+		smiles =smiles.replaceAll("\\)","\\\\\\\\)");
+		smiles =smiles.replaceAll("\\[","\\\\\\\\[");
+		smiles =smiles.replaceAll("\\]","\\\\\\\\]");
+		smiles =smiles.replaceAll("\\+","\\\\\\\\+");
+		smiles =smiles.replaceAll("\\.","\\\\\\\\.");
+		smiles =smiles.replaceAll("\\*","\\\\\\\\*");
+		smiles =smiles.replaceAll("\\/","\\\\\\\\/");
+//		smiles =smiles.replaceAll("\\\\","\\\\\\\\\\");
+
+		String sparql =
+			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
+			"PREFIX dc: <http://purl.org/dc/elements/1.1/>"+
+			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/> "+
+			"PREFIX owl: <http://www.w3.org/2002/07/owl#>" +
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"+
+			" SELECT ?chebi ?title WHERE {" +
+			"    ?mol a chembl:Compound ." +
+			"    ?mol bo:smiles ?smiles ."+
+			"    ?mol owl:sameAs ?chebi ." +
+			" FILTER regex(?smiles, \"^"+ smiles + "$\") ."+
+			" FILTER regex(?chebi , \"chebi\") ." +
+			" OPTIONAL {?mol dc:title ?title} ."+
+			"}";
+		IStringMatrix matrix = rdf.sparqlRemote(CHEMBL_SPARQL_ENDPOINT, sparql);
+		cutter(matrix);
+		return matrix;
+	}
+	
 	public void saveCSV(IFile filename, IStringMatrix fam, IProgressMonitor monitor)
 	throws BioclipseException, IOException {
 		String s;
