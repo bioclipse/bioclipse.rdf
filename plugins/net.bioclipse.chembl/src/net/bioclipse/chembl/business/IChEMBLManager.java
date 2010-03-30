@@ -13,9 +13,6 @@ package net.bioclipse.chembl.business;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.core.resources.IFile;
-
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.business.BioclipseException;
@@ -70,6 +67,10 @@ public interface IChEMBLManager extends IBioclipseManager {
 	    public IStringMatrix getQSARData2(Integer targetID, String activity)
 	    throws BioclipseException;
 
+	    @PublishedMethod(
+	            params="Integer targetID",
+	            methodSummary="Returns properties of a target protein"  )
+	    public IStringMatrix getProteinData(Integer targetID) throws BioclipseException;
 	    
 	    @PublishedMethod(
 	            params="Integer molID",
@@ -127,6 +128,13 @@ public interface IChEMBLManager extends IBioclipseManager {
 	    			)
 	    			public IStringMatrix getCompoundInfoWithSmiles(String smiles)
 	throws BioclipseException;
+	    @PublishedMethod(
+	    		params ="String smiles",
+	    		methodSummary = "Returns information about a compound given a SMILES,"+
+	    		"OBS! its a slow run"
+	    			)
+	    			public IStringMatrix getCompoundInfoWithKeyword(String smiles)
+	throws BioclipseException;
 	    
 	    @PublishedMethod(
 	        params = "String file, StringMatrix matrix",
@@ -134,5 +142,19 @@ public interface IChEMBLManager extends IBioclipseManager {
 	    )
 	    public void saveCSV(String file, IStringMatrix s)
 	    throws BioclipseException, IOException ;
-	
+	    
+	    @PublishedMethod(
+		        params = "String family, String activityType, Integer limit",
+		        methodSummary = "Collects compound for a MoSS run given protein family and" +
+		        		"activity type. Limit your search by adding a limit number."
+		    )
+	    public IStringMatrix MossProtFamilyCompounds(String fam, String actType, int limit) 
+	    throws BioclipseException;
+			
+
+	    @PublishedMethod(
+		        params = "String family",
+		        methodSummary = "Returns available activities for a protein family"
+		    )
+	    public List<String> MossAvailableActivities(String fam) throws BioclipseException;
 }

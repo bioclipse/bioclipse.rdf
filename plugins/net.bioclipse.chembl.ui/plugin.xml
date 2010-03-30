@@ -1,0 +1,19 @@
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IProject"
+            id="net.bioclipse.chembl.ui.contribution1">
+         <action
+               label="chembl"
+               icon="icons/chembl_new4_ring_normal.png"
+               class="net.bioclipse.chembl.ui.wizard.chemblAction"
+               menubarPath="additions"
+               id="net.bioclipse.chembl.business.ChEMBLManager">
+         </action>
+      </objectContribution>
+   </extension>
+  
+</plugin>

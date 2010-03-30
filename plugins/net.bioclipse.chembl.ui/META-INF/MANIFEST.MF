@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: chembl Ui
+Bundle-SymbolicName: net.bioclipse.chembl.ui;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: net.bioclipse.chembl.ui.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.bioclipse.business;bundle-version="2.2.0",
+ net.bioclipse.core;bundle-version="2.2.0",
+ net.bioclipse.chembl;bundle-version="2.3.0",
+ org.eclipse.core.resources;bundle-version="3.5.2",
+ net.bioclipse.moss.business;bundle-version="2.3.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: The Bioclipse Project
+Import-Package: net.bioclipse.rdf.model,
+ org.apache.log4j
