@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.cheminformatics.rdf_feature"
       label="RDF Cheminformatics Integration Feature"
-      version="2.2.0.v20100127"
+      version="2.4.0.RC1"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.cheminformatics.rdf">
 
@@ -16,10 +16,10 @@ Eclipse Public License.
    </copyright>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.2.0.v20100127" match="greaterOrEqual"/>
-      <import feature="net.bioclipse.rdf.ui_feature" version="2.2.0.v20100127"/>
-      <import feature="net.bioclipse.rdf_feature" version="2.2.0.v20100127"/>
-      <import feature="net.bioclipse.chemoinformatics_feature" version="2.2.0.v20100127"/>
+      <import feature="net.bioclipse.core_feature" version="2.4.0.RC1" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.rdf.ui_feature" version="2.4.0.RC1"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.4.0.RC1"/>
+      <import feature="net.bioclipse.chemoinformatics_feature" version="2.4.0.RC1"/>
    </requires>
 
    <plugin
