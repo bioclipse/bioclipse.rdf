@@ -83,7 +83,7 @@ public class ALog
      */
     static public void enable(String logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
         java.util.logging.Logger.getLogger(logger).setLevel(java.util.logging.Level.ALL) ;
     }
     
@@ -92,7 +92,7 @@ public class ALog
      */
     static public void enable(Class<?> logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
         java.util.logging.Logger.getLogger(logger.getName()).setLevel(java.util.logging.Level.ALL) ;
     }
     
@@ -101,7 +101,7 @@ public class ALog
      */
     static public void disable(String logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
         java.util.logging.Logger.getLogger(logger).setLevel(java.util.logging.Level.OFF) ;
     }
     /** Turn on a logger (all levels). 
@@ -109,7 +109,7 @@ public class ALog
      */
     static public void disable(Class<?> logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
         java.util.logging.Logger.getLogger(logger.getName()).setLevel(java.util.logging.Level.OFF) ;
     }
     
