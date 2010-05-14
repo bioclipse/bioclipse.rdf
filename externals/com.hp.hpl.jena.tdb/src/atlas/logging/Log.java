@@ -8,8 +8,8 @@ package atlas.logging;
 
 import java.io.File;
 
-import org.apache.log4j.PropertyConfigurator ;
-import org.apache.log4j.xml.DOMConfigurator ;
+//import org.apache.log4j.PropertyConfigurator ;
+//import org.apache.log4j.xml.DOMConfigurator ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +138,7 @@ public class Log
     static public void logLevel(String logger, org.apache.log4j.Level level1, java.util.logging.Level level2 )
     {
         if ( level1 != null )
-            org.apache.log4j.LogManager.getLogger(logger).setLevel(level1) ;
+//            org.apache.log4j.LogManager.getLogger(logger).setLevel(level1) ;
         if ( level2 != null )
             java.util.logging.Logger.getLogger(logger).setLevel(level2) ;
     }
@@ -148,7 +148,7 @@ public class Log
      */
     static public void enable(Class<?> logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.ALL) ;
         java.util.logging.Logger.getLogger(logger.getName()).setLevel(java.util.logging.Level.ALL) ;
     }
     
@@ -157,7 +157,7 @@ public class Log
      */
     static public void disable(String logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
         java.util.logging.Logger.getLogger(logger).setLevel(java.util.logging.Level.OFF) ;
     }
     /** Turn on a logger (all levels). 
@@ -165,7 +165,7 @@ public class Log
      */
     static public void disable(Class<?> logger)
     {
-        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
+//        org.apache.log4j.LogManager.getLogger(logger).setLevel(org.apache.log4j.Level.OFF) ;
         java.util.logging.Logger.getLogger(logger.getName()).setLevel(java.util.logging.Level.OFF) ;
     }
     
@@ -184,10 +184,10 @@ public class Log
     /** Set log4j properties (XML or properties file) */
     public static void setLog4j(String filename)
     {
-        if ( filename.toLowerCase().endsWith(".xml")) 
-            DOMConfigurator.configure(filename) ;
-        else
-            PropertyConfigurator.configure(filename) ;
+//        if ( filename.toLowerCase().endsWith(".xml")) 
+//            DOMConfigurator.configure(filename) ;
+//        else
+//            PropertyConfigurator.configure(filename) ;
     }
 }
 
