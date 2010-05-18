@@ -487,6 +487,106 @@ public class ChEMBLManager implements IBioclipseManager {
 		monitor.done();
 	}
 
+	public void saveMossFormat(IFile filename, IStringMatrix matrix, IProgressMonitor monitor)
+	throws BioclipseException, IOException {
+		
+		String s; 
+		//IFile filename =ResourcePathTransformer.getInstance().transform(file);
+		ArrayList<String> fam = new ArrayList<String>();
+		
+		for(int i=1; i<matrix.getRowCount()+1; i++){
+			fam.add(matrix.get(i,1));
+		}
+		
+		if (filename.exists()) {
+			throw new BioclipseException("File already exists!");
+		}
+
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		monitor.beginTask("Writing file", 100);
+		try {
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+			for(int i = 0; i<fam.size(); i++){
+				s = i+1 +",0," + fam.get(i) + "\n";	
+				byte but[]= s.getBytes();
+				output.write(but); 
+			}
+			output.close();
+			filename.create(
+					new ByteArrayInputStream(output.toByteArray()),
+					false,
+					monitor
+			);
+		}
+		catch (Exception e) {
+			monitor.worked(100);
+			monitor.done();
+			throw new BioclipseException("Error while writing moss file.", e);
+		} 
+
+		monitor.worked(100);
+		monitor.done();
+			}
+	
+	public void saveMossFormat(IFile filename, IStringMatrix matrix,IStringMatrix matrix2, IProgressMonitor monitor)
+	throws BioclipseException, IOException {
+		
+		String s; 
+		int cnt =0;
+		//IFile filename =ResourcePathTransformer.getInstance().transform(file);
+		ArrayList<String> fam = new ArrayList<String>();
+		ArrayList<String> fam2 = new ArrayList<String>();
+		
+		//Add compounds from matrix to lists
+		for(int i=1; i<matrix.getRowCount()+1; i++){
+			fam.add(matrix.get(i,1));
+		}
+		for(int i=1; i<matrix2.getRowCount()+1; i++){
+			fam2.add(matrix2.get(i,1));
+		}
+		
+		if (filename.exists()) {
+			throw new BioclipseException("File already exists!");
+		}
+
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		monitor.beginTask("Writing file", 100);
+		try {
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+			for(int i = 0; i<fam.size(); i++){
+				s = "A"+i+1 +",0," + fam.get(i) + "\n";	
+				byte but[]= s.getBytes();
+				output.write(but); 
+				cnt = i+1;
+			}
+			for(int i=0 ; i<fam2.size(); i++){
+				s = "B"+cnt+1 +",0," + fam2.get(i) + "\n";	
+				byte but[]= s.getBytes();
+				output.write(but); 
+				cnt++;
+			}
+			output.close();
+			filename.create(
+					new ByteArrayInputStream(output.toByteArray()),
+					false,
+					monitor
+			);
+		}
+		catch (Exception e) {
+			monitor.worked(100);
+			monitor.done();
+			throw new BioclipseException("Error while writing moss file.", e);
+		} 
+
+		monitor.worked(100);
+		monitor.done();
+			}
+	
+	// Returns properties like title of target, type of target and organism.
 	public IStringMatrix getProperties(Integer targetID)
 	throws BioclipseException {
 		String sparql =
