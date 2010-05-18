@@ -611,19 +611,44 @@ public class ChEMBLManager implements IBioclipseManager {
 		String sparql =
 			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
 			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/>"+
-			"SELECT ?smiles where{ " +
-			"	?target a chembl:Target." +
-			"   ?target chembl:classL5 ?fam. " + //+ " \"" + fam + "\"." +
-			"	?assay chembl:hasTarget ?target . ?activity chembl:onAssay ?assay ." +
-			" ?activity chembl:standardValue ?st ." +
-			"	?activity chembl:type ?actType . " + //" \"" + actType + "\"."+ 
-			"	?activity chembl:forMolecule ?mol ."+
+			"SELECT DISTINCT ?smiles where{ " +
+			"	?target a chembl:Target;" +
+			"       chembl:classL5 ?fam. " + //+ " \"" + fam + "\"." +
+			"	?assay chembl:hasTarget ?target ."+
+			"   ?activity chembl:onAssay ?assay ;" +
+//			"       chembl:standardValue ?st ;" +
+			"	    chembl:type ?actType ; " + //" \"" + actType + "\"."+ 
+			"	    chembl:forMolecule ?mol ."+
 			"	?mol bo:smiles ?smiles.  " +
-			"FILTER regex(?fam, " + "\"" + fam + "\"" + ", \"i\")."+
-			"FILTER regex(?actType, " + "\"" + actType + "\"" + ", \"i\")."+
-			"}LIMIT "+ limit; 
+			" FILTER regex(?fam, " + "\"^" + fam + "$\"" + ", \"i\")."+
+			" FILTER regex(?actType, " + "\"^" + actType + "$\"" + ", \"i\")."+
+			" }  LIMIT " + limit; 
+	
 
 		IStringMatrix matrix = rdf.sparqlRemote("http://rdf.farmbio.uu.se/chembl/sparql",sparql);
+		return matrix;
+	}
+	
+	public IStringMatrix MossProtFamilyCompounds(String fam, String actType) 
+	throws BioclipseException{
+
+		String sparql =
+			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
+			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/>"+
+			"SELECT DISTINCT ?smiles where{ " +
+			"	?target a chembl:Target;" +
+			"       chembl:classL5 ?fam. " + 
+			"	?assay chembl:hasTarget ?target . " +
+			"   ?activity chembl:onAssay ?assay ;" +
+			"	    chembl:type ?actType ; " + 
+			"	    chembl:forMolecule ?mol ."+
+			"	?mol bo:smiles ?smiles.  " +
+			" FILTER regex(?fam, " + "\"^" + fam + "$\"" + ", \"i\")."+
+			" FILTER regex(?actType, " + "\"^" + actType + "$\"" + ", \"i\")."+
+			" }"; 
+
+		IStringMatrix matrix = rdf.sparqlRemote("http://rdf.farmbio.uu.se/chembl/sparql",sparql);
+		System.out.print(matrix.getRowCount());
 		return matrix;
 	}
 
