@@ -17,11 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.Activator;
@@ -658,14 +656,14 @@ public class ChEMBLManager implements IBioclipseManager {
 		String sparql =
 			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
 			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/>"+
-			"SELECT ?actType where{ " +
+			"SELECT DISTINCT ?actType where{ " +
 			"	?activity chembl:type ?actType; " +  
 			"             chembl:onAssay ?assay ." +
 			"	?assay chembl:hasTarget ?target ." +
 			"	?target a chembl:Target;" +
 			"           chembl:classL5 ?fam. " + 
-			" FILTER regex(?fam, " + "\"" + fam + "\"" + ", \"i\")."+
-			"}LIMIT 100";
+			" FILTER regex(?fam, " + "\"^" + fam + "$\"" + ", \"i\")."+
+			"}";
 
 		//			"PREFIX chembl: <http://rdf.farmbio.uu.se/chembl/onto/#> " +
 		//			"PREFIX bo: <http://www.blueobelisk.org/chemistryblogs/>"+
