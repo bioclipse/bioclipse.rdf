@@ -9,7 +9,7 @@
          <action
                label="chembl"
                icon="icons/chembl_new4_ring_normal.png"
-               class="net.bioclipse.chembl.ui.wizard.chemblAction"
+               class="net.bioclipse.chembl.ui.wizard.ChemblAction"
                menubarPath="additions"
                id="net.bioclipse.chembl.business.ChEMBLManager">
          </action>
