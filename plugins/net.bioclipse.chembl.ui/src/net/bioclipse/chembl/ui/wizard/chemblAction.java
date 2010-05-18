@@ -8,13 +8,13 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
-public class chemblAction implements IObjectActionDelegate {
+public class ChemblAction implements IObjectActionDelegate {
 
 	private IWorkbenchPart part;
     private ISelection selection;
     private IResource parent;
     
-    public chemblAction() {
+    public ChemblAction() {
         super();
     }
 	@Override
@@ -25,7 +25,7 @@ public class chemblAction implements IObjectActionDelegate {
 
 	@Override
 	public void run(IAction action) {
-		chemblWizard wizard = new chemblWizard();
+		ChemblWizard wizard = new ChemblWizard();
 		 WizardDialog dialog = new WizardDialog(part.getSite().getShell(),
 	                wizard);
 
