@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class chemblWizardPage extends WizardPage {
+public class ChemblWizardPage extends WizardPage {
 
 	private IChEMBLManager chembl;
 	Label title, score, type, label,labelchebi, target, key;
@@ -41,7 +41,7 @@ public class chemblWizardPage extends WizardPage {
 	private Button showTable, targetprot, compounds;
 	private List<String> list;
 	
-	protected chemblWizardPage(String pageName) {
+	protected ChemblWizardPage(String pageName) {
 		super(pageName);
 		chembl = Activator.getDefault().getJavaChEMBLManager();
 	}
