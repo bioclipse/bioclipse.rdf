@@ -7,9 +7,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class chemblWizardPageTabs extends WizardPage {
+public class ChemblWizardPageTabs extends WizardPage {
 
-	protected chemblWizardPageTabs(String pageName) {
+	protected ChemblWizardPageTabs(String pageName) {
 		super(pageName);
 		
 	}
