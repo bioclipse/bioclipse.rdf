@@ -223,7 +223,7 @@ public class ChemblWizardPage extends WizardPage {
 	public void addToTable(IStringMatrix matrix){
 		for(int r = 1; r < matrix.getRowCount()+1; r++){	
 			TableItem item = new TableItem(table, SWT.NULL);
-			for(int i = 0; i < matrix.getColumnCount(); i++){	
+			for(int i = 0; i < matrix.getColumnCount()+1; i++){	//+1 ?
 				item.setText(i, matrix.get(r, matrix.getColumnName(i+1)));
 			}
 		}
