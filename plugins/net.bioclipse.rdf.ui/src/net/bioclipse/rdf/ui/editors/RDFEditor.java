@@ -72,7 +72,6 @@ extends EditorPart implements ISelectionListener ,
 
     private final class ResourceSelectedListener
                   implements ISelectionChangedListener {
-		@Override
 		public void selectionChanged(SelectionChangedEvent event) {
 			ISelection selection = event.getSelection();
 			if (selection instanceof StructuredSelection) {
@@ -115,7 +114,6 @@ extends EditorPart implements ISelectionListener ,
     private final class ResourceDoubleClickedListener
                   implements IDoubleClickListener {
 
-		@Override
 		public void doubleClick(DoubleClickEvent event) {
 			IBioObject o = selectionToBioObject( event.getSelection() );
             try {
@@ -317,36 +315,30 @@ extends EditorPart implements ISelectionListener ,
 	public void setFocus() {
 	}
 
-	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 	}
 
-	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
 		updateModel();
 	}
 
 	private ListenerList listeners = new ListenerList();
 
-	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		listeners.add(listener);
 	}
 
 	private ISelection selection = null;
 
-	@Override
 	public ISelection getSelection() {
 		return this.selection;
 	}
 
-	@Override
 	public void removeSelectionChangedListener(
 			ISelectionChangedListener listener) {
 		listeners.remove(listener);
 	}
 
-	@Override
 	public void setSelection(ISelection selection) {
 		this.selection = selection;
 		final SelectionChangedEvent event = new SelectionChangedEvent(this, selection);

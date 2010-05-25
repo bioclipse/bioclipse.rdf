@@ -137,7 +137,7 @@ public class Log
     
     static public void logLevel(String logger, org.apache.log4j.Level level1, java.util.logging.Level level2 )
     {
-        if ( level1 != null )
+//        if ( level1 != null )
 //            org.apache.log4j.LogManager.getLogger(logger).setLevel(level1) ;
         if ( level2 != null )
             java.util.logging.Logger.getLogger(logger).setLevel(level2) ;
