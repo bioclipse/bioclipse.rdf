@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bioclipse.chemoinformatics.rdf
 Bundle-SymbolicName: net.bioclipse.chemoinformatics.rdf;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.4.0.RC3
 Bundle-Activator: net.bioclipse.chemoinformatics.rdf.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.cdk.business;bundle-version="2.2.0",
