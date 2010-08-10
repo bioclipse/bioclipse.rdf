@@ -172,6 +172,10 @@ public class RDFManager implements IBioclipseManager {
                             );
                         }
                     } else {
+                    	if (nodeStr.endsWith("@en"))
+                    		nodeStr = nodeStr.substring(
+                    			0, nodeStr.lastIndexOf('@')
+                    		);
                     	table.set(rowCount, colCount, nodeStr);
                     }
                 }
