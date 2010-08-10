@@ -222,4 +222,13 @@ public interface IRDFManager extends IBioclipseManager {
     )
     @TestMethods("testAllPredicates")
     public List<String> allPredicates(IRDFStore store) throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String resourceURI",
+        methodSummary = "Lists all resources that are owl:sameAs as the " +
+        		"given resource."
+    )
+    public List<String> allOwlSameAs(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException;
 }
