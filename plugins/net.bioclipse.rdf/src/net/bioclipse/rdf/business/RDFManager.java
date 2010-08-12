@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -169,6 +172,10 @@ public class RDFManager implements IBioclipseManager {
                             );
                         }
                     } else {
+                    	if (nodeStr.endsWith("@en"))
+                    		nodeStr = nodeStr.substring(
+                    			0, nodeStr.lastIndexOf('@')
+                    		);
                     	table.set(rowCount, colCount, nodeStr);
                     }
                 }
@@ -427,5 +434,56 @@ public class RDFManager implements IBioclipseManager {
 				exception
 			);
 		}
+    }
+
+    public List<String> allOwlSameAs(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException {
+    	Set<String> resources = new HashSet<String>();
+    	resources.add(resourceURI);
+    	// implements a non-reasoning sameAs reasoner:
+    	// keep looking up sameAs relations, until we find no new ones
+    	List<String> newLeads = allOwlSameAsOneDown(store, resourceURI);
+    	newLeads.removeAll(resources); //
+    	while (newLeads.size() > 0) {
+    		List<String> newResources = new ArrayList<String>();
+        	for (String resource : newLeads) {
+        		System.out.println("Trying: " + resource);
+        		if (!resources.contains(resource)) {
+        			System.out.println("New: " + resource);
+        			resources.add(resource);
+        			newResources.addAll(
+        				allOwlSameAsOneDown(store, resource)
+        			);
+        		}
+        	}
+        	newResources.removeAll(resources);
+			newLeads = newResources;
+    	}
+    	List<String> finalList = new ArrayList<String>();
+    	finalList.addAll(resources);
+    	finalList.remove(resourceURI); // remove the source resource
+    	return finalList;
+    }
+    
+    public List<String> allOwlSameAsOneDown(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException {
+    	// got no reasoner, so need implement inverse relation manually
+    	String sparql =
+    		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+    		"SELECT ?resource WHERE {" +
+    		"  <" + resourceURI + "> owl:sameAs ?resource ." +
+    		"}";
+    	StringMatrix results = sparql(store, sparql);
+    	if (results.getRowCount() == 0) return Collections.emptyList();
+    	List<String> resources = results.getColumn("resource");
+    	sparql =
+    		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+    		"SELECT ?resource WHERE {" +
+    		"  ?resource  owl:sameAs <" + resourceURI + ">." +
+    		"}";
+    	results = sparql(store, sparql);
+    	if (results.getRowCount() == 0) return resources;
+    	resources.addAll(results.getColumn("resource"));
+    	return resources;
     }
 }
