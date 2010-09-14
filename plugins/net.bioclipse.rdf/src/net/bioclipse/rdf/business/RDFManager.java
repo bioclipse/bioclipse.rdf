@@ -18,10 +18,13 @@
  ******************************************************************************/
 package net.bioclipse.rdf.business;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -448,6 +451,30 @@ public class RDFManager implements IBioclipseManager {
         monitor.worked(20);
         return table;
     }
+    
+    public String sparqlConstructRemote(
+            String serviceURL,
+            String sparqlQueryString, IProgressMonitor monitor) {
+         if (monitor == null)
+             monitor = new NullProgressMonitor();
+
+         monitor.beginTask("Sparqling the remote service..", 100);
+         Query query = QueryFactory.create(sparqlQueryString);
+         QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceURL, query);
+         monitor.worked(80);
+
+         String rdfxml = "";
+         try {
+             Model results = qexec.execConstruct();
+             StringWriter sw = new StringWriter();
+             results.write(sw, "RDF/XML");             
+             rdfxml = sw.toString();
+         } finally {
+             qexec.close();
+         }
+         monitor.worked(20);
+         return rdfxml;
+     }
     
     public IRDFStore importRDFa(IRDFStore store, String url,
             IProgressMonitor monitor)

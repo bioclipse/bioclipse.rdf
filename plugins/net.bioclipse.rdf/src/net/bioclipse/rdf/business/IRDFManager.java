@@ -198,6 +198,16 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "String url, String SPARQL",
+        methodSummary = "Queries a remote SPARQL endpoint and returns RDF/XML. " +
+        		        "Assumes that the query is creating an RDF graph with the " +
+        		        "CONSTRUCT keyword"
+    )
+    public String sparqlConstructRemote(String url, String SPARQL)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore targetStore, IRDFStore sourceStore",
         methodSummary = "Copies the triples from the sourceStore into the " +
                 "targetStore."
