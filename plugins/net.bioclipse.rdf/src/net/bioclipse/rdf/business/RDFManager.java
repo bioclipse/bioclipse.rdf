@@ -450,29 +450,27 @@ public class RDFManager implements IBioclipseManager {
         return table;
     }
     
-    public String sparqlConstructRemote(
-            String serviceURL,
-            String sparqlQueryString, IProgressMonitor monitor) {
-         if (monitor == null)
-             monitor = new NullProgressMonitor();
+    public Model sparqlConstructRemote(
+    		String serviceURL,
+    		String sparqlQueryString, IProgressMonitor monitor) {
 
-         monitor.beginTask("Sparqling the remote service..", 100);
-         Query query = QueryFactory.create(sparqlQueryString);
-         QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceURL, query);
-         monitor.worked(80);
+    	if (monitor == null)
+    		monitor = new NullProgressMonitor();
+    	Model results = null;
 
-         String rdfxml = "";
-         try {
-             Model results = qexec.execConstruct();
-             StringWriter sw = new StringWriter();
-             results.write(sw, "RDF/XML");             
-             rdfxml = sw.toString();
-         } finally {
-             qexec.close();
-         }
-         monitor.worked(20);
-         return rdfxml;
-     }
+    	monitor.beginTask("Sparqling the remote service..", 100);
+    	Query query = QueryFactory.create(sparqlQueryString);
+    	QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceURL, query);
+    	monitor.worked(80);
+
+    	try {
+    		results = qexec.execConstruct();
+    	} finally {
+    		qexec.close();
+    	}
+    	monitor.worked(20);
+    	return results;
+    }
     
     public IRDFStore importRDFa(IRDFStore store, String url,
             IProgressMonitor monitor)

@@ -27,6 +27,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.hp.hpl.jena.rdf.model.Model;
+
 @PublishedClass("Contains RDF related methods")
 @TestClasses(
     "net.bioclipse.rdf.tests.APITest," +
@@ -203,7 +205,7 @@ public interface IRDFManager extends IBioclipseManager {
         		        "Assumes that the query is creating an RDF graph with the " +
         		        "CONSTRUCT keyword"
     )
-    public String sparqlConstructRemote(String url, String SPARQL)
+    public Model sparqlConstructRemote(String url, String SPARQL)
         throws BioclipseException;
 
     @Recorded
