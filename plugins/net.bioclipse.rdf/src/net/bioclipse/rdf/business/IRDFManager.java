@@ -205,7 +205,7 @@ public interface IRDFManager extends IBioclipseManager {
         		        "Assumes that the query is creating an RDF graph with the " +
         		        "CONSTRUCT keyword"
     )
-    public Model sparqlConstructRemote(String url, String SPARQL)
+    public IRDFStore sparqlConstructRemote(String url, String SPARQL)
         throws BioclipseException;
 
     @Recorded

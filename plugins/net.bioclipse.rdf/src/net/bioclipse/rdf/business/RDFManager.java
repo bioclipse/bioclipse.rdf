@@ -450,13 +450,17 @@ public class RDFManager implements IBioclipseManager {
         return table;
     }
     
-    public Model sparqlConstructRemote(
+    public IRDFStore sparqlConstructRemote(
     		String serviceURL,
-    		String sparqlQueryString, IProgressMonitor monitor) {
-
+    		String sparqlQueryString, IProgressMonitor monitor) 
+    throws BioclipseException {
+    	if ( !sparqlQueryString.contains( "CONSTRUCT" ) ) 
+    		throw new BioclipseException( "This method can only be used together " +
+    				"with CONSTRUCT queries." );
     	if (monitor == null)
     		monitor = new NullProgressMonitor();
-    	Model results = null;
+
+    	Model sparqlOutput = null;
 
     	monitor.beginTask("Sparqling the remote service..", 100);
     	Query query = QueryFactory.create(sparqlQueryString);
@@ -464,12 +468,14 @@ public class RDFManager implements IBioclipseManager {
     	monitor.worked(80);
 
     	try {
-    		results = qexec.execConstruct();
+    		sparqlOutput = qexec.execConstruct();
+        	monitor.worked(20);
     	} finally {
     		qexec.close();
+        	monitor.done();
     	}
-    	monitor.worked(20);
-    	return results;
+    	IRDFStore rdfStore = (IRDFStore) sparqlOutput;
+    	return rdfStore;
     }
     
     public IRDFStore importRDFa(IRDFStore store, String url,
