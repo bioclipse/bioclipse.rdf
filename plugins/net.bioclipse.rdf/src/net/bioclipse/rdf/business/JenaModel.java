@@ -18,10 +18,17 @@ public class JenaModel implements IJenaStore {
 
     private Model model;
     
-    protected JenaModel() {
+    public JenaModel() {
     	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
         model = ModelFactory.createOntologyModel();
     }
+
+    public JenaModel( Model jenaTypeModel ) {
+    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
+        model = ModelFactory.createOntologyModel();
+        getModel().add( jenaTypeModel );
+    }
+
     
     public Model getModel() {
         return this.model;
