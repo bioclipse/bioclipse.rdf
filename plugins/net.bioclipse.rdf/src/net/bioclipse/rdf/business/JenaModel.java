@@ -26,7 +26,7 @@ public class JenaModel implements IJenaStore {
     public JenaModel( Model jenaTypeModel ) {
     	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
         model = ModelFactory.createOntologyModel();
-        getModel().add( jenaTypeModel );
+        model.add( jenaTypeModel );
     }
 
     
