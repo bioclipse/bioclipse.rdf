@@ -42,6 +42,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import com.hp.hpl.jena.n3.turtle.TurtleParseException;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -54,7 +55,9 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.shared.NoReaderForLangException;
 import com.hp.hpl.jena.shared.PrefixMapping;
+import com.hp.hpl.jena.shared.SyntaxError;
 
 public class RDFManager implements IBioclipseManager {
 
@@ -81,7 +84,26 @@ public class RDFManager implements IBioclipseManager {
             );
         
         Model model = ((IJenaStore)store).getModel();
-        model.read(stream, "", format);
+        try {
+        	model.read(stream, "", format);
+        } catch (SyntaxError error) {
+        	throw new BioclipseException(
+        		"File format is not correct.",
+        		error
+        	);
+        } catch (NoReaderForLangException exception) {
+        	throw new BioclipseException(
+            	"Unknown file format. Supported are \"RDF/XML\", " +
+            	"\"N-TRIPLE\", \"TURTLE\" and \"N3\".",
+            	exception
+        	);
+        } catch (TurtleParseException exception) {
+        	throw new BioclipseException(
+                "Error while parsing file: " +
+                exception.getMessage(),
+                exception
+        	);
+        }
         return store;
     }
 
