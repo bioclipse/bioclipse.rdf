@@ -32,9 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bioclipse.core.ResourcePathTransformer;
-import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.core.api.BioclipseException;
+import net.bioclipse.core.api.ResourcePathTransformer;
+import net.bioclipse.core.api.managers.IBioclipseManager;
 import net.bioclipse.rdf.model.StringMatrix;
 
 import org.eclipse.core.resources.IFile;

@@ -10,7 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.rdf.ui;
 
-import net.bioclipse.core.domain.IBioObject;
+import net.bioclipse.core.api.domain.IBioObject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;

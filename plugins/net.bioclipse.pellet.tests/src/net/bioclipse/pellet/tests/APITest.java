@@ -10,8 +10,8 @@
  ******************************************************************************/
 package net.bioclipse.pellet.tests;
 
+import net.bioclipse.core.api.managers.IBioclipseManager;
 import net.bioclipse.core.tests.AbstractManagerTest;
-import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.pellet.business.IPelletManager;
 import net.bioclipse.pellet.business.PelletManager;
 

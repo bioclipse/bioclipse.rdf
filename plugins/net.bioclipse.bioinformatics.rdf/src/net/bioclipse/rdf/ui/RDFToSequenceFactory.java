@@ -11,7 +11,7 @@
  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 package net.bioclipse.rdf.ui;
 
-import net.bioclipse.core.domain.IBioObject;
+import net.bioclipse.core.api.domain.IBioObject;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;

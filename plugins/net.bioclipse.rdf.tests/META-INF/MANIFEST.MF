@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources,
  net.bioclipse.core.tests;bundle-version="0.1.0",
  net.bioclipse.rdf,
- net.bioclipse.ui;bundle-version="2.0.0"
+ net.bioclipse.ui;bundle-version="2.0.0",
+ net.bioclipse.core.api;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.rdf.tests

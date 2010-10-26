@@ -16,7 +16,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import net.bioclipse.core.ResourcePathTransformer;
+import net.bioclipse.core.api.ResourcePathTransformer;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.model.IStringMatrix;

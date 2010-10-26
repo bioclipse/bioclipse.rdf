@@ -10,8 +10,8 @@
  ******************************************************************************/
 package net.bioclipse.rdf.tests;
 
+import net.bioclipse.core.api.managers.IBioclipseManager;
 import net.bioclipse.core.tests.coverage.AbstractCoverageTest;
-import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.RDFManager;
 

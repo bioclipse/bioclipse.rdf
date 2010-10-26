@@ -10,7 +10,7 @@ package net.bioclipse.rdf.ui.editors;
 
 import java.io.ByteArrayInputStream;
 
-import net.bioclipse.core.domain.IBioObject;
+import net.bioclipse.core.api.domain.IBioObject;
 import net.bioclipse.core.util.LogUtils;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
