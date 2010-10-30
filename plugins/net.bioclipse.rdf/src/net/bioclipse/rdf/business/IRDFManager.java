@@ -172,6 +172,14 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store",
+        methodSummary = "Returns a String with the N3 serialization."
+    )
+    public String asRDFN3(IRDFStore store)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store, String fileName",
         methodSummary = "Saves the store to RDF in N-TRIPLE format."
     )

@@ -187,7 +187,12 @@ public class RDFManager implements IBioclipseManager {
                         // use some custom code
                         String[] uriLocalSplit = split(prefixMap, resource);
                         if (uriLocalSplit[0] == null) {
-                        	table.set(rowCount, colCount, resource.getURI());
+                        	if (resource.getURI() != null) {
+                        		table.set(rowCount, colCount, resource.getURI());
+                        	} else {
+                        		// anonymous node
+                        		table.set(rowCount, colCount, "" + resource.hashCode());
+                        	}
                         } else {
                         	table.set(rowCount, colCount,
                                 uriLocalSplit[0] + ":" + uriLocalSplit[1]
@@ -299,6 +304,41 @@ public class RDFManager implements IBioclipseManager {
             IProgressMonitor monitor)
     throws BioclipseException {
         return saveRDF(store, file, "N3", monitor);
+    }
+
+    public String asRDFN3(IRDFStore store)
+    throws BioclipseException {
+        return asRDFN3(store, null);
+    };
+
+    public String asRDFN3(IRDFStore store, IProgressMonitor monitor)
+    throws BioclipseException {
+    	String type = "N3";
+
+    	if (monitor == null)
+    		monitor = new NullProgressMonitor();
+    	monitor.beginTask("Converting into N3", 1);
+
+    	try {
+    		ByteArrayOutputStream output = new ByteArrayOutputStream();
+    		if (store instanceof IJenaStore) {
+    			Model model = ((IJenaStore)store).getModel();
+    			model.write(output, type);
+    			output.close();
+    			String result = new String(output.toByteArray());
+    	    	monitor.worked(1);
+    	    	monitor.done();
+    	    	return result;
+    		} else {
+    			monitor.worked(1);
+    			monitor.done();
+    			throw new BioclipseException("Only supporting IJenaStore!");
+    		}
+    	} catch (IOException e) {
+    		monitor.worked(1);
+    		monitor.done();
+    		throw new BioclipseException("Error while writing RDF.", e);
+    	}
     }
 
     public void saveRDFNTriple(IRDFStore store, String fileName)
