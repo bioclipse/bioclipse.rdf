@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="Bioclipse-RDF Update Site">
+      Update site for the Bioclipse-RDF functionality.
+   </description>
+   <feature url="features/net.bioclipse.rdf_feature_2.4.1.v20100830.jar" id="net.bioclipse.rdf_feature" version="2.4.1.v20100830"/>
+</site>
