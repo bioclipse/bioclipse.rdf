@@ -17,7 +17,7 @@
    </license>
 
    <includes
-         id="net.bioclipse.bioinformatics.rdf_feature"
+         id="net.bioclipse.rdf_feature"
          version="0.0.0"/>
 
 </feature>
