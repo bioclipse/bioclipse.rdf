@@ -28,7 +28,10 @@ public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
     private ServiceTracker finderTracker;
     private ServiceTracker jsFinderTracker;
-    
+
+    /** HTTP time out in milliseconds. */
+    public static final Integer TIME_OUT = 5000; 
+
     public Activator() {}
 
     public void start(BundleContext context) throws Exception {

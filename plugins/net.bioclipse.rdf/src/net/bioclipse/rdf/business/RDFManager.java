@@ -35,6 +35,7 @@ import java.util.Set;
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.rdf.Activator;
 import net.bioclipse.rdf.model.StringMatrix;
 
 import org.eclipse.core.resources.IFile;
@@ -58,6 +59,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.NoReaderForLangException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.SyntaxError;
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
 public class RDFManager implements IBioclipseManager {
 
@@ -111,6 +113,7 @@ public class RDFManager implements IBioclipseManager {
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
+        connection.setConnectTimeout(Activator.TIME_OUT);
         connection.setRequestProperty(
             "Accept",
             "application/xml, application/rdf+xml"
@@ -429,9 +432,11 @@ public class RDFManager implements IBioclipseManager {
 
         monitor.beginTask("Sparqling the remote service..", 100);
         Query query = QueryFactory.create(sparqlQueryString);
-        QueryExecution qexec = QueryExecutionFactory.sparqlService(serviceURL, query);
+        monitor.worked(20);
+        QueryEngineHTTP qexec = (QueryEngineHTTP)QueryExecutionFactory.sparqlService(serviceURL, query);
+        qexec.addParam("timeout", "" + Activator.TIME_OUT);
         PrefixMapping prefixMap = query.getPrefixMapping();
-        monitor.worked(80);
+        monitor.worked(60);
 
         StringMatrix table = null;
         try {
