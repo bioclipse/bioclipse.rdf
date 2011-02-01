@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet Feature"
-      version="2.4.1.v20100830"
+      version="2.4.1.20110201"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
@@ -12,7 +12,7 @@
 
    <copyright>
       The Bioclipse-Pellet is:
-Copyright (c) 2009 The Bioclipse Project Team and others.
+Copyright (c) 2009-2011 The Bioclipse Project Team and others.
 All rights reserved.
 
 Pellet library itself is:
@@ -860,7 +860,7 @@ GNU AGPL, see
    </url>
 
    <requires>
-      <import feature="net.bioclipse.rdf_feature" version="2.4.0" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201" match="greaterOrEqual"/>
    </requires>
 
    <plugin
