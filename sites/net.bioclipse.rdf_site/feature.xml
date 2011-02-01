@@ -20,4 +20,8 @@
          id="net.bioclipse.rdf_feature"
          version="0.0.0"/>
 
+   <includes
+         id="net.bioclipse.pellet_feature"
+         version="0.0.0"/>
+
 </feature>
