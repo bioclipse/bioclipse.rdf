@@ -34,9 +34,9 @@ import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.Activator;
-import net.bioclipse.rdf.model.StringMatrix;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;

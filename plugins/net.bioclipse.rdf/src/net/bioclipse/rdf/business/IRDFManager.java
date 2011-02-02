@@ -20,8 +20,8 @@ import net.bioclipse.core.Recorded;
 import net.bioclipse.core.TestClasses;
 import net.bioclipse.core.TestMethods;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.IStringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.rdf.model.IStringMatrix;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;

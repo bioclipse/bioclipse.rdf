@@ -11,12 +11,12 @@ package net.bioclipse.rdf.ui.editors;
 import java.io.ByteArrayInputStream;
 
 import net.bioclipse.core.domain.IBioObject;
+import net.bioclipse.core.domain.IStringMatrix;
 import net.bioclipse.core.util.LogUtils;
 import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
 import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.rdf.model.IRDFClass;
-import net.bioclipse.rdf.model.IStringMatrix;
 import net.bioclipse.rdf.model.JenaRDFLiteral;
 import net.bioclipse.rdf.model.JenaRDFResource;
 import net.bioclipse.rdf.ui.IRDFToBioObjectFactory;
