@@ -9,9 +9,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.bioclipse.core,
  org.eclipse.core.resources,
- net.bioclipse.core.tests;bundle-version="0.1.0",
+ net.bioclipse.core.tests,
  net.bioclipse.rdf,
- net.bioclipse.ui;bundle-version="2.0.0"
+ net.bioclipse.ui
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.rdf.tests
 Import-Package: org.junit,
