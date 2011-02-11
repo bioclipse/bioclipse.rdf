@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bioclipse-RDF Test Plug-in
+Bundle-Name: Bioclipse-Pellet Test Plug-in
 Bundle-SymbolicName: net.bioclipse.pellet.tests
 Bundle-Version: 2.4.1.v20100830
 Bundle-Activator: net.bioclipse.pellet.tests.Activator
