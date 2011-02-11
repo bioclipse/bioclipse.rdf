@@ -17,7 +17,6 @@
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core.tests_feature" version="1.0.0.qualifier"/>
       <import feature="net.bioclipse.core_feature" version="2.4.0.20100709"/>
       <import feature="net.bioclipse.pellet_feature" version="2.4.1.20110201"/>
       <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201"/>
