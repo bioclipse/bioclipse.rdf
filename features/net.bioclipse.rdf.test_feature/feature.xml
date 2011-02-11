@@ -16,6 +16,10 @@
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import feature="net.bioclipse.rdf_feature"/>
+   </requires>
+
    <plugin
          id="net.bioclipse.rdf.tests"
          download-size="0"
