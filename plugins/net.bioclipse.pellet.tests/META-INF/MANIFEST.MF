@@ -22,3 +22,4 @@ Export-Package: net.bioclipse.pellet.tests
 Import-Package: org.apache.log4j, org.junit,
  org.junit.runner,
  org.junit.runners
+Bundle-ClassPath: .
