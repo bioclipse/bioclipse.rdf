@@ -16,3 +16,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.junit,
  org.junit.runner,
  org.junit.runners
+Export-Package: net.bioclipse.rdf.completerepotest
+Bundle-ClassPath: .
