@@ -72,8 +72,12 @@ public abstract class AbstractPelletManagerPluginTest {
         Assert.assertTrue(includesAboveTriple);
     }
 
-    @Test public void testReason() {
-        Assert.fail("Test not implemented");
+    @Test public void testReason() throws Exception {
+        IRDFStore store = pellet.createInMemoryStore();
+        String query =
+            "SELECT ?pred ?obj " +
+            "WHERE {<http://www.example.com/foo> ?pred ?obj . }";
+        pellet.reason(store, query);
     }
 
     @Test public void testValidate() throws Exception {
