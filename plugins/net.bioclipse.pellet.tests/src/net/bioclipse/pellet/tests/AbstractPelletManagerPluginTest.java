@@ -17,6 +17,7 @@ import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -26,7 +27,8 @@ public abstract class AbstractPelletManagerPluginTest {
     protected static IPelletManager pellet;
     protected static IRDFManager rdf;
 
-    @Test public void testCreateInMemoryStore() {
+    @Ignore("Test needs to be rewritten as /Virtual will be removed")
+    public void testCreateInMemoryStore() {
         IRDFStore store = pellet.createInMemoryStore();
         Assert.assertNotNull(store);
     }
