@@ -24,13 +24,15 @@ import net.bioclipse.rdf.business.IRDFStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public abstract class AbstractRDFManagerPluginTest {
 
     protected static IRDFManager rdf;
 
-    @Test public void testCreateStore() {
+    @Ignore("Test needs to be rewritten as /Virtual will be removed")
+    public void testCreateStore() {
         IRDFStore store = rdf.createStore("/Virtual/test.store");
         Assert.assertNotNull(store);
     }
