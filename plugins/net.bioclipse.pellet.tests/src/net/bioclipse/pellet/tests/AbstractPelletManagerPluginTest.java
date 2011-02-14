@@ -27,13 +27,14 @@ public abstract class AbstractPelletManagerPluginTest {
     protected static IPelletManager pellet;
     protected static IRDFManager rdf;
 
-    @Ignore("Test needs to be rewritten as /Virtual will be removed")
+    @Test
     public void testCreateInMemoryStore() {
         IRDFStore store = pellet.createInMemoryStore();
         Assert.assertNotNull(store);
     }
 
-    @Test public void testCreateStore() {
+    @Ignore("Test needs to be rewritten as /Virtual will be removed")
+    public void testCreateStore() {
         IRDFStore store = pellet.createStore("/Virtual/test.store");
         Assert.assertNotNull(store);
     }
