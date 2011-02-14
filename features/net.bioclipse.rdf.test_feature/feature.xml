@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="net.bioclipse.rdf.test_feature"
-      label="Test_feature"
-      version="1.0.0.qualifier">
+      label="RDF Test Feature"
+      version="2.4.1.20110201"
+      provider-name="The Bioclipse Team"
+      plugin="net.bioclipse.rdf.completeRepoTest">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
