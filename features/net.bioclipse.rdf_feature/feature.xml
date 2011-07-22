@@ -41,6 +41,8 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
 
    <requires>
       <import feature="net.bioclipse.core_feature" version="2.4.0" match="greaterOrEqual"/>
+      <import plugin="net.bioclipse.statistics"/>
+      <import plugin="net.bioclipse.statistics.jama"/>
    </requires>
 
    <plugin
@@ -52,20 +54,6 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
 
    <plugin
          id="com.hp.hpl.jena"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.bioclipse.statistics"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.bioclipse.statistics.jama"
          download-size="0"
          install-size="0"
          version="0.0.0"
