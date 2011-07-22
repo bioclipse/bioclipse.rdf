@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf_site"
       label="Update site for the Bioclipse-RDF functionality."
-      version="2.4.1">
+      version="2.5.0.qualifier">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
