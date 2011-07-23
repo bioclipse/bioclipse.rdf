@@ -16,10 +16,10 @@ Eclipse Public License.
    </copyright>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.4.1.20110201" match="greaterOrEqual"/>
-      <import feature="net.bioclipse.rdf.ui_feature" version="2.4.1.20110201"/>
-      <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201"/>
-      <import feature="net.bioclipse.chemoinformatics_feature" version="2.4.1.20110201"/>
+      <import feature="net.bioclipse.core_feature" />
+      <import feature="net.bioclipse.rdf.ui_feature" />
+      <import feature="net.bioclipse.rdf_feature" />
+      <import feature="net.bioclipse.chemoinformatics_feature" />
    </requires>
 
    <plugin

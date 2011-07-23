@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf.test_feature"
       label="RDF Test Feature"
-      version="2.4.1.20110201"
+      version="2.5.0.qualifier"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.rdf.completeRepoTest">
 
@@ -19,9 +19,9 @@
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.4.0.20100709"/>
-      <import feature="net.bioclipse.pellet_feature" version="2.4.1.20110201"/>
-      <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201"/>
+      <import feature="net.bioclipse.core_feature" />
+      <import feature="net.bioclipse.pellet_feature" />
+      <import feature="net.bioclipse.rdf_feature" />
    </requires>
 
    <plugin
