@@ -58,7 +58,10 @@ public class RDFLabelProvider extends LabelProvider {
 
     	if (element instanceof Literal) {
     		Literal literal = (Literal)element;
-    		return literal.getString();
+    		String litString = literal.getString();
+    		if (litString.length() > 50)
+    			litString = litString.substring(0, 47) + "...";
+    		return litString;
     	}
 
     	return element.toString();
