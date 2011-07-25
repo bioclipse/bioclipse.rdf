@@ -6,15 +6,15 @@
 
 package com.hp.hpl.jena.query.larq;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.File ;
+import java.io.IOException ;
+import java.io.Reader ;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.document.Document ;
+import org.apache.lucene.index.IndexWriter ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
 
 /** Helper class for index creation from external content.
  *  
@@ -23,10 +23,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
  *  
  *  To update the index once closed, the application should create a new index builder.
  *  Any index readers (e.g. IndexLARQ objects)
- *  need to be recreated and registered.  
- *        
- * @author Andy Seaborne
- */
+ *  need to be recreated and registered. */
 
 public class IndexBuilderNode extends IndexBuilderBase
 {

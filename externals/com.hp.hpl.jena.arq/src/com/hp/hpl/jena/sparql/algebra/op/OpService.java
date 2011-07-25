@@ -6,31 +6,43 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.graph.Node;
-
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.syntax.ElementService ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class OpService extends Op1
 {
-    Node serviceNode = null ;    
-    public OpService(Node serviceNode, Op subOp)
+    private final Node serviceNode ;
+    private final ElementService serviceElement ;  
+    private final boolean silent ;
+    
+    public OpService(Node serviceNode, Op subOp, boolean silent)
+    {
+        this(serviceNode, subOp, null, silent) ;
+    }
+
+    public OpService(Node serviceNode, Op subOp, ElementService elt, boolean silent)
     {
         super(subOp) ;
         this.serviceNode = serviceNode ;
+        this.serviceElement = elt ;
+        this.silent = silent ;
     }
-
+    
     @Override
     public Op apply(Transform transform, Op subOp)  { return transform.transform(this, subOp) ; }
 
     @Override
-    public Op copy(Op newOp)                    { return new OpService(serviceNode, newOp) ; }
+    public Op copy(Op newOp)                    { return new OpService(serviceNode, newOp, silent) ; }
     public String getName()                     { return Tags.tagService ; }
     public void visit(OpVisitor opVisitor)      { opVisitor.visit(this) ; }
     public Node getService()                    { return serviceNode ;  }
+    public ElementService getServiceElement()   { return serviceElement ;  }
+    public boolean getSilent()                  { return silent ; } 
 
     @Override
     public int hashCode()
@@ -43,6 +55,8 @@ public class OpService extends Op1
             return false ;
         OpService opService = (OpService)other ;
         if ( ! ( serviceNode.equals(opService.serviceNode) ) )
+            return false ;
+        if ( opService.getSilent() != getSilent() )
             return false ;
         return getSubOp().equalTo(opService.getSubOp(), labelMap) ;
     }

@@ -5,37 +5,34 @@
 
 package com.hp.hpl.jena.sparql.engine.http;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayInputStream ;
+import java.io.IOException ;
+import java.io.InputStream ;
+import java.io.OutputStream ;
+import java.io.UnsupportedEncodingException ;
+import java.net.HttpURLConnection ;
+import java.net.MalformedURLException ;
+import java.net.URL ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Map ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openjena.atlas.lib.Base64 ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.shared.JenaException;
-
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.util.Base64;
-import com.hp.hpl.jena.sparql.util.Convert;
-import com.hp.hpl.jena.util.FileUtils;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.util.Convert ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 /** Create an execution object for performing a query on a model
  *  over HTTP.  This is the main protocol engine for HTTP query.
  *  There are higher level classes for doing a query and presenting
  *  the results in an API fashion. 
  * 
- *  If the query string is large, then HTTP POST is used.
-
- * @author  Andy Seaborne
- */
+ *  If the query string is large, then HTTP POST is used. */
 public class HttpQuery extends Params
 {
     static final Logger log = LoggerFactory.getLogger(HttpQuery.class.getName()) ;
@@ -156,14 +153,13 @@ public class HttpQuery extends Params
             throw jEx ;
         }
     }
-     
 
     private InputStream execGet() throws QueryExceptionHTTP
     {
         URL target = null ;
         String qs = getQueryString() ;
         
-        //System.out.println(qs) ;
+        ARQ.getHttpRequestLogger().trace(qs) ;
         
         try {
             if ( count() == 0 )
@@ -179,6 +175,9 @@ public class HttpQuery extends Params
         {
             httpConnection = (HttpURLConnection) target.openConnection();
             httpConnection.setRequestProperty("Accept", contentTypeResult) ;
+            
+            int x = httpConnection.getReadTimeout() ;
+            
             // By default, following 3xx redirects is true
             //conn.setFollowRedirects(true) ;
             basicAuthentication(httpConnection) ;
@@ -212,6 +211,8 @@ public class HttpQuery extends Params
         { throw new QueryExceptionHTTP(0, "Malformed URL: " + malEx); }
         log.trace("POST "+target.toExternalForm()) ;
         
+        ARQ.getHttpRequestLogger().trace(target.toExternalForm()) ;
+
         try
         {
             httpConnection = (HttpURLConnection) target.openConnection();
@@ -234,6 +235,7 @@ public class HttpQuery extends Params
                 String x = p.getValue() ;
                 x = Convert.encWWWForm(x) ;
                 out.write(x.getBytes()) ;
+                ARQ.getHttpRequestLogger().trace("Param: "+x) ;
             }
             out.flush() ;
             httpConnection.connect() ;
@@ -289,24 +291,20 @@ public class HttpQuery extends Params
             // 5xx: Server Error 
             
             if ( 300 <= responseCode && responseCode < 400 )
-            {
-                
                 throw new QueryExceptionHTTP(responseCode, responseMessage) ;
-            }
             
             // Other 400 and 500 - errors 
             
             if ( responseCode >= 400 )
-            {
                 throw new QueryExceptionHTTP(responseCode, responseMessage) ;
-            }
   
             // Request suceeded
+            //httpConnection.setReadTimeout(10) ;
             InputStream in = httpConnection.getInputStream() ;
             
             if ( false )
             {
-                // Dump the reply
+                // Dump the header
                 Map<String,List<String>> map = httpConnection.getHeaderFields() ;
                 for ( Iterator<String> iter = map.keySet().iterator() ; iter.hasNext() ; )
                 {
@@ -314,8 +312,11 @@ public class HttpQuery extends Params
                     List<String> v = map.get(k) ;
                     System.out.println(k+" = "+v) ;
                 }
-                
-                // Dump response body
+            }
+            
+            // Dump response body
+            if ( false )
+            {
                 StringBuffer b = new StringBuffer(1000) ;
                 byte[] chars = new byte[1000] ;
                 while(true)
@@ -329,6 +330,15 @@ public class HttpQuery extends Params
                 // Reset
                 in = new ByteArrayInputStream(b.toString().getBytes(FileUtils.encodingUTF8)) ;
             }
+            
+            
+            // +++ WORKAROUND for badly behaved apps.
+            // Apps sometimes call QueryExecution.close straight after .execSelect.
+            // that results in some resuls being seen, not all of them => XMl parse errors.
+//            byte[] bytes = IO.readWholeFile(in) ;
+//            in = new ByteArrayInputStream(bytes) ;
+            // +++ 
+           
             return in ;
         }
         catch (IOException ioEx)

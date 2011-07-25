@@ -6,14 +6,17 @@
 
 package com.hp.hpl.jena.sparql.procedure;
 
-import java.util.*;
+import java.util.HashMap ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.Map ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.MappedLoader;
-
-import com.hp.hpl.jena.query.ARQ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.MappedLoader ;
 
 public class ProcedureRegistry
 {
@@ -72,7 +75,7 @@ public class ProcedureRegistry
     { 
         if ( ! Procedure.class.isAssignableFrom(procClass) )
         {
-            ALog.warn(this, "Class "+procClass.getName()+" is not a Procedure" );
+            Log.warn(this, "Class "+procClass.getName()+" is not a Procedure" );
             return ; 
         }
         

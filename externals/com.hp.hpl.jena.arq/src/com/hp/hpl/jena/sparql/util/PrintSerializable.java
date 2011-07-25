@@ -6,12 +6,15 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.io.Printable ;
+
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
 
 public interface PrintSerializable extends Printable
 {
+    // Eventually replace by output support in RIOT
     public void output(IndentedWriter out, SerializationContext sCxt) ;
     public String toString(PrefixMapping pmap) ; 
 }

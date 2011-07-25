@@ -6,19 +6,16 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashSet ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 
 /** A QueryIterator that surpresses items already seen. 
  * Like com.hp.hpl.jena.util.iterators.UniqueExtendedIterator
- * except this one works on QueryIterators (and hence ClosableIterators)  
- * 
- * @author Andy Seaborne
- */
+ * except this one works on QueryIterators (and hence ClosableIterators) */
 
 public class QueryIterDistinct extends QueryIterDistinctReduced
 {

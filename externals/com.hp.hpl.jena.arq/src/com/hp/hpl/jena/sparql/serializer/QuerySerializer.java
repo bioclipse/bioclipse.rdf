@@ -6,21 +6,23 @@
 
 package com.hp.hpl.jena.sparql.serializer;
 
-import java.io.OutputStream;
-import java.util.List;
+import java.io.OutputStream ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryVisitor;
-import com.hp.hpl.jena.query.SortCondition;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.syntax.Template;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryVisitor ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import com.hp.hpl.jena.sparql.syntax.Template ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 /** Serialize a query into SPARQL or ARQ formats */
 
@@ -86,17 +88,17 @@ public class QuerySerializer implements QueryVisitor
     public void visitConstructResultForm(Query query)
     {
         out.print("CONSTRUCT ") ;
-        if ( query.isQueryResultStar() )
-        {
-            out.print("*") ;
-            out.newline() ;
-        }
-        else
+//        if ( query.isQueryResultStar() )
+//        {
+//            out.print("*") ;
+//            out.newline() ;
+//        }
+//        else
         {
             out.incIndent(BLOCK_INDENT) ;
             out.newline() ;
             Template t = query.getConstructTemplate() ;
-            t.visit(fmtTemplate) ;
+            fmtTemplate.format(t) ;
             out.decIndent(BLOCK_INDENT) ;
         }
     }
@@ -168,9 +170,14 @@ public class QuerySerializer implements QueryVisitor
     {
         if ( query.hasGroupBy() )
         {
-            out.print("GROUP BY ") ;
-            appendNamedExprList(query, out, query.getGroupBy()) ;
-            out.println();
+            // Can have an empty GROUP BY list if the groupin gis implicit
+            // by use of an aggregate in the SELECT clause.
+            if ( ! query.getGroupBy().isEmpty() )
+            {
+                out.print("GROUP BY ") ;
+                appendNamedExprList(query, out, query.getGroupBy()) ;
+                out.println();
+            }
         }
     }
 
@@ -205,7 +212,6 @@ public class QuerySerializer implements QueryVisitor
         }
     }
     
-    
     public void visitLimit(Query query)
     {
         if ( query.hasLimit() )
@@ -224,6 +230,42 @@ public class QuerySerializer implements QueryVisitor
         }
     }
     
+    public void visitBindings(Query query)
+    {
+        if ( query.hasBindings() )
+        {
+            out.print("BINDINGS") ;
+            for ( Var v : query.getBindingVariables() )
+            {
+                out.print(" ") ;
+                out.print(v) ;
+            }
+            out.println();
+            
+            out.print("{") ;
+            out.incIndent() ;
+            out.println() ;
+            for ( Binding valueRow : query.getBindingValues() )
+            {
+                // A value may be null for UNDEF
+                out.print("(") ;
+                for ( Var var : query.getBindingVariables() )
+                {
+                    out.print(" ") ;
+                    Node value = valueRow.get(var) ; 
+                    if ( value == null )
+                        out.print("UNDEF") ;
+                    else
+                        out.print(FmtUtils.stringForNode(value, query)) ;
+                }
+                out.println(" )") ;
+            }
+            out.decIndent() ;
+            out.print("}") ;
+            out.println() ;
+        }
+    }
+
     public void finishVisit(Query query)
     {
         out.flush() ;

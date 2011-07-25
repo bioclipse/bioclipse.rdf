@@ -7,22 +7,19 @@
 package com.hp.hpl.jena.sparql.sse.builders;
 
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
+import org.openjena.atlas.lib.StrUtils ;
 
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemList;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.StringUtils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.shared.impl.PrefixMappingImpl ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
 
 /** Build a prefixmapping, tagged (prefixmap pairs) or (prefixmapping pairs)
  * each pair being a PrefixName, but must end : and an IRI.
  * 
- * Can also just a list of pairs.
- * 
- * @author Andy Seaborne
- */
+ * Can also just a list of pairs. */
 
 public class BuilderPrefixMapping
 {
@@ -84,7 +81,7 @@ public class BuilderPrefixMapping
             if ( ! prefix.endsWith(":") )
                 BuilderLib.broken(pair, "Prefix part does not end with a ':': "+pair) ;
             prefix = prefix.substring(0, prefix.length()-1) ;
-            if ( StringUtils.contains(prefix, ":") )
+            if ( StrUtils.contains(prefix, ":") )
                 BuilderLib.broken(pair, "Prefix itself contains a ':' : "+pair) ;
             // -- /Prefix
             

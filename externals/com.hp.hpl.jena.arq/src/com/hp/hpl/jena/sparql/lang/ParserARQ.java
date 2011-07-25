@@ -17,7 +17,7 @@ import com.hp.hpl.jena.shared.JenaException ;
 import com.hp.hpl.jena.sparql.lang.arq.ARQParser ;
 import com.hp.hpl.jena.sparql.syntax.Element ;
 import com.hp.hpl.jena.sparql.syntax.Template ;
-import com.hp.hpl.jena.sparql.util.ALog ;
+import org.openjena.atlas.logging.Log ;
 
 
 public class ParserARQ extends Parser
@@ -25,7 +25,7 @@ public class ParserARQ extends Parser
     private interface Action { void exec(ARQParser parser) throws Exception ; }
     
     @Override
-    public Query parse(final Query query, String queryString)
+    protected Query parse$(final Query query, String queryString)
     {
         query.setSyntax(Syntax.syntaxARQ) ;
 
@@ -103,7 +103,7 @@ public class ParserARQ extends Parser
         }
         catch (Throwable th)
         {
-            ALog.warn(ParserSPARQL11.class, "Unexpected throwable: ",th) ;
+            Log.warn(ParserSPARQL11.class, "Unexpected throwable: ",th) ;
             throw new QueryException(th.getMessage(), th) ;
         }
     }

@@ -5,13 +5,10 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.sparql.ARQException;
+import com.hp.hpl.jena.sparql.ARQException ;
 
 /** QueryException is root exception for all (intentional) exceptions
- *  associated with query parsing and execution.
- *  
- * @author		Andy Seaborne
- */
+ *  associated with query parsing and execution. */
 
 
 public class QueryException extends ARQException

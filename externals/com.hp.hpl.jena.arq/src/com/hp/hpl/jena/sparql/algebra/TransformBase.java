@@ -1,14 +1,15 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
 public class TransformBase implements Transform
 {
@@ -26,10 +27,14 @@ public class TransformBase implements Transform
     public Op transform(OpFilter opFilter, Op subOp)        { return opFilter ; }
     public Op transform(OpGraph opGraph, Op subOp)          { return opGraph ; } 
     public Op transform(OpService opService, Op subOp)      { return opService ; } 
+
+    public Op transform(OpAssign opAssign, Op subOp)        { return opAssign ; }
+    public Op transform(OpExtend opExtend, Op subOp)        { return opExtend ; }
     
     public Op transform(OpJoin opJoin, Op left, Op right)           { return opJoin ; }
     public Op transform(OpLeftJoin opLeftJoin, Op left, Op right)   { return opLeftJoin ; }
     public Op transform(OpDiff opDiff, Op left, Op right)           { return opDiff ; }
+    public Op transform(OpMinus opMinus, Op left, Op right)         { return opMinus ; }
     public Op transform(OpUnion opUnion, Op left, Op right)         { return opUnion ; }
     public Op transform(OpConditional opCond, Op left, Op right)    { return opCond ; } 
     
@@ -42,16 +47,17 @@ public class TransformBase implements Transform
     
     public Op transform(OpList opList, Op subOp)            { return opList ; }
     public Op transform(OpOrder opOrder, Op subOp)          { return opOrder ; }
+    public Op transform(OpTopN opTop, Op subOp)             { return opTop ; }
     public Op transform(OpProject opProject, Op subOp)      { return opProject ; }
     public Op transform(OpDistinct opDistinct, Op subOp)    { return opDistinct ; }
     public Op transform(OpReduced opReduced, Op subOp)      { return opReduced ; }
     public Op transform(OpSlice opSlice, Op subOp)          { return opSlice ; }
-    public Op transform(OpAssign opAssign, Op subOp)        { return opAssign ; }
-    public Op transform(OpGroupAgg opGroupAgg, Op subOp)    { return opGroupAgg ; }
+    public Op transform(OpGroup opGroup, Op subOp)          { return opGroup ; }
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

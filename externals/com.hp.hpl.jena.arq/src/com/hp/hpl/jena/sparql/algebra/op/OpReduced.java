@@ -6,15 +6,22 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class OpReduced extends OpModifier
 {
-    public OpReduced(Op subOp)
+    public static Op create(Op op)
+    {
+        if ( op instanceof OpReduced)
+            return op ;
+        return new OpReduced(op) ;
+    }
+    
+    private OpReduced(Op subOp)
     { super(subOp) ; }
     
     @Override

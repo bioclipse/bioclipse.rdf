@@ -1,12 +1,13 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
 public interface OpVisitor
 {
@@ -26,12 +27,15 @@ public interface OpVisitor
     public void visit(OpService opService) ;
     public void visit(OpDatasetNames dsNames) ;
     public void visit(OpLabel opLabel) ;
+    public void visit(OpAssign opAssign) ;
+    public void visit(OpExtend opExtend) ;
     
     // Op2
     public void visit(OpJoin opJoin) ;
     public void visit(OpLeftJoin opLeftJoin) ;
-    public void visit(OpDiff opDiff) ;
     public void visit(OpUnion opUnion) ;
+    public void visit(OpDiff opDiff) ;
+    public void visit(OpMinus opMinus) ;
     
     public void visit(OpConditional opCondition) ;
     
@@ -48,13 +52,14 @@ public interface OpVisitor
     public void visit(OpReduced opReduced) ;
     public void visit(OpDistinct opDistinct) ;
     public void visit(OpSlice opSlice) ;
-    public void visit(OpAssign opAssign) ;
 
-    public void visit(OpGroupAgg opGroupAgg) ;
+    public void visit(OpGroup opGroup) ;
+    public void visit(OpTopN opTop) ;
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

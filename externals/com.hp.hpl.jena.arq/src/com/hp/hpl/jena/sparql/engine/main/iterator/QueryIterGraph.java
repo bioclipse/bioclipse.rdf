@@ -1,33 +1,35 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.main.iterator;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Iterator ;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.op.OpGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.Binding1;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIter;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton;
-import com.hp.hpl.jena.sparql.engine.main.QC;
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.sparql.lib.iterator.NullIterator;
-import com.hp.hpl.jena.sparql.lib.iterator.SingletonIterator;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.SingletonIterator ;
 
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.op.OpGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSub ;
+import com.hp.hpl.jena.sparql.engine.main.QC ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class QueryIterGraph extends QueryIterRepeatApply
 {
@@ -43,7 +45,12 @@ public class QueryIterGraph extends QueryIterRepeatApply
     protected QueryIterator nextStage(Binding outerBinding)
     {
         DatasetGraph ds = getExecContext().getDataset() ;
+        // Is this closed?
         Iterator<Node> graphNameNodes = makeSources(ds, outerBinding, opGraph.getNode());
+        
+//        List<Node> x = Iter.toList(graphNameNodes) ;
+//        graphNameNodes = x.iterator() ;
+//        System.out.println(x) ;
         
         QueryIterator current = new QueryIterGraphInner(
                                                outerBinding, graphNameNodes, 
@@ -53,12 +60,6 @@ public class QueryIterGraph extends QueryIterRepeatApply
 
     private static Node resolve(Binding b, Node n)
     {
-//        if (  b == null )
-//            return null ;
-//
-//        if ( n == null )
-//            return n ;
-        
         if ( ! n.isVariable() )
             return n ;
 
@@ -71,8 +72,8 @@ public class QueryIterGraph extends QueryIterRepeatApply
         Node n2 = resolve(b, graphVar) ;
         
         if ( n2 != null && ! n2.isURI() )
-            // Bloank node or literal possible after resolving
-            return new NullIterator<Node>() ;
+            // Blank node or literal possible after resolving
+            return Iter.nullIterator() ;
         
         // n2 is a URI or null.
         
@@ -83,16 +84,15 @@ public class QueryIterGraph extends QueryIterRepeatApply
     }
     
 
-    protected static class QueryIterGraphInner extends QueryIter
+    protected static class QueryIterGraphInner extends QueryIterSub
     {
         protected Binding parentBinding ;
         protected Iterator<Node> graphNames ;
         protected OpGraph opGraph ;
-        protected QueryIterator subIter = null ;
 
         protected QueryIterGraphInner(Binding parent, Iterator<Node> graphNames, OpGraph opGraph, ExecutionContext execCxt)
         {
-            super(execCxt) ;
+            super(null, execCxt) ;
             this.parentBinding = parent ;
             this.graphNames = graphNames ;
             this.opGraph = opGraph ;
@@ -103,18 +103,18 @@ public class QueryIterGraph extends QueryIterRepeatApply
         {
             for(;;)
             {
-                if ( subIter == null )
-                    subIter = nextIterator() ;
+                if ( iter == null )
+                    iter = nextIterator() ;
                 
-                if ( subIter == null )
+                if ( iter == null )
                     return false ;
                 
-                if ( subIter.hasNext() )
+                if ( iter.hasNext() )
                     return true ;
                 
-                subIter.close() ;
-                subIter = nextIterator() ;
-                if ( subIter == null )
+                iter.close() ;
+                iter = nextIterator() ;
+                if ( iter == null )
                     return false ;
             }
         }
@@ -122,21 +122,16 @@ public class QueryIterGraph extends QueryIterRepeatApply
         @Override
         protected Binding moveToNextBinding()
         {
-            if ( subIter == null )
+            if ( iter == null )
                 throw new NoSuchElementException(Utils.className(this)+".moveToNextBinding") ;
                 
-            return subIter.nextBinding() ;
+            return iter.nextBinding() ;
         }
 
-        @Override
-        protected void closeIterator()
-        {
-            if ( subIter != null )
-                subIter.close() ;
-            subIter = null ;
-        }
-        
-        // This is very like QueryIteratorRepeatApply except its not repeating over bindings
+        // This code predates ARQ using Java 1.5.
+
+        // This is very like QueryIteratorRepeatApply except its not
+        // repeating over bindings, but over graph nodes.
         // There is a tradeoff of generalising QueryIteratorRepeatApply to Objects
         // and hence no type safety. Or duplicating code (generics?)
         
@@ -154,9 +149,9 @@ public class QueryIterGraph extends QueryIterRepeatApply
 //            ExecutionContext execCxt2 = new ExecutionContext(getExecContext(), g) ;
                 
             Binding b = parentBinding ;
-            if ( Var.isVar(opGraph.getNode()) ) 
-                // Binding the variable (if "GRAPH ?var")
-                b = new Binding1(b, Var.alloc(opGraph.getNode()), gn) ;
+            if ( Var.isVar(opGraph.getNode()) )
+                // (graph ?g (...))
+                b = BindingFactory.binding(b, Var.alloc(opGraph.getNode()), gn) ;
             
             QueryIterator qIter = buildIterator(b, gn, opGraph, getExecContext()) ; 
             return qIter ;
@@ -179,14 +174,23 @@ public class QueryIterGraph extends QueryIterRepeatApply
                 return null ;
             
             ExecutionContext cxt2 = new ExecutionContext(outerCxt, g) ;
-            QueryIterator subInput = new QueryIterSingleton(binding, cxt2) ;
+            QueryIterator subInput = QueryIterSingleton.create(binding, cxt2) ;
             return QC.execute(op, subInput, cxt2) ;
         }
+
+        @Override
+        protected void requestSubCancel()
+        {}
+
+        @Override
+        protected void closeSubIterator()
+        {}
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

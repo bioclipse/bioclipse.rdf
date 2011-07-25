@@ -6,19 +6,21 @@
 
 package com.hp.hpl.jena.sparql.sse.writers;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.op.OpBGP;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprFunction;
-import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.expr.ExprVar;
-import com.hp.hpl.jena.sparql.expr.ExprVisitor;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.op.OpBGP ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprFunction ;
+import com.hp.hpl.jena.sparql.expr.ExprFunctionOp ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.expr.ExprVar ;
+import com.hp.hpl.jena.sparql.expr.ExprVisitorFunction ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
 
 public class WriterExpr
 {
@@ -26,7 +28,7 @@ public class WriterExpr
     public static String asString(Expr expr)
     {
         IndentedLineBuffer b = new IndentedLineBuffer() ;
-        output(b.getIndentedWriter(), expr, null) ;
+        output(b, expr, null) ;
         return b.asString() ;
     }
     
@@ -80,7 +82,7 @@ public class WriterExpr
 
     // ----
     static final boolean ONELINE = true ;
-    static class FmtExprPrefixVisitor implements ExprVisitor
+    static class FmtExprPrefixVisitor extends ExprVisitorFunction
     {
         IndentedWriter out ;
         SerializationContext context ;
@@ -93,7 +95,8 @@ public class WriterExpr
 
         public void startVisit() {}
 
-        public void visit(ExprFunction func)
+        @Override
+        protected void visitExprFunction(ExprFunction func)
         {
             out.print("(") ;
 
@@ -134,7 +137,7 @@ public class WriterExpr
             out.print(funcOp.getFunctionName(context)) ;
             out.incIndent() ;
             
-            Op op = funcOp.getOp() ;
+            Op op = funcOp.getGraphPattern() ;
             if ( oneLine(op) )
                 out.print(" ") ;
             else
@@ -143,7 +146,7 @@ public class WriterExpr
             //Ensures we are unit indent under the (operator ...)
             
             //Without trappings.
-            WriterOp.outputNoPrologue(out, funcOp.getOp(), context) ;
+            WriterOp.outputNoPrologue(out, funcOp.getGraphPattern(), context) ;
             out.decIndent() ;
             out.decIndent(x) ;
             out.print(")") ;
@@ -170,6 +173,11 @@ public class WriterExpr
         public void visit(ExprVar nv)
         {
             out.print(nv.toPrefixString()) ;
+        }
+
+        public void visit(ExprAggregator eAgg)
+        { 
+            out.print(eAgg.getAggregator().toPrefixString()) ;
         }
 
         public void finishVisit() { out.flush() ; }

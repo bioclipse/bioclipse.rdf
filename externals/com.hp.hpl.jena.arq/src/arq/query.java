@@ -6,26 +6,39 @@
 
 package arq;
 
-import arq.cmd.CmdException;
-import arq.cmd.TerminationException;
-import arq.cmdline.*;
+import org.openjena.atlas.io.IndentedWriter ;
+import arq.cmd.CmdException ;
+import arq.cmd.TerminationException ;
+import arq.cmdline.ArgDecl ;
+import arq.cmdline.CmdARQ ;
+import arq.cmdline.ModDataset ;
+import arq.cmdline.ModDatasetGeneralAssembler ;
+import arq.cmdline.ModEngine ;
+import arq.cmdline.ModQueryIn ;
+import arq.cmdline.ModResultsOut ;
+import arq.cmdline.ModTime ;
 
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryException;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.resultset.ResultSetException;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.QueryExecUtils;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.query.QueryExecution ;
+import com.hp.hpl.jena.query.QueryExecutionFactory ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
+import com.hp.hpl.jena.sparql.resultset.ResultSetException ;
+import com.hp.hpl.jena.sparql.util.QueryExecUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class query extends CmdARQ
 {
-    private ArgDecl argRepeat = new ArgDecl(ArgDecl.HasValue, "repeat") ;
+    private ArgDecl argRepeat   = new ArgDecl(ArgDecl.HasValue, "repeat") ;
+    private ArgDecl argExplain  = new ArgDecl(ArgDecl.NoValue, "explain") ;
+    private ArgDecl argOptimize = new ArgDecl(ArgDecl.HasValue, "opt", "optimize") ;
+
     protected int repeatCount = 1 ; 
+    protected boolean queryOptimization = true ;
     
     protected ModTime       modTime =     new ModTime() ;
     protected ModQueryIn    modQuery =    new ModQueryIn() ;
@@ -47,7 +60,11 @@ public class query extends CmdARQ
         super.addModule(modDataset) ;
         super.addModule(modEngine) ;
         super.addModule(modTime) ;
-        super.add(argRepeat) ;
+
+        super.getUsage().startCategory("Control") ;
+        super.add(argExplain, "--explain", "Explain and log query execution") ;
+        super.add(argRepeat, "--repeat=N", "Do N times (use for timing to overcome start up costs of Java)");
+        super.add(argOptimize, "--optimize=", "Turn the query optimizer on or off (default: on") ;
     }
 
     @Override
@@ -55,22 +72,39 @@ public class query extends CmdARQ
     {
         super.processModulesAndArgs() ;
         if ( contains(argRepeat) )
-            try {
-                repeatCount = Integer.parseInt(getValue(argRepeat)) ;
-            } catch (NumberFormatException ex)
-            {
-                throw new CmdException("Can't parse "+getValue(argRepeat)+" as an integer", ex) ;
-            }
+        {
+            try { repeatCount = Integer.parseInt(getValue(argRepeat)) ; }
+            catch (NumberFormatException ex)
+            { throw new CmdException("Can't parse "+getValue(argRepeat)+" as an integer", ex) ; }
+        }
+        if ( isVerbose() )
+            ARQ.getContext().setTrue(ARQ.symLogExec) ;
+        
+        if ( hasArg(argExplain) )
+            ARQ.setExecutionLogging(Explain.InfoLevel.ALL) ;
+        
+        if ( hasArg(argOptimize) )
+        {
+            String x1 = getValue(argOptimize).toLowerCase() ;
+            if ( hasValueOfTrue(argOptimize) || x1.equals("on") || x1.equals("yes") )      queryOptimization = true ;
+            else if ( hasValueOfFalse(argOptimize) || x1.equals("off") || x1.equals("no") ) queryOptimization = false ;
+            else throw new CmdException("Optimization flag must be true/false/on/off/yes/no. Found: "+getValue(argOptimize)) ;
+        }
     }
     
     protected ModDataset setModDataset()
     {
-        return new ModDatasetAssembler() ;
+        return new ModDatasetGeneralAssembler() ;
     }
     
     @Override
     protected void exec()
     {
+        if ( ! queryOptimization )
+            ARQ.getContext().setFalse(ARQ.optimization) ;
+        if ( cmdStrictMode )
+            ARQ.getContext().setFalse(ARQ.optimization) ;
+        
         for ( int i = 0 ; i < repeatCount ; i++ )
             queryExec() ;
     }

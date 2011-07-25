@@ -6,20 +6,19 @@
 
 package com.hp.hpl.jena.sparql.function;
 
-import com.hp.hpl.jena.datatypes.xsd.*;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.function.library.*;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.function.library.* ;
 
-/** Standard function library.
- * 
- * @author Andy Seaborne
- */
+/** Standard function library. */
 
 public class StandardFunctions
 {
     public static void loadStdDefs(FunctionRegistry registry)
     {
         String xfn = ARQConstants.fnPrefix ;
+        
+        String sparqlfn = "http://www.w3.org/sparqfn/" ;    // Not fixed yet.
         
         // See http://www.w3.org/TR/xpath-datamodel/#types-hierarchy
         // No durations here
@@ -44,36 +43,89 @@ public class StandardFunctions
         addCast(registry, XSDDatatype.XSDdouble) ;
         addCast(registry, XSDDatatype.XSDfloat) ;
         
-        addCast(registry, XSDDatatype.XSDdateTime) ;
-        addCast(registry, XSDDatatype.XSDdate) ;
+        addCast(registry, XSDDatatype.XSDduration) ;
         
         addCast(registry, XSDDatatype.XSDboolean) ;
         addCast(registry, XSDDatatype.XSDstring) ;
 
         addCast(registry, XSDDatatype.XSDanyURI) ;
         
+        // Specialized casting rules
+        addCastDT(registry, XSDDatatype.XSDdateTime) ;
+        addCastDT(registry, XSDDatatype.XSDdate) ;
+        addCastDT(registry, XSDDatatype.XSDtime) ;
+        addCastDT(registry, XSDDatatype.XSDgYear) ;
+        addCastDT(registry, XSDDatatype.XSDgYearMonth) ;
+        addCastDT(registry, XSDDatatype.XSDgMonth) ;
+        addCastDT(registry, XSDDatatype.XSDgMonthDay) ;
+        addCastDT(registry, XSDDatatype.XSDgDay) ;
+
         //TODO op:numeric-greater-than etc.
         
-        add(registry, xfn+"boolean", BEV.class) ;
-        add(registry, xfn+"not",     not.class) ;
+        add(registry, xfn+"boolean",        FN_BEV.class) ;
+        add(registry, xfn+"not",            FN_Not.class) ;
 
-        add(registry, xfn+"matches",       matches.class) ;
-        add(registry, xfn+"string-length", strLength.class) ;
-        add(registry, xfn+"string-join",   strConcat.class) ;   // Misnamed.
-        add(registry, xfn+"concat",        strConcat.class) ;
-        add(registry, xfn+"substring",     strSubstring.class) ;
-        add(registry, xfn+"starts-with",   strStartsWith.class) ;
+        add(registry, xfn+"matches",        FN_Matches.class) ;
+        add(registry, xfn+"string-length",  FN_StrLength.class) ;
+        //add(registry, xfn+"string-join",   FN_StrJoin.class) ;    // Works fn:string-join works on a sequence.
+        add(registry, xfn+"concat",         FN_StrConcat.class) ;
+        add(registry, xfn+"substring",      FN_StrSubstring.class) ;
+        add(registry, xfn+"starts-with",    FN_StrStartsWith.class) ;
         
-        add(registry, xfn+"lower-case",   strLowerCase.class) ;
-        add(registry, xfn+"upper-case",   strUpperCase.class) ;
+        add(registry, xfn+"lower-case",     FN_StrLowerCase.class) ;
+        add(registry, xfn+"upper-case",     FN_StrUpperCase.class) ;
         
-        add(registry, xfn+"contains",      strContains.class) ;
-        add(registry, xfn+"ends-with",     strEndsWith.class) ;
+        add(registry, xfn+"contains",       FN_StrContains.class) ;
+        add(registry, xfn+"ends-with",      FN_StrEndsWith.class) ;
         
-        add(registry, xfn+"abs", abs.class) ;
-        add(registry, xfn+"ceiling", ceiling.class) ;
-        add(registry, xfn+"floor", floor.class) ;
-        add(registry, xfn+"round", round.class) ;
+        add(registry, xfn+"abs",            FN_Abs.class) ;
+        add(registry, xfn+"ceiling",        FN_Ceiling.class) ;
+        add(registry, xfn+"floor",          FN_floor.class) ;
+        add(registry, xfn+"round",          FN_Round.class) ;
+        
+        // SPARQL functions.
+        // Check the exact URI.
+
+//        add(registry, sparqlfn+"boolean",        FN_BEV.class) ;
+//        add(registry, sparqlfn+"not",            FN_Not.class) ;
+//
+//        add(registry, sparqlfn+"matches",        FN_Matches.class) ;
+//        add(registry, sparqlfn+"string-length",  FN_StrLength.class) ;
+//        add(registry, sparqlfn+"concat",         FN_StrConcat.class) ;
+//        add(registry, sparqlfn+"substring",      FN_StrSubstring.class) ;
+//        add(registry, sparqlfn+"starts-with",    FN_StrStartsWith.class) ;
+//        
+//        add(registry, sparqlfn+"lower-case",     FN_StrLowerCase.class) ;
+//        add(registry, sparqlfn+"upper-case",     FN_StrUpperCase.class) ;
+//        
+//        add(registry, sparqlfn+"contains",       FN_StrContains.class) ;
+//        add(registry, sparqlfn+"ends-with",      FN_StrEndsWith.class) ;
+//        
+//        add(registry, sparqlfn+"abs",            FN_Abs.class) ;
+//        add(registry, sparqlfn+"ceiling",        FN_Ceiling.class) ;
+//        add(registry, sparqlfn+"floor",          FN_floor.class) ;
+//        add(registry, sparqlfn+"round",          FN_Round.class) ;
+
+//        add(registry, sparqlfn+"concat",         FN_Concat.class) ;
+//        add(registry, sparqlfn+"upper-case",     FN_UpperCase.class) ;
+//        add(registry, sparqlfn+"lower-case",     FN_LowerCase.class) ;
+//        add(registry, sparqlfn+"encode-for-uri", FN_EncodeForURI.class) ;
+//        add(registry, sparqlfn+"contains",       FN_Contains.class) ;
+//
+//        add(registry, sparqlfn+"starts-with",    FN_StartsWith.class) ;
+//        add(registry, sparqlfn+"ends-with",      FN_EndsWith.class) ;
+
+//        add(registry, xfn+"year-from-dateTime",     FN_YearFromDateTime.class) ;
+//        add(registry, xfn+"month-from-dateTime",    FN_MonthFromDateTime.class) ;
+//        add(registry, xfn+"day-from-dateTime",      FN_DayFromDateTime.class) ;
+//
+//        
+//        add(registry, xfn+"hours-from-dateTime",    FN_HoursFromDateTime.class) ;
+//        add(registry, xfn+"minutes-from-dateTime",  FN_MinutesFromDateTime.class) ;
+//        add(registry, xfn+"seconds-from-dateTime",  FN_SecondsFromDateTime.class) ;
+        
+//        add(registry, xfn+"timezone-from-dateTime",  FN_TimezoneFromDateTime.class) ;
+        
         
         // fn:compare/2 and /3 and provide collation argument
         //    Locale locale = new Locale(String language, String country)
@@ -95,6 +147,11 @@ public class StandardFunctions
     private static void addCast(FunctionRegistry registry, XSDDatatype dt)
     {
         registry.put(dt.getURI(), new CastXSD(dt) ) ;
+    }
+
+    private static void addCastDT(FunctionRegistry registry, XSDDatatype dt)
+    {
+        registry.put(dt.getURI(), new CastXSD_DT(dt) ) ;
     }
 
     private static void add(FunctionRegistry registry, String uri, Class<?> funcClass)

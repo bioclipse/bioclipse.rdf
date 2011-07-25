@@ -7,17 +7,19 @@
 package com.hp.hpl.jena.sparql.core.assembler;
 
 
-import com.hp.hpl.jena.assembler.Assembler;
-import com.hp.hpl.jena.assembler.JA;
-import com.hp.hpl.jena.assembler.assemblers.AssemblerGroup;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.util.TypeNotUniqueException;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.assembler.Assembler ;
+import com.hp.hpl.jena.assembler.JA ;
+import com.hp.hpl.jena.assembler.assemblers.AssemblerGroup ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.rdf.model.ResourceFactory ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.mgt.Explain.InfoLevel ;
+import com.hp.hpl.jena.sparql.util.TypeNotUniqueException ;
+import com.hp.hpl.jena.sparql.util.graph.GraphUtils ;
+import com.hp.hpl.jena.util.FileManager ;
 
 
 public class AssemblerUtils
@@ -32,7 +34,7 @@ public class AssemblerUtils
     
     private static boolean initialized = false ; 
     
-    static { init() ; } 
+    static { ARQ.init(); init() ; } 
     
     static public void init()
     {
@@ -72,13 +74,17 @@ public class AssemblerUtils
         { throw new ARQException("Failed reading assembler description: "+ex.getMessage()) ; }
 
         Resource root = null ;
+        InfoLevel level = ARQ.getExecutionLogging() ;
+        ARQ.setExecutionLogging(InfoLevel.NONE) ;
         try {
             root = GraphUtils.findRootByType(spec, type) ;
             if ( root == null )
                 return null ;
+            
         } catch (TypeNotUniqueException ex)
         { throw new ARQException("Multiple types for: "+DatasetAssemblerVocab.tDataset) ; }
-
+        finally
+        { ARQ.setExecutionLogging(level) ; }
         return Assembler.general.open(root) ;
     }
 }

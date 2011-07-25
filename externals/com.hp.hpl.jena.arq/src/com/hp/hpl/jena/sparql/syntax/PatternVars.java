@@ -1,99 +1,58 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.syntax;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedHashSet ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.util.VarUtils;
+import com.hp.hpl.jena.sparql.core.Var ;
 
+/** Get the variables potentially bound by an element.
+ *  All mentioned variables except those in MINUS and FILTER (and hence NOT EXISTS)
+ *  The work is done by PatternVarsVisitor.  
+ */
 public class PatternVars
 {
     public static Set<Var> vars(Element element) { return vars(new LinkedHashSet<Var>(), element) ; }
 
     public static Set<Var> vars(Set<Var> s, Element element)
     {
-        ElementVisitor v = new PatternVarsVisitor(s) ;
-        ElementWalker.walk(element, v) ;
+        PatternVarsVisitor v = new PatternVarsVisitor(s) ;
+        vars(element, v) ;
         return s ;
     }
-
-    static class PatternVarsVisitor extends ElementVisitorBase
+    
+    public static void vars(Element element, PatternVarsVisitor visitor)
     {
-        private Set<Var> acc ;
-        private PatternVarsVisitor(Set<Var> s) { acc = s ; } 
-
-        @Override
-        public void visit(ElementTriplesBlock el)
+        ElementWalker.Walker walker = new WalkerSkipMinus(visitor) ;
+        ElementWalker.walk(element, walker) ;
+    }
+    
+    public static class WalkerSkipMinus extends ElementWalker.Walker
+    {
+        protected WalkerSkipMinus(ElementVisitor visitor)
         {
-            for (Iterator<Triple> iter = el.patternElts() ; iter.hasNext() ; )
-            {
-                Triple t = iter.next() ;
-                VarUtils.addVarsFromTriple(acc, t) ;
-            }
-        }
-
-        @Override
-        public void visit(ElementPathBlock el) 
-        {
-            for (Iterator<TriplePath> iter = el.patternElts() ; iter.hasNext() ; )
-            {
-                TriplePath tp = iter.next() ;
-                // If it's triple-izable, then use the triple. 
-                if ( tp.isTriple() )
-                    VarUtils.addVarsFromTriple(acc, tp.asTriple()) ;
-                else
-                    VarUtils.addVarsFromTriplePath(acc, tp) ;
-            }
-        }
-        
-        // Variables here are non-binding.
-        @Override
-        public void visit(ElementExists el)
-        { }
-        
-        @Override
-        public void visit(ElementNotExists el)
-        { }
-        
-//      public void visit(ElementFilter el)
-//      {
-//      el.getExpr().varsMentioned(acc);
-//      }
-
-        @Override
-        public void visit(ElementNamedGraph el)
-        {
-            VarUtils.addVar(acc, el.getGraphNameNode()) ;
+            super(visitor) ;
         }
         
         @Override
-        public void visit(ElementSubQuery el)
+        public void visit(ElementMinus el)
         {
-            el.getQuery().setResultVars() ;
-            VarExprList x = el.getQuery().getProject() ;
-            acc.addAll(x.getVars()) ;
-        }
-        
-        @Override
-        public void visit(ElementAssign el)
-        {
-            acc.add(el.getVar()) ;
+//            if ( el.getMinusElement() != null )
+//                el.getMinusElement().visit(this) ;
+            proc.visit(el) ;
         }
     }
 }
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

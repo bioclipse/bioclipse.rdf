@@ -6,10 +6,11 @@
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-import com.hp.hpl.jena.sparql.util.Named;
-import com.hp.hpl.jena.sparql.util.PrintSerializable;
-import com.hp.hpl.jena.sparql.util.Printable;
+import org.openjena.atlas.io.Printable ;
+
+import com.hp.hpl.jena.sparql.util.Named ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
+import com.hp.hpl.jena.sparql.util.PrintSerializable ;
 
 public interface Op extends PrintSerializable, Printable, Named
 {

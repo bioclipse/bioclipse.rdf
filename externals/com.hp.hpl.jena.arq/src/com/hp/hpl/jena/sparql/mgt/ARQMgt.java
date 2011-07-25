@@ -18,13 +18,13 @@ import javax.management.MalformedObjectNameException ;
 import javax.management.NotCompliantMBeanException ;
 import javax.management.ObjectName ;
 
+import org.openjena.atlas.logging.Log ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
 import com.hp.hpl.jena.query.ARQ ;
 import com.hp.hpl.jena.sparql.ARQException ;
 import com.hp.hpl.jena.sparql.engine.QueryEngineBase ;
-import com.hp.hpl.jena.sparql.util.ALog ;
 
 public class ARQMgt
 {
@@ -47,16 +47,15 @@ public class ARQMgt
 
             String NS = ARQ.PATH ;
 
-            SystemInfo sysInfo = new SystemInfo(ARQ.arqIRI, ARQ.VERSION, ARQ.BUILD_DATE) ;
             ContextMBean cxtBean = new ContextMBean(ARQ.getContext()) ;
             QueryEngineInfo qeInfo = QueryEngineBase.queryEngineInfo ;
 
-            register(NS+".system:type=SystemInfo", sysInfo) ;
+            // Done in ARQ initialization -- register(NS+".system:type=SystemInfo", ARQ.systemInfo) ;
             register(NS+".system:type=Context", cxtBean) ;
             register(NS+".system:type=Engine", qeInfo) ;
 
-        } catch (Exception ex) {
-            ALog.warn(ARQMgt.class, "Failed to initialize JMX", ex) ;
+        } catch (Throwable ex) {
+            Log.warn(ARQMgt.class, "Failed to initialize JMX", ex) ;
             noJMX = true ;
             mbs = null ;
         }

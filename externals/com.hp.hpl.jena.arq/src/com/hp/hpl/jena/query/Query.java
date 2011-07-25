@@ -5,35 +5,38 @@
 
 package com.hp.hpl.jena.query;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.OutputStream ;
+import java.util.ArrayList ;
+import java.util.Collection ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.LinkedHashSet ;
+import java.util.List ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.QueryCompare;
-import com.hp.hpl.jena.sparql.core.QueryHashCode;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarAlloc;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.expr.E_Aggregator;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprVar;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggregateFactory;
-import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
-import com.hp.hpl.jena.sparql.serializer.Serializer;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.syntax.Template;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.io.Printable ;
+import org.openjena.atlas.logging.Log ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.QueryCompare ;
+import com.hp.hpl.jena.sparql.core.QueryHashCode ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarAlloc ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.ExprVar ;
+import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator ;
+import com.hp.hpl.jena.sparql.serializer.Serializer ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import com.hp.hpl.jena.sparql.syntax.PatternVars ;
+import com.hp.hpl.jena.sparql.syntax.Template ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 /** The data structure for a query as presented externally.
  *  There are two ways of creating a query - use the parser to turn
@@ -44,12 +47,9 @@ import com.hp.hpl.jena.sparql.util.IndentedWriter;
  *
  * Once a query is built, it can be passed to the QueryFactory to produce a query execution engine.
  * @see QueryExecutionFactory
- * @see ResultSet
- * 
- * @author		Andy Seaborne
- */
+ * @see ResultSet */
 
-public class Query extends Prologue implements Cloneable
+public class Query extends Prologue implements Cloneable, Printable
 {
     static { ARQ.init() ; /* Ensure everything has started properly */ }
     
@@ -63,30 +63,34 @@ public class Query extends Prologue implements Cloneable
     // If no model is provided explicitly, the query engine will load
     // a model from the URL.  Never a list of zero items.
     
-    List<String> graphURIs = new ArrayList<String>() ;
-    List<String> namedGraphURIs = new ArrayList<String>() ;
+    private List<String> graphURIs = new ArrayList<String>() ;
+    private List<String> namedGraphURIs = new ArrayList<String>() ;
     
     // The WHERE clause
-    Element queryPattern = null ;
+    private Element queryPattern = null ;
     
     // Query syntax
-    Syntax syntax = Syntax.syntaxSPARQL ; // Default
+    private Syntax syntax = Syntax.syntaxSPARQL ; // Default
     
     // LIMIT/OFFSET
     public static final long  NOLIMIT = Long.MIN_VALUE ;
-    long resultLimit   = NOLIMIT ;
-    long resultOffset  = NOLIMIT ;
+    private long resultLimit   = NOLIMIT ;
+    private long resultOffset  = NOLIMIT ;
     
     // ORDER BY
-    List<SortCondition> orderBy       = null ;
+    private List<SortCondition> orderBy       = null ;
     public static final int ORDER_ASCENDING           = 1 ; 
     public static final int ORDER_DESCENDING          = -1 ;
     public static final int ORDER_DEFAULT             = -2 ;    // Not explicitly given. 
     public static final int ORDER_UNKNOW              = -3 ; 
 
-    boolean strictQuery = true ;
+    // BINDINGS
+    protected List<Var> bindingVariables = null ;
+    protected List<Binding> bindingValues = null ;
     
-    // SELECT * / CONSTRUCT * or DESCRIBE * seen
+    protected boolean strictQuery = true ;
+    
+    // SELECT * seen
     protected boolean queryResultStar        = false ;
     
     protected boolean distinct               = false ;
@@ -118,25 +122,25 @@ public class Query extends Prologue implements Cloneable
     //private VarAlloc varAnonAlloc = new VarAlloc(ARQConstants.allocVarAnonMarker) ;
     //public Var allocVarAnon() { return varAnonAlloc.allocVar() ; }
     
-    
+    @Deprecated
     public void setQueryType(int qType)         { queryType = qType ; }
     
-    public void setQuerySelectType()            { setQueryType(QueryTypeSelect) ; }
-    public void setQueryConstructType()         { setQueryType(QueryTypeConstruct) ; }
-    public void setQueryDescribeType()          { setQueryType(QueryTypeDescribe) ; }
-    public void setQueryAskType()               { setQueryType(QueryTypeAsk) ; }
+    public void setQuerySelectType()            { queryType = QueryTypeSelect ; }
+    public void setQueryConstructType()         { queryType = QueryTypeConstruct ; queryResultStar = true ; }
+    public void setQueryDescribeType()          { queryType = QueryTypeDescribe ; }
+    public void setQueryAskType()               { queryType = QueryTypeAsk ; }
     
     public int getQueryType()                   { return queryType ; }
     
-    public boolean isSelectType()      { return queryType == QueryTypeSelect ; }
+    public boolean isSelectType()               { return queryType == QueryTypeSelect ; }
 
-    public boolean isConstructType()   { return queryType == QueryTypeConstruct ; }
+    public boolean isConstructType()            { return queryType == QueryTypeConstruct ; }
 
-    public boolean isDescribeType()    { return queryType == QueryTypeDescribe ; }
+    public boolean isDescribeType()             { return queryType == QueryTypeDescribe ; }
 
-    public boolean isAskType()         { return queryType == QueryTypeAsk ; }
+    public boolean isAskType()                  { return queryType == QueryTypeAsk ; }
 
-    public boolean isUnknownType()     { return queryType == QueryTypeUnknown ; }
+    public boolean isUnknownType()              { return queryType == QueryTypeUnknown ; }
 
     public void setStrict(boolean isStrict)
     { 
@@ -193,6 +197,8 @@ public class Query extends Prologue implements Cloneable
     
     public boolean hasOrderBy()        { return orderBy != null && orderBy.size() > 0 ; }
     
+    public boolean isOrdered()         { return hasOrderBy() ; }
+
     public void addOrderBy(SortCondition condition)
     {
         if ( orderBy == null )
@@ -230,11 +236,19 @@ public class Query extends Prologue implements Cloneable
      */ 
     public boolean isQueryResultStar() { return queryResultStar ; }
 
-    /**Set whether the query had SELECT/DESCRIBE/CONSTRUCT *
+    /** Set whether the query had SELECT/DESCRIBE *
+     * Strictly, this just means whether the projection is  
      * 
      * @param isQueryStar 
      */
-    public void setQueryResultStar(boolean isQueryStar) { queryResultStar = isQueryStar ; }
+    public void setQueryResultStar(boolean isQueryStar)
+    {
+//        if ( isConstructType() )
+//            throw new IllegalArgumentException("Query is a CONSTRUCT query") ;
+//        if ( isAskType() )
+//            throw new IllegalArgumentException("Query is an ASK query") ;
+        queryResultStar = isQueryStar ;
+    }
     
     public void setQueryPattern(Element elt)
     {
@@ -317,8 +331,6 @@ public class Query extends Prologue implements Cloneable
     // ---- SELECT
 
     protected VarExprList projectVars = new VarExprList() ;
-//    protected Map resultExprs = new HashMap() ;
-//    protected List resultVars = new ArrayList() ;
 
     /** Return a list of the variables requested (SELECT) */
     public List<String> getResultVars()
@@ -326,6 +338,14 @@ public class Query extends Prologue implements Cloneable
         // Ensure "SELECT *" processed
         setResultVars() ;
         return Var.varNames(projectVars.getVars()) ;
+    }
+    
+    /** Return a list of the variables requested (SELECT) */
+    public List<Var> getProjectVars()
+    { 
+        // Ensure "SELECT *" processed
+        setResultVars() ;
+        return projectVars.getVars() ;
     }
     
     public VarExprList getProject()
@@ -369,13 +389,6 @@ public class Query extends Prologue implements Cloneable
         _addResultVar(v.getName()) ;
     }
     
-    // Add raw name.
-    private void _addResultVar(String varName)
-    {
-        projectVars.add(Var.alloc(varName)) ;
-        resultVarsSet = true ;
-    }
-    
     public void addResultVar(Node v, Expr expr)
     {
         Var var = null ; 
@@ -387,13 +400,13 @@ public class Query extends Prologue implements Cloneable
                 throw new QueryException("Not a variable: "+v) ;
             var = Var.alloc(v) ;
         }
-        _addResultVar(var, expr) ;
+        _addVarExpr(projectVars, var, expr) ;
     }
     
     /** Add an to a SELECT query (a name will be created for it) */
     public void addResultVar(Expr expr)
     {
-        _addResultVar(allocInternVar(), expr) ;
+        _addVarExpr(projectVars, allocInternVar(), expr) ;
     }
 
     /** Add a named expression to a SELECT query */
@@ -407,20 +420,47 @@ public class Query extends Prologue implements Cloneable
             varName = Var.canonical(varName) ;
             var = Var.alloc(varName) ;
         }
-        _addResultVar(var, expr) ;
+        _addVarExpr(projectVars, var, expr) ;
     }
 
-    private void _addResultVar(Var var, Expr expr)
+    // Add raw name.
+    private void _addResultVar(String varName)
     {
-        projectVars.add(var, expr) ;
+        Var v = Var.alloc(varName) ;
+        _addVar(projectVars, v) ;
+        resultVarsSet = true ;
     }
-    
-    // GROUP/HAVING
-    
+
+    private static void _addVar(VarExprList varExprList, Var v)
+    {
+        if ( varExprList.contains(v) )
+        {
+            Expr expr = varExprList.getExpr(v) ;
+            if ( expr != null )
+                
+                // SELECT (?a+?b AS ?x) ?x
+                throw new QueryBuildException("Duplicate variable (had an expression) in result projection '"+v+"'") ;
+            // SELECT ?x ?x
+            if ( ! ARQ.allowDuplicateSelectColumns )
+                return ;
+            // else drop thorugh and have two variables of the same name.
+        }
+        varExprList.add(v) ;
+    }
+
+    private static void _addVarExpr(VarExprList varExprList, Var v, Expr expr)
+    {
+        if ( varExprList.contains(v) )
+            // SELECT ?x (?a+?b AS ?x)
+            // SELECT (2*?a AS ?x) (?a+?b AS ?x)
+            throw new QueryBuildException("Duplicate variable in result projection '"+v+"'") ;  
+        varExprList.add(v, expr) ;
+    }
+
     protected VarExprList groupVars = new VarExprList() ;
     protected List<Expr> havingExprs = new ArrayList<Expr>() ;  // Expressions : Make an ExprList?
     
-    public boolean hasGroupBy()     { return ! groupVars.isEmpty() ; }
+    public boolean hasGroupBy()     { return ! groupVars.isEmpty() || getAggregators().size() > 0 ; }
     public boolean hasHaving()      { return havingExprs != null && havingExprs.size() > 0 ; }
     
     public VarExprList getGroupBy()      { return groupVars ; }
@@ -430,12 +470,12 @@ public class Query extends Prologue implements Cloneable
     public void addGroupBy(String varName)
     {
         varName = Var.canonical(varName) ;
-        groupVars.add(Var.alloc(varName)) ;
+        addGroupBy(Var.alloc(varName)) ;
     }
 
     public void addGroupBy(Node v)
     {
-        groupVars.add(Var.alloc(v)) ;
+        _addVar(groupVars, Var.alloc(v)) ;
     }
 
     public void addGroupBy(Expr expr) { addGroupBy(null, expr) ; }
@@ -472,28 +512,67 @@ public class Query extends Prologue implements Cloneable
     // Unlike SELECT expressions, here the expression itself (E_Aggregator) knows its variable
     // Commonality?
     
-    private List<E_Aggregator> aggregators = new ArrayList<E_Aggregator>() ;
+    private List<ExprAggregator> aggregators = new ArrayList<ExprAggregator>() ;
+    // Using a LinkedhashMap does seem to give strong enugh hashCode equality. 
+    private Map<Var, ExprAggregator> aggregatorsMap = new HashMap<Var, ExprAggregator>() ;
+    
     // Note any E_Aggregator created for reuse.
-    private Map<String, E_Aggregator> aggregatorsAllocated = new HashMap<String, E_Aggregator>() ; 
+    private Map<String, Var> aggregatorsAllocated = new HashMap<String, Var>() ; 
     
     public boolean hasAggregators() { return aggregators.size() != 0  ; }
-    public List<E_Aggregator> getAggregators() { return aggregators ; }
+    public List<ExprAggregator> getAggregators() { return aggregators ; }
     
-    public E_Aggregator allocAggregate(AggregateFactory agg)
+    public Expr allocAggregate(Aggregator agg)
     {
-        Aggregator a = agg.create() ;
-        String key = a.key() ;
-        E_Aggregator expr = aggregatorsAllocated.get(key); 
+        // We need to track the aggregators in case one aggregator is used twice, e.g. in HAVING and in SELECT expression
+        // (is is that much harm to do twice?  Yes, if distinct.)
+        String key = agg.key() ;
         
-        if ( expr == null )
+        Var v = aggregatorsAllocated.get(key); 
+        if ( v != null )
         {
-            // Not see before.  Build the expression. 
-            Var v = allocInternVar() ;
-            expr = new E_Aggregator(v, agg.create()) ;
-            aggregatorsAllocated.put(key, expr) ;
-            aggregators.add(expr) ;
+            ExprAggregator eAgg = aggregatorsMap.get(v) ; 
+            if ( ! agg.equals(eAgg.getAggregator()) )
+                Log.warn(Query.class, "Internal inconsistency: Aggregator: "+agg) ;
+            return eAgg ;
         }
-        return expr ;
+        // Allocate.
+        v = allocInternVar() ;
+        ExprAggregator aggExpr = new ExprAggregator(v, agg) ;
+        aggregatorsAllocated.put(key, v) ;
+        aggregatorsMap.put(v, aggExpr) ;
+        aggregators.add(aggExpr) ;
+        return aggExpr ;
+    }
+    
+    // ---- BINDINGS
+    
+    /** Does the query have any BINDINGS? */
+    public boolean hasBindings()                { return bindingVariables != null ; }
+    
+    /** Binding variables */
+    public List<Var> getBindingVariables()      { return bindingVariables ; }
+    
+    
+    /** Binding values - null for a Node means undef */ 
+    public List<Binding> getBindingValues()  { return bindingValues ; }
+    
+    public void setBindings(List<Var> variables, List<Binding> values)
+    {
+        // Check.
+        int N = variables.size() ;
+        for ( Binding valueRow : values )
+        {
+            Iterator<Var> iter= valueRow.vars() ;
+            for ( ; iter.hasNext() ; )
+            { 
+                Var v = iter.next() ;
+                if ( ! variables.contains(v) )
+                    throw new QueryBuildException("Variable "+v+" not found in "+variables) ;
+            }
+        }
+        bindingVariables = variables ;
+        bindingValues = values ;
     }
     
     // ---- CONSTRUCT 
@@ -502,7 +581,6 @@ public class Query extends Prologue implements Cloneable
     public Template getConstructTemplate() 
     { 
         return constructTemplate ;
-    
     }
     
     /** Set triple patterns for a construct query */ 
@@ -542,7 +620,7 @@ public class Query extends Prologue implements Cloneable
         if ( getQueryPattern() == null )
         {
             if ( ! this.isDescribeType() )
-                ALog.warn(this, "setResultVars(): no query pattern") ;
+                Log.warn(this, "setResultVars(): no query pattern") ;
             return ;
         }
         
@@ -582,7 +660,12 @@ public class Query extends Prologue implements Cloneable
             varIter = groupVars.getVars().iterator() ;
         else
         {
-            Set<Var> queryVars = this.getQueryPattern().varsMentioned() ;
+            // Binding variables -- in patterns, not in filters and not in EXISTS
+            LinkedHashSet<Var> queryVars = new LinkedHashSet<Var>() ;
+            PatternVars.vars(queryVars, this.getQueryPattern()) ;
+            if ( this.hasBindings() )
+                queryVars.addAll(getBindingVariables()) ;
+            
             varIter = queryVars.iterator() ;
         }
         
@@ -618,6 +701,7 @@ public class Query extends Prologue implements Cloneable
         visitor.visitOrderBy(this) ;
         visitor.visitOffset(this) ;
         visitor.visitLimit(this) ;
+        visitor.visitBindings(this) ;
         visitor.finishVisit(this) ;
     }
 
@@ -651,15 +735,9 @@ public class Query extends Prologue implements Cloneable
     /** Perform some check on the query */ 
     public void validate()
     {
+        // This is mostly done now as part of parsing.
+        // See SyntaxVarScope and Parser.validatePasredQuery.
         setResultVars() ;
-        
-        if ( hasGroupBy() )
-        {}
-        
-        if ( hasAggregators() )
-        {}
-        
-        //if has select expressions
     }
 
     @Override
@@ -696,6 +774,11 @@ public class Query extends Prologue implements Cloneable
     
 //    public static boolean sameAs(Query query1, Query query2)
 //    { return query1.sameAs(query2) ; }  
+
+    public void output(IndentedWriter out)
+    {
+        serialize(out) ;
+    }
 
     /** Convert the query to a string */
     

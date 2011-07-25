@@ -6,73 +6,39 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.TableFactory;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 
 /** Diff by materializing the RHS - this is not streamed on the right */
-public class QueryIterDiff extends QueryIter2
+public class QueryIterDiff extends QueryIter2LoopOnLeft
 {
-    Table tableRight ; 
-    Binding slot = null ;
-    
     public QueryIterDiff(QueryIterator left, QueryIterator right, ExecutionContext qCxt)
     {
         super(left, right, qCxt) ;
-        
-        // Materialized right.
-        tableRight = TableFactory.create(getRight()) ;
-        getRight().close();
     }
 
     @Override
-    protected void releaseResources()
-    { tableRight.close(); }
-
-    @Override
-    protected boolean hasNextBinding()
+    protected Binding getNextSlot(Binding bindingLeft)
     {
-        if ( slot != null )
-            return true ;
-        
-        while ( getLeft().hasNext() )
+        boolean accept = true ;
+
+        for ( Iterator<Binding> iter = tableRight.iterator(null) ; iter.hasNext() ; )
         {
-            Binding bindingLeft = getLeft().nextBinding() ;
-            boolean accept = true ;
-            
-            for ( Iterator<Binding> iter = tableRight.iterator(null) ; iter.hasNext() ; )
+            Binding bindingRight = iter.next() ;
+            if ( Algebra.compatible(bindingLeft, bindingRight) )
             {
-                Binding bindingRight = iter.next() ;
-                if ( Algebra.compatible(bindingLeft, bindingRight) )
-                {
-                    accept = false ;
-                    break ;
-                }
-            }
-            
-            if ( accept )
-            {
-                slot = bindingLeft ; 
-                return true ;
+                accept = false ;
+                break ;
             }
         }
-        getLeft().close() ;
-        return false ;
-    }
 
-    @Override
-    protected Binding moveToNextBinding()
-    {
-        if ( ! hasNextBinding() )
-            return null ;
-        Binding x = slot ;
-        slot = null ;
-        return x ;
+        if ( accept )
+            return bindingLeft ;
+        return null ;
     }
 }
 

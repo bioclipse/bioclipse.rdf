@@ -5,13 +5,10 @@
  
 package com.hp.hpl.jena.sparql.util;
 
-import java.net.URLEncoder;
-import java.net.URLDecoder;
 import java.io.UnsupportedEncodingException ;
+import java.net.URLDecoder ;
+import java.net.URLEncoder ;
 
-/**
- * @author      Andy Seaborne
- */
 public class Convert
 {
     // UTF-8 is required in Java implementations

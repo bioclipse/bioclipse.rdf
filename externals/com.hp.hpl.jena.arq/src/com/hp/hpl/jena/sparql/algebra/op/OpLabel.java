@@ -6,24 +6,22 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 /** Do-nothing class that means that tags/labels/comments can be left in the algebra tree.
  * If serialized, toString called on the object, reparsing yields a string.
- *  Can have zero one one sub ops.
- * @author Andy Seaborne
- */
+ *  Can have zero one one sub ops. */
 
 public class OpLabel extends Op1
 {
     // Beware : while this is a Op1, it might have no sub operation.
     // (label "foo") and (label "foo" (other ...)) are legal.
-    // OpNull?
     
     // Better: string+(object for internal use only)+op?
     public static Op create(Object label, Op op) { return new OpLabel(label, op) ; }
@@ -44,18 +42,18 @@ public class OpLabel extends Op1
         if ( ! ( other instanceof OpLabel) )
             return false ;
         OpLabel opLabel = (OpLabel)other ;
-        if ( ! Utils.equals(object, opLabel.object) )
+        if ( ! Lib.equal(object, opLabel.object) )
             return false ;
         
-        return Utils.equals(getSubOp(), opLabel.getSubOp()) ;
+        return Lib.equal(getSubOp(), opLabel.getSubOp()) ;
     }
 
     @Override
     public int hashCode()
     {
         int x = HashLabel ;
-        x ^= Utils.hashCodeObject(object, 0) ;
-        x ^= Utils.hashCodeObject(getSubOp(), 0) ;
+        x ^= Lib.hashCodeObject(object, 0) ;
+        x ^= Lib.hashCodeObject(getSubOp(), 0) ;
         return x ;
     }
 

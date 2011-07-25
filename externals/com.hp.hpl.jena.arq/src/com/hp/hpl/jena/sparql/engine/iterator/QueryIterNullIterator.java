@@ -6,18 +6,16 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
 
-/** Closeable empty query iterator
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+
+/** Closeable empty query iterator */
 
 public class QueryIterNullIterator extends QueryIter
 {
@@ -36,6 +34,9 @@ public class QueryIterNullIterator extends QueryIter
 
     @Override
     protected void closeIterator() {}
+    
+    @Override
+    protected void requestCancel() { }
 
     @Override
     public void output(IndentedWriter out, SerializationContext sCxt)

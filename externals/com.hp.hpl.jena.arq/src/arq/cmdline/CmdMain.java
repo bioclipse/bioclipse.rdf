@@ -6,11 +6,11 @@
 
 package arq.cmdline;
 
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.sparql.util.Utils;
+import arq.cmd.CmdException ;
+import arq.cmd.TerminationException ;
 
-import arq.cmd.CmdException;
-import arq.cmd.TerminationException;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** Adds main()-like methods
  * 
@@ -19,10 +19,7 @@ import arq.cmd.TerminationException;
  *  which never returns and routes thing to System.exit.
  *  or call
  *     new YourCommand(args).mainMethod()
- *  which should not call System.exit anywhere
- *    
- * @author Andy Seaborne
- */
+ *  which should not call System.exit anywhere */
 
 public abstract class CmdMain extends CmdLineArgs
 {

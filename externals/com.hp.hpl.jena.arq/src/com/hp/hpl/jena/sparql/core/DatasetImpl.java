@@ -1,32 +1,30 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.core;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.sparql.lib.Cache;
-import com.hp.hpl.jena.sparql.lib.CacheFactory ;
-import com.hp.hpl.jena.sparql.util.NodeUtils;
+import org.openjena.atlas.lib.Cache ;
+import org.openjena.atlas.lib.CacheFactory ;
 
-/** Wrapper around a DatasetGraph. See also DataSourceImpl.
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.ModelFactory ;
+import com.hp.hpl.jena.shared.Lock ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.util.NodeUtils ;
+
+/** Wrapper around a DatasetGraph. See also DataSourceImpl. */
 
 public class DatasetImpl implements Dataset
 {
-    //Synchronization: need to protect the cache
-    
     protected DatasetGraph dsg = null ;
     
     // A small cache so that calls getDefaultModel()/getNamedModel() are
@@ -39,7 +37,7 @@ public class DatasetImpl implements Dataset
     public DatasetImpl(Model model)
     {
         defaultModel = model ;
-        this.dsg = new DataSourceGraphImpl(model.getGraph()) ;
+        this.dsg = DatasetGraphFactory.create(model.getGraph()) ;
     }
     
     public DatasetImpl(DatasetGraph dsg)
@@ -65,6 +63,8 @@ public class DatasetImpl implements Dataset
     /** Return a model for the named graph - repeated calls so not guarantee to return the same Java object */
     public Model getNamedModel(String uri)
     { 
+        checkGraphName(uri) ;
+        
         // synchronized because we need to read and possible update the cache atomically 
         synchronized(this)
         {
@@ -78,8 +78,16 @@ public class DatasetImpl implements Dataset
         }
     }
 
+    private static void checkGraphName(String uri)
+    {
+        if ( uri == null )
+            throw new ARQException("null for graph name") ; 
+    }
+
     public boolean containsNamedModel(String uri)
     {
+        checkGraphName(uri) ;
+
         // Don't look in the cache - just ask the DSG which either caches graphs
         // or asks the storage as needed. The significant case is whether an
         // empty graph is contained in a dataset.  If it's pure quad storage,
@@ -107,6 +115,7 @@ public class DatasetImpl implements Dataset
 
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

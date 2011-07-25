@@ -7,14 +7,11 @@
 package com.hp.hpl.jena.sparql.function.library;
 
 //import org.apache.commons.logging.*;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionBase1;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionBase1 ;
 
-/** Example function - checks for even integers.
- * 
- * @author Andy Seaborne
- */
+/** Example function - checks for even integers. */
 
 public class evenInteger extends FunctionBase1
 {

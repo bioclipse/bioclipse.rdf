@@ -7,36 +7,30 @@
 package com.hp.hpl.jena.sparql.util;
 
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.query.* ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.RDFWriter ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.shared.impl.PrefixMappingImpl ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVars ;
+import com.hp.hpl.jena.sparql.algebra.op.OpProject ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.resultset.PlainFormat ;
+import com.hp.hpl.jena.sparql.resultset.ResultSetApply ;
+import com.hp.hpl.jena.sparql.resultset.ResultsFormat ;
+import com.hp.hpl.jena.sparql.vocabulary.ResultSetGraphVocab ;
 
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVars;
-import com.hp.hpl.jena.sparql.algebra.op.OpProject;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.resultset.PlainFormat;
-import com.hp.hpl.jena.sparql.resultset.ResultSetApply;
-import com.hp.hpl.jena.sparql.resultset.ResultsFormat;
-import com.hp.hpl.jena.sparql.vocabulary.ResultSetGraphVocab;
-
-import com.hp.hpl.jena.query.*;
-
-/** Some utilities for query processing. 
- * 
- * @author Andy Seaborne
- */
+/** Some utilities for query processing. */
 public class QueryExecUtils
 {
     protected static PrefixMapping globalPrefixMap = new PrefixMappingImpl() ;
@@ -149,6 +143,12 @@ public class QueryExecUtils
         if ( outputFormat.equals(ResultsFormat.FMT_RS_CSV ) )
         {
             ResultSetFormatter.outputAsCSV(System.out, results) ;
+            done = true ;
+        }
+        
+        if ( outputFormat.equals(ResultsFormat.FMT_RS_TSV ) )
+        {
+            ResultSetFormatter.outputAsTSV(System.out, results) ;
             done = true ;
         }
         

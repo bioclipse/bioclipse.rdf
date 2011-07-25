@@ -6,10 +6,10 @@
 
 package com.hp.hpl.jena.sparql.sse.lang;
 
-import java.util.Stack;
+import java.util.Stack ;
 
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemList;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
 
 /** Resolve syntacic forms like (base ...) and (prefix...)
  *  where the syntax modifies the enclosed sub term.
@@ -22,10 +22,7 @@ import com.hp.hpl.jena.sparql.sse.ItemList;
  *    (base IRI TERM) => TERM with IRIs resolved to absolute IRIs
  *  
  *  The DECL part can not itself have nested, independent forms
- *  unless a subclass (carefully) manages that. 
- *    
- * @author Andy Seaborne
- */
+ *  unless a subclass (carefully) manages that. */
 
 public abstract class ParseHandlerForm extends ParseHandlerPlain 
 {

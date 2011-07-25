@@ -6,15 +6,16 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class OpAssign extends Op1
 {
@@ -53,6 +54,12 @@ public class OpAssign extends Op1
         return opAssign ;
     }
     
+    /** Make a OpAssign - guaranteed to return an OpFilter */
+    public static OpAssign assignDirect(Op op, VarExprList exprs)
+    {
+        return new OpAssign(op, exprs) ;
+    }
+
     static private Op createAssign(Op op, Var var, Expr expr)
     {
         VarExprList x = new VarExprList() ;
@@ -110,7 +117,7 @@ public class OpAssign extends Op1
             return false ;
         OpAssign assign = (OpAssign)other ;
         
-        if ( ! Utils.equals(assignments, assign.assignments) )
+        if ( ! Lib.equal(assignments, assign.assignments) )
             return false ;
         return getSubOp().equalTo(assign.getSubOp(), labelMap) ;
     }

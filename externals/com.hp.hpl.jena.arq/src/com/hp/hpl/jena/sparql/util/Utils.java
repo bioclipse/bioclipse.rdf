@@ -1,26 +1,26 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.math.BigDecimal ;
+import java.text.DateFormat ;
+import java.text.SimpleDateFormat ;
+import java.util.Calendar ;
+import java.util.Date ;
+import java.util.GregorianCalendar ;
+import java.util.TimeZone ;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 /** Miscellaneous operations - not query specific */
 
@@ -137,35 +137,6 @@ public class Utils
         return sign+tzH_str+":"+tzM_str ;
     }
     
-    /** Compare two object-things for quality - allow null to be equals to null */
-    
-    public static boolean equals(Object obj1, Object obj2)
-    {
-        if ( obj1 == obj2) return true ;
-        if ( obj1 == null )
-            return obj2 == null ;
-        // obj1 != null
-        if ( obj2 == null )
-            return false ;
-        return obj1.equals(obj2) ;
-    }
-    
-    public static <T> boolean equalsListAsSet(List<T> list1, List<T> list2)
-    {
-        return list1.containsAll(list2) && list2.containsAll(list1) ;
-    }
-
-    /** HashCode - allow nulls */
-    public static int hashCodeObject(Object obj) { return hashCodeObject(obj, -4) ; }
-    
-    /** HashCode - allow nulls */
-    public static int hashCodeObject(Object obj, int nullHashCode)
-    {
-        if ( obj == null )
-            return nullHashCode ; 
-        return obj.hashCode() ;
-    }
-
     // Java 1.4 .toString == Java 1.5 .toPlainString
     // Java 1.5 .toString => different to .toString 1.4
     // Portable(?!) - round to scale 0 and get the toString
@@ -174,12 +145,20 @@ public class Utils
     { 
         // Java 1.5-ism -- 
         //return decimal.toPlainString() ;
-        return decimal.toString() ;
+        return decimal.toPlainString() ;
     }
     
     static public String stringForm(double d)
     { 
-        // SPARQL form always has "e0"
+        if ( Double.isInfinite(d) )
+        {
+            if ( d < 0 ) return "-INF" ; 
+            return "INF" ;
+        }
+
+        if ( Double.isNaN(d) ) return "NaN" ;
+        
+        // Otherwise, SPARQL form always has "e0"
         String x = Double.toString(d) ;
         if ( (x.indexOf('e') != -1) || (x.indexOf('E') != -1) )
             return x ;
@@ -226,6 +205,30 @@ public class Utils
         return true ;
     }
     
+    public static boolean quadIso(Quad t1, Quad t2, NodeIsomorphismMap labelMap)
+    {
+        Node g1 = t1.getGraph() ;
+        Node s1 = t1.getSubject() ;
+        Node p1 = t1.getPredicate() ;
+        Node o1 = t1.getObject() ;
+        
+        Node g2 = t2.getGraph() ;
+        Node s2 = t2.getSubject() ;
+        Node p2 = t2.getPredicate() ;
+        Node o2 = t2.getObject() ;
+        
+        if ( ! nodeIso(g1, g2, labelMap) )
+            return false ;
+        if ( ! nodeIso(s1, s2, labelMap) )
+            return false ;
+        if ( ! nodeIso(p1, p2, labelMap) )
+            return false ;
+        if ( ! nodeIso(o1, o2, labelMap) )
+            return false ;
+
+        return true ;
+    }
+    
     public static boolean nodeIso(Node n1, Node n2, NodeIsomorphismMap isoMap)
     {
         if ( isoMap != null && Var.isBlankNodeVar(n1) && Var.isBlankNodeVar(n2) )
@@ -236,6 +239,7 @@ public class Utils
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

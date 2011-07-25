@@ -6,22 +6,20 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprException;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprException ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** 
- *  Filter a stream of bindings by a constraint.  
- * 
- * @author Andy Seaborne
- */
+ *  Filter a stream of bindings by a constraint. */
 
 public class QueryIterFilterExpr extends QueryIterProcessBinding
 {
@@ -46,7 +44,7 @@ public class QueryIterFilterExpr extends QueryIterProcessBinding
         }
         catch (Exception ex)
         {
-            ALog.warn(this, "General exception in "+expr, ex) ;
+            Log.warn(this, "General exception in "+expr, ex) ;
             return null ;
         }
     }

@@ -3,12 +3,8 @@
  * [See end of file]
  */
 
-/**
- * @author		Andy Seaborne
- */
-
 package com.hp.hpl.jena.sparql.lang.rdql;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
 
 public interface PrintableRDQL
 {

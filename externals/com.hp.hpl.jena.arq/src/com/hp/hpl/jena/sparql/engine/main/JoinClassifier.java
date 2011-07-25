@@ -7,12 +7,15 @@ package com.hp.hpl.jena.sparql.engine.main ;
 
 import java.util.Set ;
 
+import org.openjena.atlas.lib.SetUtils ;
+
 import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.op.OpDiff ;
 import com.hp.hpl.jena.sparql.algebra.op.OpExt ;
 import com.hp.hpl.jena.sparql.algebra.op.OpJoin ;
+import com.hp.hpl.jena.sparql.algebra.op.OpMinus ;
 import com.hp.hpl.jena.sparql.algebra.op.OpModifier ;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.util.SetUtils ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 public class JoinClassifier
 {
@@ -20,37 +23,47 @@ public class JoinClassifier
 
     static public boolean isLinear(OpJoin join)
     {
-        Op left = effectiveOp(join.getLeft()) ;
-        Op right = effectiveOp(join.getRight()) ;
+        if (print) System.err.println(join) ;
+        return isLinear(join.getLeft(),join.getRight()) ;
+    }
 
-        // Subquery with modifier. Substitution does not apply.
+    static public boolean isLinear(Op left, Op right)
+    {
+         left = effectiveOp(left) ;
+         right = effectiveOp(right) ;
+
+        // Old: Subquery with modifier. Substitution does not apply.
+         // Renaming should make this work.
         // With SELECT *, it's as if the subquery were just the pattern.
 
         if (right instanceof OpModifier) return false ;
+        if (right instanceof OpDiff) return false ;
+        if (right instanceof OpMinus) return false ;
 
-        if (print) System.err.println(join) ;
         // Assume something will not commute these later on.
         return check(left, right) ;
     }
 
     // Check left can stream into right
-    static private boolean check(Op op, Op other)
+    static private boolean check(Op leftOp, Op rightOp)
     {
         // This is probably overly cautious.
         if (print)
         {
-            System.err.println(op) ;
-            System.err.println(other) ;
+            System.err.println(leftOp) ;
+            System.err.println(rightOp) ;
         }
 
         // Need only check left/rght.
-        VarFinder vfLeft = new VarFinder(op) ;
+        VarFinder vfLeft = new VarFinder(leftOp) ;
         Set<Var> vLeftFixed = vfLeft.getFixed() ;
         Set<Var> vLeftOpt = vfLeft.getOpt() ;
+        //Set<Var> vLeftFilter = vfLeft.getFilter() ;
         if (print) System.err.println("Left/fixed:    " + vLeftFixed) ;
         if (print) System.err.println("Left/opt:      " + vLeftOpt) ;
+        //if (print) System.err.println("Left/filter:   " + vLeftFilter) ;
 
-        VarFinder vfRight = new VarFinder(other) ;
+        VarFinder vfRight = new VarFinder(rightOp) ;
         Set<Var> vRightFixed = vfRight.getFixed() ;
         Set<Var> vRightOpt = vfRight.getOpt() ;
         Set<Var> vRightFilter = vfRight.getFilter() ;
@@ -65,7 +78,7 @@ public class JoinClassifier
         vRightOpt = SetUtils.difference(vRightOpt, vRightFixed) ;
 
         // And also filter variables in the RHS which are always defined in the
-        // RHS.
+        // RHS.  Leaves any potentially free variables in RHS filter. 
         vRightFilter = SetUtils.difference(vRightFilter, vRightFixed) ;
 
         if (print) System.err.println() ;

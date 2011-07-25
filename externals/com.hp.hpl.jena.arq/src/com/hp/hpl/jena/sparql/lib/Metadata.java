@@ -6,15 +6,17 @@
 
 package com.hp.hpl.jena.sparql.lib;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.InvalidPropertiesFormatException;
-import java.util.List;
-import java.util.Properties;
+import java.io.IOException ;
+import java.io.InputStream ;
+import java.util.ArrayList ;
+import java.util.InvalidPropertiesFormatException ;
+import java.util.List ;
+import java.util.Properties ;
 
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.util.ALog;
+import org.openjena.atlas.lib.SystemUtils ;
+
+import com.hp.hpl.jena.sparql.ARQException ;
+import org.openjena.atlas.logging.Log ;
 
 /** Simple wrapper for reading metadata, once, from a system resource.
  *  Note that in some environments, it's tricky to get a class loader.  
@@ -22,8 +24,8 @@ import com.hp.hpl.jena.sparql.util.ALog;
 
 public class Metadata
 {
-    List<String> resources = new ArrayList<String>() ;
-    Properties properties = new Properties() ;
+    private List<String> resources = new ArrayList<String>() ;
+    private Properties properties = new Properties() ;
     
     public Metadata() { }
     
@@ -55,7 +57,7 @@ public class Metadata
 
             if ( classLoader == null )
             {
-                ALog.fatal(Metadata.class, "No classloader") ;
+                Log.fatal(Metadata.class, "No classloader") ;
                 return ;
             }
 
@@ -73,7 +75,7 @@ public class Metadata
         }
         catch (Throwable ex)
         {
-            ALog.fatal(Metadata.class, "Unexpected Thorwable", ex) ;
+            Log.fatal(Metadata.class, "Unexpected Thorwable", ex) ;
             return ;
         }
     }
@@ -84,6 +86,16 @@ public class Metadata
     {
         if ( properties == null ) return defaultValue ;
         return properties.getProperty(name, defaultValue) ;
+    }
+
+    public List<String> getResources()
+    {
+        return resources ;
+    }
+
+    public Properties getProperties()
+    {
+        return properties ;
     }
 }
 

@@ -1,15 +1,17 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.core ;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryVisitor;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryVisitor ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 // Two queries comparison 
 
@@ -95,9 +97,9 @@ public class QueryCompare implements QueryVisitor
 
     public void visitDatasetDecl(Query query1)
     {
-        boolean b1 = Utils.equalsListAsSet(query1.getGraphURIs(), query2.getGraphURIs()) ;
+        boolean b1 = Lib.equalsListAsSet(query1.getGraphURIs(), query2.getGraphURIs()) ;
         check("Default graph URIs", b1 ) ;
-        boolean b2 = Utils.equalsListAsSet(query1.getNamedGraphURIs(), query2.getNamedGraphURIs()) ; 
+        boolean b2 = Lib.equalsListAsSet(query1.getNamedGraphURIs(), query2.getNamedGraphURIs()) ; 
         check("Named graph URIs", b2 ) ;
     }
 
@@ -141,12 +143,19 @@ public class QueryCompare implements QueryVisitor
         check("OFFSET", query1.getOffset() == query2.getOffset() ) ;
     }
 
+    public void visitBindings(Query query1)
+    {
+        // Must be same order for now.
+        check("BINDINGS/variables", query1.getBindingVariables(), query2.getBindingVariables()) ;
+        check("BINDINGS/values", query1.getBindingValues(), query2.getBindingValues()) ;
+    }
+
     public void finishVisit(Query query1)
     {}
     
     private void check(String msg, Object obj1, Object obj2)
     {
-        check(msg, Utils.equals(obj1,obj2)) ;
+        check(msg, Lib.equal(obj1,obj2)) ;
     }
     
     private void check(String msg, boolean b)
@@ -165,6 +174,7 @@ public class QueryCompare implements QueryVisitor
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,21 +6,23 @@
 
 package com.hp.hpl.jena.sparql.engine;
 
+import org.openjena.atlas.lib.Closeable ;
+
 import com.hp.hpl.jena.query.ARQ ;
 import com.hp.hpl.jena.query.Query ;
 import com.hp.hpl.jena.sparql.ARQConstants ;
 import com.hp.hpl.jena.sparql.algebra.Algebra ;
 import com.hp.hpl.jena.sparql.algebra.Op ;
-import com.hp.hpl.jena.sparql.core.Closeable ;
 import com.hp.hpl.jena.sparql.core.DatasetGraph ;
 import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 import com.hp.hpl.jena.sparql.engine.binding.BindingRoot ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
 import com.hp.hpl.jena.sparql.mgt.QueryEngineInfo ;
-import com.hp.hpl.jena.sparql.util.ALog ;
+import org.openjena.atlas.logging.Log ;
 import com.hp.hpl.jena.sparql.util.Context ;
 import com.hp.hpl.jena.sparql.util.NodeFactory ;
 
-/** Main part of a QueryEngine - somethign that takes responsibility for a complete query execution */ 
+/** Main part of a QueryEngine - something that takes responsibility for a complete query execution */ 
 public abstract class QueryEngineBase implements OpEval, Closeable
 {
     public final static QueryEngineInfo queryEngineInfo = new QueryEngineInfo() ;
@@ -29,54 +31,64 @@ public abstract class QueryEngineBase implements OpEval, Closeable
     protected Context context ;
     private Binding startBinding ;
     
+    private Query query = null ;
     private Op queryOp = null ;
     private Plan plan = null ;
     
     protected QueryEngineBase(Query query,
                               DatasetGraph dataset, 
-                              //AlgebraGenerator gen,
                               Binding input,
                               Context context)
     {
         this(dataset, input, context) ;
+        this.query = query ;
         this.context.put(ARQConstants.sysCurrentQuery, query) ;
         // Build the Op.
         query.setResultVars() ;
+        // Unoptimized so far.
         setOp(createOp(query)) ;
     }
     
     protected QueryEngineBase(Op op, DatasetGraph dataset, Binding input, Context context)
     {
         this(dataset, input, context) ;
+        query = null ;
         setOp(op) ;
     }
     
     private QueryEngineBase(DatasetGraph dataset, Binding input, Context context)
     {
-        this.dataset = dataset ;    // Maybe null i.e. in query
-        if ( context == null )      // Copy of global context to protect against chnage.
-            context = ARQ.getContext().copy() ;
-        this.context = context ;
+        this.dataset = dataset ;    // Maybe null e.g. in query
+        this.context = setupContext(context, dataset) ;
+        
         if ( input == null )
         {
-            ALog.warn(this, "Null initial input") ;
+            Log.warn(this, "Null initial input") ;
             input = BindingRoot.create() ;
         }
         this.startBinding = input ;
-        
-        initContext(context) ;
     }
     
-    // Put any per-query execution global configuration state here.
-    private static void initContext(Context context)
+    // Put any per-dataset execution global configuration state here.
+    private static Context setupContext(Context context, DatasetGraph dataset)
     {
+        if ( context == null )
+            context = ARQ.getContext() ;    // Already copied?
+        context = context.copy() ;
+
+        if ( dataset.getContext() != null )
+            // Copy per-dataset settings.
+            context.putAll(dataset.getContext()) ;
+        
         context.set(ARQConstants.sysCurrentTime, NodeFactory.nowAsDateTime()) ;
         
+        // Allocators.
 //        context.set(ARQConstants.sysVarAllocNamed, new VarAlloc(ARQConstants.allocVarMarkerExec)) ;
 //        context.set(ARQConstants.sysVarAllocAnon,  new VarAlloc(ARQConstants.allocVarAnonMarkerExec)) ;
-        
         // Add VarAlloc for variables and bNodes (this is not the parse name). 
         // More added later e.g. query (if there is a query), algebra form (in setOp)
+        
+        return context ; 
     }
     
     public Plan getPlan()
@@ -88,6 +100,7 @@ public abstract class QueryEngineBase implements OpEval, Closeable
     
     protected Plan createPlan()
     {
+        // Decide the algebra to actually execute.
         Op op = modifyOp(queryOp) ;
 
         QueryIterator queryIterator = null ;
@@ -114,6 +127,9 @@ public abstract class QueryEngineBase implements OpEval, Closeable
     final
     public QueryIterator evaluate(Op op, DatasetGraph dsg, Binding binding, Context context)
     {
+        if ( query != null ) 
+            Explain.explain("QUERY", query, context) ;
+        Explain.explain("ALGEBRA", op, context) ;
         queryEngineInfo.incQueryCount() ;
         queryEngineInfo.setLastQueryExecAt() ;
         //queryEngineInfo.setLastQueryExecTime(-1) ;
@@ -130,7 +146,10 @@ public abstract class QueryEngineBase implements OpEval, Closeable
     abstract protected
     QueryIterator eval(Op op, DatasetGraph dsg, Binding binding, Context context) ;
 
+    /** Algebra expression (including any optimization) */
     public Op getOp() { return queryOp ; }
+    
+    protected Binding getStartBinding() { return startBinding ; }
     
     public void close()
     { }

@@ -5,29 +5,40 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Calendar;
+import static com.hp.hpl.jena.sparql.expr.ValueSpaceClassification.* ;
 
-import com.hp.hpl.jena.datatypes.DatatypeFormatException;
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.datatypes.xsd.XSDDuration;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.nodevalue.*;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.*;
-import com.hp.hpl.jena.vocabulary.XSD;
+import java.math.BigDecimal ;
+import java.math.BigInteger ;
+import java.util.Calendar ;
 
+import org.openjena.atlas.lib.StrUtils ;
+
+import com.hp.hpl.jena.datatypes.DatatypeFormatException ;
+import com.hp.hpl.jena.datatypes.RDFDatatype ;
+import com.hp.hpl.jena.datatypes.TypeMapper ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDuration ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.impl.LiteralLabel ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.rdf.model.AnonId ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.* ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.NodeUtils ;
+import com.hp.hpl.jena.sparql.util.RefBoolean ;
+import com.hp.hpl.jena.sparql.util.RomanNumeral ;
+import com.hp.hpl.jena.sparql.util.RomanNumeralDatatype ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.vocabulary.XSD ;
 
 public abstract class NodeValue extends ExprNode
 {
@@ -98,6 +109,16 @@ public abstract class NodeValue extends ExprNode
     public static final NodeValue nvZERO = NodeValue.makeNode(NodeConst.nodeZero) ;
     public static final NodeValue nvONE  = NodeValue.makeNode(NodeConst.nodeOne) ;
     
+    public static final NodeValue nvNaN     = NodeValue.makeNode("NaN", XSDDatatype.XSDdouble) ;
+    public static final NodeValue nvINF     = NodeValue.makeNode("INF", XSDDatatype.XSDdouble) ;
+    public static final NodeValue nvNegINF  = NodeValue.makeNode("-INF",XSDDatatype.XSDdouble) ;
+    
+    public static final NodeValue nvEmptyString  = NodeValue.makeString("") ;
+    
+    // Use "==" for equality.
+    private static final String strForUnNode = "node value nothing" ;
+    public static final NodeValue nvNothing = NodeValue.makeNode(Node.createAnon(new AnonId("node value nothing"))) ;
+    
     // Use NodeValue.toNode(NodeValue) 
 //    public static Node asNode(NodeValue nv)
 //    {
@@ -108,8 +129,6 @@ public abstract class NodeValue extends ExprNode
     // Initialization
 //    static
 //    {}
-    
-    // ---- State
     
     private Node node = null ;     // Null used when a value has not be turned into a Node.
     
@@ -221,7 +240,7 @@ public abstract class NodeValue extends ExprNode
         
         if ( langTag != null && datatype != null )
             // raise??
-            ALog.warn(NodeValue.class, "Both lang tag and datatype defined (lexcial form '"+lexicalForm+"')") ;
+            Log.warn(NodeValue.class, "Both lang tag and datatype defined (lexcial form '"+lexicalForm+"')") ;
         
         Node n = null ; 
         
@@ -346,12 +365,12 @@ public abstract class NodeValue extends ExprNode
         return makeNode(n) ;
     }
     
-    // New version
-    public NodeValue evalNodeValue(Binding binding, ExecutionContext execCxt)
-    {
-         //return this ;
-        System.err.println("eval - convert back to NodeValue") ;
-        return null ;
+    @Override
+    public Expr applyNodeTransform(NodeTransform transform)
+    { 
+        Node n = asNode() ;
+        n = transform.convert(n) ;
+        return makeNode(n) ;
     }
 
     public Node evalNode(Binding binding, ExecutionContext execCxt)
@@ -359,12 +378,27 @@ public abstract class NodeValue extends ExprNode
         return asNode() ;
     }
 
-    
     @Override
     public boolean isConstant() { return true ; }
 
     @Override
     public NodeValue getConstant()     { return this ; }
+
+    //@Override
+    public boolean isIRI()
+    {
+        if ( node == null ) return false ;
+        forceToNode() ;
+        return node.isURI() ;
+    }
+
+    //@Override
+    public boolean isBlank()
+    {
+        if ( node == null ) return false ;
+        forceToNode() ;
+        return node.isBlank() ;
+    }
     
     // ----------------------------------------------------------------
     // ---- sameValueAs
@@ -372,66 +406,36 @@ public abstract class NodeValue extends ExprNode
     // Disjoint value spaces : dateTime and dates are not comparable 
     // Every langtag implies another value space as well.
     
-    // ToDo: dateTime and date are actually two value spaces : with and without timezone.
-    
-    private static final int VSPACE_NUM             = 10 ;
-    private static final int VSPACE_DATETIME     = 20 ; // To go
-    
-    private static final int VSPACE_DATETIME_TZ     = 20 ;
-    private static final int VSPACE_DATETIME_NO_TZ  = 25 ;
-    
-    private static final int VSPACE_DATE         = 30 ; // To go
-    private static final int VSPACE_DATE_TZ         = 30 ;
-    private static final int VSPACE_DATE_NO_TZ      = 35 ;
-    private static final int VSPACE_STRING          = 40 ;
-    
-    private static final int VSPACE_LANG            = 50 ;    // Lang tag (valid - no datatype).
-    private static final int VSPACE_BOOLEAN         = 60 ;
-    private static final int VSPACE_NODE            = 70 ;    // RDT Terms that are not literals   
-    private static final int VSPACE_UNKNOWN         = 80 ;    // Nodes - literal unknown value space or wrong in some way.
-    private static final int VSPACE_DIFFERENT       = 90 ;    // Known to be different values spaces
-    private static final int VSPACE_DURATION      	= 100 ;
-    private static final int VSPACE_TIME       		= 110 ;
-    
     /** Return true if the two NodeValues are known to be the same value
      *  return false if known to be different values,
      *  throw ExprEvalException otherwise
      */
     public static boolean sameAs(NodeValue nv1, NodeValue nv2)
     {
-        // Currently only called from E_Equals
         if ( nv1 == null || nv2 == null )
             throw new ARQInternalErrorException("Attempt to sameValueAs on a null") ;
         
-        int compType = classifyValueOp(nv1, nv2) ;
-        
-        // XXX Why is this different from compare?
+        ValueSpaceClassification compType = classifyValueOp(nv1, nv2) ;
         
         // Special case - date/dateTime comparison is affected by timezones and may be
         // interdeterminate based on the value of the dateTime/date.
 
         switch (compType)
         {
-            case VSPACE_NUM:        return XSDFuncOp.compareNumeric(nv1, nv2) == Expr.CMP_EQUAL ;
+            case VSPACE_NUM:        
+                return XSDFuncOp.compareNumeric(nv1, nv2) == Expr.CMP_EQUAL ;
             case VSPACE_DATETIME:   
+            case VSPACE_DATE:
+            case VSPACE_TIME:
+            case VSPACE_G_YEAR :
+            case VSPACE_G_YEARMONTH :
+            case VSPACE_G_MONTH :
+            case VSPACE_G_MONTHDAY :
+            case VSPACE_G_DAY :
             {
                 int x = XSDFuncOp.compareDateTime(nv1, nv2) ; 
                 if ( x == Expr.CMP_INDETERMINATE )
                     throw new ExprNotComparableException("Indeterminate dateTime comparison") ;
-                return  x == Expr.CMP_EQUAL ;
-            }
-            case VSPACE_DATE:
-            {
-                int x = XSDFuncOp.compareDate(nv1, nv2) ; 
-                if ( x == Expr.CMP_INDETERMINATE )
-                    throw new ExprNotComparableException("Indeterminate date comparison") ;
-                return  x == Expr.CMP_EQUAL ;
-            }
-            case VSPACE_TIME:
-            {
-                int x = XSDFuncOp.compareTime(nv1, nv2) ;
-                if ( x == Expr.CMP_INDETERMINATE )
-                	throw new ExprNotComparableException("Indeterminate time comparison") ;
                 return  x == Expr.CMP_EQUAL ;
             }
             case VSPACE_DURATION:
@@ -448,8 +452,8 @@ public abstract class NodeValue extends ExprNode
             case VSPACE_LANG:
             {
                 // two literals, both with a language tag
-                Node node1 = nv1.getNode() ;
-                Node node2 = nv2.getNode() ;
+                Node node1 = nv1.asNode() ;
+                Node node2 = nv2.asNode() ;
                 return node1.getLiteralLexicalForm().equals(node2.getLiteralLexicalForm()) &&
                        node1.getLiteralLanguage().equalsIgnoreCase(node2.getLiteralLanguage()) ;
             }
@@ -493,10 +497,10 @@ public abstract class NodeValue extends ExprNode
                 // Known to be incompatible.
                 if ( ! VALUE_EXTENSIONS && ( nv1.isLiteral() && nv2.isLiteral() ) )
                     raise(new ExprEvalException("Incompatible: "+nv1+" and "+nv2)) ;
-                return false ; 
-            default:
-                throw new ARQInternalErrorException("sameValueAs failure"+nv1+" and "+nv2) ;
+                return false ;
         }
+        
+        throw new ARQInternalErrorException("sameValueAs failure "+nv1+" and "+nv2) ;
     }
     
     /** Return true if the two Nodes are known to be different,
@@ -542,9 +546,7 @@ public abstract class NodeValue extends ExprNode
                 return x ;
         } catch (ExprNotComparableException ex)
         { /* Drop through */ }
-        nv1.forceToNode() ;
-        nv2.forceToNode() ;
-        return NodeUtils.compareRDFTerms(nv1.getNode(), nv2.getNode()) ;
+        return NodeUtils.compareRDFTerms(nv1.asNode(), nv2.asNode()) ;
     }
     
     /** Compare by value (and only value) if possible.
@@ -585,7 +587,7 @@ public abstract class NodeValue extends ExprNode
         if ( nv2 == null )
             return Expr.CMP_GREATER ;
         
-        int compType = classifyValueOp(nv1, nv2) ;
+        ValueSpaceClassification compType = classifyValueOp(nv1, nv2) ;
         
         // Special case - date/dateTime comparison is affected by timezones and may be
         // interdeterminate based on the value of the dateTime/date.
@@ -594,30 +596,19 @@ public abstract class NodeValue extends ExprNode
         switch (compType)
         {
             case VSPACE_DATETIME:
+            case VSPACE_DATE:
+            case VSPACE_TIME:
+            case VSPACE_G_DAY :
+            case VSPACE_G_MONTH :
+            case VSPACE_G_MONTHDAY :
+            case VSPACE_G_YEAR :
+            case VSPACE_G_YEARMONTH :
             {
                 int x = XSDFuncOp.compareDateTime(nv1, nv2) ;
                 if ( x != Expr.CMP_INDETERMINATE )
                     return x ;
                 // Indeterminate => can't compare as strict values.
-                compType = VSPACE_DIFFERENT ;
-                break ;
-            }
-            case VSPACE_DATE:
-            {
-                int x = XSDFuncOp.compareDate(nv1, nv2) ;
-                if ( x != Expr.CMP_INDETERMINATE )
-                    return x ;
-                // Indeterminate => can't compare as strict values.
-                compType = VSPACE_DIFFERENT ;
-                break ;
-            }
-            case VSPACE_TIME:
-            {
-                int x = XSDFuncOp.compareTime(nv1, nv2) ;
-                if ( x != Expr.CMP_INDETERMINATE )
-                    return x ;
-                // Indeterminate => can't compare as strict values.
-                compType = VSPACE_DIFFERENT ;
+                compType = ValueSpaceClassification.VSPACE_DIFFERENT ;
                 break ;
             }
             case VSPACE_DURATION:
@@ -626,9 +617,19 @@ public abstract class NodeValue extends ExprNode
                 if ( x != Expr.CMP_INDETERMINATE )
                     return x ;
                 // Indeterminate => can't compare as strict values.
-                compType = VSPACE_DIFFERENT ;
+                compType = ValueSpaceClassification.VSPACE_DIFFERENT ;
                 break ;
             }
+
+            //default:
+            case VSPACE_BOOLEAN :
+            case VSPACE_DIFFERENT :
+            case VSPACE_LANG :
+            case VSPACE_NODE :
+            case VSPACE_NUM :
+            case VSPACE_STRING :
+            case VSPACE_UNKNOWN :
+                // Drop through.
         }
             
         switch (compType)
@@ -636,6 +637,11 @@ public abstract class NodeValue extends ExprNode
             case VSPACE_DATETIME:
             case VSPACE_DATE:
             case VSPACE_TIME:
+            case VSPACE_G_DAY :
+            case VSPACE_G_MONTH :
+            case VSPACE_G_MONTHDAY :
+            case VSPACE_G_YEAR :
+            case VSPACE_G_YEARMONTH :
             case VSPACE_DURATION:
                 throw new ARQInternalErrorException("Still seeing date/dateTime/time/duration compare type") ;
             
@@ -665,7 +671,7 @@ public abstract class NodeValue extends ExprNode
                 // Two literals, both with language tags.
                 Node node1 = nv1.asNode() ;
                 Node node2 = nv2.asNode() ;
-                int x = StringUtils.strCompareIgnoreCase(node1.getLiteralLanguage(), node2.getLiteralLanguage()) ;
+                int x = StrUtils.strCompareIgnoreCase(node1.getLiteralLanguage(), node2.getLiteralLanguage()) ;
                 
                 if ( x != Expr.CMP_EQUAL )
                 {
@@ -677,12 +683,12 @@ public abstract class NodeValue extends ExprNode
                 }
 
                 // same lang tag (case insensitive)
-                x = StringUtils.strCompare(node1.getLiteralLexicalForm(), node2.getLiteralLexicalForm()) ;
+                x = StrUtils.strCompare(node1.getLiteralLexicalForm(), node2.getLiteralLexicalForm()) ;
                 if ( x != Expr.CMP_EQUAL )
                     return x ;
                 // Same lexcial forms, same lang tag by value
                 // Try to split by syntactic lang tags.
-                x = StringUtils.strCompare(node1.getLiteralLanguage(), node2.getLiteralLanguage()) ;
+                x = StrUtils.strCompare(node1.getLiteralLanguage(), node2.getLiteralLanguage()) ;
                 // Maybe they are the same after all!
                 // Should be node.equals by now.
                 if ( x == Expr.CMP_EQUAL  && ! NodeFunctions.sameTerm(node1, node2) )
@@ -723,15 +729,14 @@ public abstract class NodeValue extends ExprNode
                 
                 raise(new ExprNotComparableException("Can't compare (incompatible value spaces)"+nv1+" and "+nv2)) ;
                 throw new ARQInternalErrorException("NodeValue.raise returned") ;
-            default:
-                throw new ARQInternalErrorException("Compare failure "+nv1+" and "+nv2) ;
         }
+        throw new ARQInternalErrorException("Compare failure "+nv1+" and "+nv2) ;
     }
 
-    private static int classifyValueOp(NodeValue nv1, NodeValue nv2)
+    private static ValueSpaceClassification classifyValueOp(NodeValue nv1, NodeValue nv2)
     {
-        int c1 = classifyValueSpace(nv1) ;
-        int c2 = classifyValueSpace(nv2) ;
+        ValueSpaceClassification c1 = classifyValueSpace(nv1) ;
+        ValueSpaceClassification c2 = classifyValueSpace(nv2) ;
         if ( c1 == c2 ) return c1 ;
         if ( c1 == VSPACE_UNKNOWN || c2 == VSPACE_UNKNOWN )
             return VSPACE_UNKNOWN ;
@@ -740,21 +745,27 @@ public abstract class NodeValue extends ExprNode
         return VSPACE_DIFFERENT ;
     }
     
-    private static int classifyValueSpace(NodeValue nv)
+    private static ValueSpaceClassification classifyValueSpace(NodeValue nv)
     {
-        if ( nv.isNumber() )   return VSPACE_NUM ;
-        if ( nv.isDateTime() ) return VSPACE_DATETIME ;
-        if ( nv.isDate() ) return VSPACE_DATE ;
-        if ( nv.isTime() ) return VSPACE_TIME ;
-        if ( nv.isDuration() ) return VSPACE_DURATION ;
+        if ( nv.isNumber() )        return VSPACE_NUM ;
+        if ( nv.isDateTime() )      return VSPACE_DATETIME ;
+        if ( nv.isDate() )          return VSPACE_DATE ;
+        if ( nv.isTime() )          return VSPACE_TIME ;
+        if ( nv.isDuration() )      return VSPACE_DURATION ;
+        
+        if ( nv.isGYear() )         return VSPACE_G_YEAR ;
+        if ( nv.isGYearMonth() )    return VSPACE_G_YEARMONTH ;
+        if ( nv.isGMonth() )        return VSPACE_G_MONTH ;
+        if ( nv.isGMonthDay() )     return VSPACE_G_MONTHDAY ;
+        if ( nv.isGDay() )          return VSPACE_G_DAY ;
         
         if ( VALUE_EXTENSIONS && nv.isDate() )
             return VSPACE_DATE ;
-        if ( nv.isString())    return VSPACE_STRING ;
-        if ( nv.isBoolean())   return VSPACE_BOOLEAN ;
         
-        if ( ! nv.isLiteral() )
-            return VSPACE_NODE ;
+        if ( nv.isString())         return VSPACE_STRING ;
+        if ( nv.isBoolean())        return VSPACE_BOOLEAN ;
+        
+        if ( ! nv.isLiteral() )     return VSPACE_NODE ;
 
         if ( VALUE_EXTENSIONS && nv.getNode() != null &&
              nv.getNode().isLiteral() &&
@@ -782,63 +793,68 @@ public abstract class NodeValue extends ExprNode
     }
     protected abstract Node makeNode() ;
     
+    /** getNode - return the node form - may be null (use .asNode() to force to a node) */
     public Node getNode() { return node ; }
     
     public boolean hasNode() { return node != null ; }
-
+    
     // ----------------------------------------------------------------
     // ---- Subclass operations 
     
-    // One of the known types. 
-    public boolean hasKnownValue()    { return isBoolean() || isNumber() || isString() || isDateTime() || isDate() ; }
+//    // One of the known types. 
+//    public abstract boolean hasKnownValue() ;
+////    { return isBoolean() || isNumber() || isString() || isDateTime() || isDate() || isTime() ||
+////        isDuration() || isGYear() || isGYearMonth() ||  isGMonth() || isGDay() ; }
     
-    //Don't forget: dynamicNumberConversion
-    
-    public boolean isBoolean()     { return false ; } 
-//    public boolean isBooleanValue()      { return false ; }
-//    public boolean isBooleanBEV()
-//    { return isBooleanValue() || isNumber() || isString() ; }
+    public boolean isBoolean()      { return false ; } 
+    public boolean isString()       { return false ; } 
 
-    public boolean isString()      { return false ; } 
-
-    public boolean isNumber()      { return false ; }
-    public boolean isInteger()     { return false ; }
-    public boolean isDecimal()     { return false ; }
-    public boolean isFloat()       { return false ; }
-    public boolean isDouble()      { return false ; }
+    public boolean isNumber()       { return false ; }
+    public boolean isInteger()      { return false ; }
+    public boolean isDecimal()      { return false ; }
+    public boolean isFloat()        { return false ; }
+    public boolean isDouble()       { return false ; }
     
-    public boolean isDateTime()    { return false ; }
-    public boolean isDate()        { return false ; }
-    public boolean isLiteral()     { return getNode() == null || getNode().isLiteral() ; }
-    public boolean isDuration()    { return false ; }
-    public boolean isTime()   	   { return false ; }
+    public boolean hasDateTime()    { return isDateTime() || isDate() || isTime() || isGYear() || isGYearMonth() || isGMonth() || isGMonthDay() || isGDay() ; }
+    public boolean isDateTime()     { return false ; }
+    public boolean isDate()         { return false ; }
+    public boolean isLiteral()      { return getNode() == null || getNode().isLiteral() ; }
+    public boolean isTime()         { return false ; }
+    public boolean isDuration()     { return false ; }
+
+    public boolean isGYear()        { return false ; }
+    public boolean isGYearMonth()   { return false ; }
+    public boolean isGMonth()       { return false ; }
+    public boolean isGMonthDay()    { return false ; }
+    public boolean isGDay()         { return false ; }
+    
     // getters
     
-    public boolean getBoolean()
-    { raise(new ExprEvalException("Not a boolean: "+this)) ; return false ; }
-    
-    public String      getString()   { raise(new ExprEvalException("Not a string: "+this)) ; return null ; }
-    public BigInteger  getInteger()  { raise(new ExprEvalException("Not an integer: "+this)) ; return null ; }
-    public BigDecimal  getDecimal()  { raise(new ExprEvalException("Not a decimal: "+this)) ; return null ; }
-    public float       getFloat()    { raise(new ExprEvalException("Not a float: "+this)) ; return Float.NaN ; }
-    public double      getDouble()   { raise(new ExprEvalException("Not a double: "+this)) ; return Double.NaN ; }
-    public XSDDateTime    getDateTime() { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
-    public XSDDateTime    getDate()     { raise(new ExprEvalException("Not a date: "+this)) ; return null ; }
-    public XSDDateTime    getTime()     { raise(new ExprEvalException("Not a time: "+this)) ; return null ; }
-    public XSDDuration    getDuration()     { raise(new ExprEvalException("Not a duration: "+this)) ; return null ; }
+    public boolean     getBoolean()     { raise(new ExprEvalTypeException("Not a boolean: "+this)) ; return false ; }
+    public String      getString()      { raise(new ExprEvalTypeException("Not a string: "+this)) ; return null ; }
+    public BigInteger  getInteger()     { raise(new ExprEvalTypeException("Not an integer: "+this)) ; return null ; }
+    public BigDecimal  getDecimal()     { raise(new ExprEvalTypeException("Not a decimal: "+this)) ; return null ; }
+    public float       getFloat()       { raise(new ExprEvalTypeException("Not a float: "+this)) ; return Float.NaN ; }
+    public double      getDouble()      { raise(new ExprEvalTypeException("Not a double: "+this)) ; return Double.NaN ; }
+    public XSDDateTime getDateTime()    { raise(new ExprEvalTypeException("No DateTime value: "+this)) ; return null ; }
+//    public XSDDateTime getDate()        { raise(new ExprEvalException("Not a date: "+this)) ; return null ; }
+//    public XSDDateTime getTime()        { raise(new ExprEvalException("Not a time: "+this)) ; return null ; }
+//
+//    /*
+//        gYearMonth   dddd-mm
+//        gYear        dddd
+//        gMonthDay    --MM-DD
+//        gDay         ---DD
+//        gMonth       --MM
+//    */
+//    public XSDDateTime getGYear()       { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
+//    public XSDDateTime getGYearMonth()  { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
+//    public XSDDateTime getGMonth()      { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
+//    public XSDDateTime getGMonthDay()   { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
+//    public XSDDateTime getGDay()        { raise(new ExprEvalException("Not a dateTime: "+this)) ; return null ; }
 
-//    // ---- Force to a type : Needed? 
-//    
-//    public boolean asBoolean() { raise(new ExprEvalException("Not compatible with boolean: "+this)) ; return false ; } 
-//
-//    //public String asString() { raise(new ExprEvalException("Not a string: "+this)) ; return null ; }
-//
-//    public long asInteger()  { raise(new ExprEvalException("Not compatible with integer: "+this)) ; return -999 ; }
-//    public double asDouble() { raise(new ExprEvalException("Not compatible with double: "+this)) ; return Double.NaN ; }
-//    public float asFloat()   { raise(new ExprEvalException("Not compatible with float: "+this)) ; return Float.NaN ; }
-//    public BigDecimal asDecimal() { raise(new ExprEvalException("Not compatible with decimal: "+this)) ; return null ; }
-//    public Calendar asDate() { raise(new ExprEvalException("Not compatible with a date: "+this)) ; return null ; }
     
+    public XSDDuration    getDuration() { raise(new ExprEvalTypeException("Not a duration: "+this)) ; return null ; }
 
     // ----------------------------------------------------------------
     // ---- Setting : used when a node is used to make a NodeValue
@@ -846,7 +862,7 @@ public abstract class NodeValue extends ExprNode
     private static NodeValue nodeToNodeValue(Node node)
     {
         if ( node.isVariable() )
-            ALog.warn(NodeValue.class, "Variable passed to NodeValue.nodeToNodeValue") ;
+            Log.warn(NodeValue.class, "Variable passed to NodeValue.nodeToNodeValue") ;
 
         if ( ! node.isLiteral() )
             // Not a literal - no value to extract
@@ -863,7 +879,7 @@ public abstract class NodeValue extends ExprNode
             if ( node.getLiteralDatatypeURI() != null )
             {
                 if ( NodeValue.VerboseWarnings )
-                    ALog.warn(NodeValue.class, "Lang tag and datatype (datatype ignored)") ;
+                    Log.warn(NodeValue.class, "Lang tag and datatype (datatype ignored)") ;
             }
             return new NodeValueNode(node) ;
         }
@@ -879,7 +895,7 @@ public abstract class NodeValue extends ExprNode
             if ( NodeValue.VerboseWarnings )
             {
                 String tmp =  FmtUtils.stringForNode(node) ;
-                ALog.warn(NodeValue.class, "Datatype format exception: "+tmp) ;
+                Log.warn(NodeValue.class, "Datatype format exception: "+tmp) ;
             }
             // Invalid lexical form.
             return new NodeValueNode(node) ;
@@ -966,6 +982,32 @@ public abstract class NodeValue extends ExprNode
                 // Jena datatype support works on masked dataTimes. 
                 XSDDateTime time = (XSDDateTime)lit.getValue() ;
                 return new NodeValueTime(time, node) ;
+            }
+            
+            if ( XSDDatatype.XSDgYear.isValidLiteral(lit) )
+            {
+                XSDDateTime time = (XSDDateTime)lit.getValue() ;
+                return new NodeValueGYear(time, node) ;
+            }
+            if ( XSDDatatype.XSDgYearMonth.isValidLiteral(lit) )
+            {
+                XSDDateTime time = (XSDDateTime)lit.getValue() ;
+                return new NodeValueGYearMonth(time, node) ;
+            }
+            if ( XSDDatatype.XSDgMonth.isValidLiteral(lit) )
+            {
+                XSDDateTime time = (XSDDateTime)lit.getValue() ;
+                return new NodeValueGMonth(time, node) ;
+            }
+            if ( XSDDatatype.XSDgMonthDay.isValidLiteral(lit) )
+            {
+                XSDDateTime time = (XSDDateTime)lit.getValue() ;
+                return new NodeValueGMonthDay(time, node) ;
+            }
+            if ( XSDDatatype.XSDgDay.isValidLiteral(lit) )
+            {
+                XSDDateTime time = (XSDDateTime)lit.getValue() ;
+                return new NodeValueGDay(time, node) ;
             }
             
             if ( XSDDatatype.XSDduration.isValidLiteral(lit) )
@@ -1077,6 +1119,8 @@ public abstract class NodeValue extends ExprNode
 
     public abstract void visit(NodeValueVisitor visitor) ;
     
+    public Expr apply(ExprTransform transform)  { return transform.transform(this) ; }
+
     @Override
     public String toString()
     { 

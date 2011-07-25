@@ -5,11 +5,7 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp;
-
-/** 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp ;
 
 public class E_UnaryMinus extends ExprFunction1
 {

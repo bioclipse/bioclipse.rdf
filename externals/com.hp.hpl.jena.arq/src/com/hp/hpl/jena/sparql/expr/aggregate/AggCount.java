@@ -1,65 +1,60 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
 
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import org.openjena.atlas.logging.Log ;
 
-public class AggCount implements AggregateFactory
+public class AggCount extends AggregatorBase
 {
     // ---- COUNT(*)
 
-    // ---- AggregatorFactory
-    private static AggCount singleton = new AggCount() ;
-    public static AggregateFactory get() { return singleton ; }
+    public AggCount() { }
+    public Aggregator copy(Expr expr)
+    { 
+        if ( expr != null )
+            Log.warn(this, "Copying non-null expression for COUNT(*)") ;
+        return new AggCount() ; }
 
-    private AggCount() {} 
-
-    public Aggregator create()
-    {
-        // One per each time there is an aggregation.
-        // For count(*) - one per group operator (so shared with having clause)
-        return new AggCountWorker() ;
-    }
+    public Expr getExpr()       { return null ; }
     
-    // ---- Aggregator
-    static class AggCountWorker extends AggregatorBase
-    {
-        public AggCountWorker()
-        {
-            super() ;
-        }
-
-        @Override
-        public String toString() { return "count(*)" ; }
-        public String toPrefixString() { return "(count)" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccCount() ;
-        }
-        
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            // Stateless as expression
-            return ( other instanceof AggCountWorker ) ;
-        } 
-
-
-        @Override
-        public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
+    @Override
+    protected Accumulator createAccumulator()
+    { 
+        return new AggCount.AccCount();
     }
 
-    // ---- Accumulator
+    @Override
+    public String toString()        { return "count(*)" ; }
+    @Override
+    public String toPrefixString()  { return "(count)" ; }
+
+    @Override
+    public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
+    
+    @Override
+    public int hashCode()   { return HC_AggCount ; }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if ( this == other ) return true ;
+        if ( ! ( other instanceof AggCount ) ) return false ;
+        return true ;
+    }
+
     static class AccCount implements Accumulator
     {
         private long count = 0 ;
@@ -72,6 +67,8 @@ public class AggCount implements AggregateFactory
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

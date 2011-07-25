@@ -1,20 +1,24 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
 
 
 /** A function of two arguments */
  
 public abstract class ExprFunction2 extends ExprFunction
 {
-    Expr expr1 = null ;
-    Expr expr2 = null ;
+    protected final Expr expr1 ;
+    protected final Expr expr2 ;
 
     protected ExprFunction2(Expr expr1, Expr expr2, String fName) { this(expr1, expr2, fName, null) ; }
     
@@ -25,8 +29,8 @@ public abstract class ExprFunction2 extends ExprFunction
         this.expr2 = expr2 ;
     }
     
-    public Expr getArg1() { return getArg(1) ; }
-    public Expr getArg2() { return getArg(2) ; }
+    public Expr getArg1() { return expr1 ; }
+    public Expr getArg2() { return expr2 ; }
     
     @Override
     public Expr getArg(int i)
@@ -47,8 +51,8 @@ public abstract class ExprFunction2 extends ExprFunction
     public int hashCode()
     {
         return getFunctionSymbol().hashCode() ^
-               getArg1().hashCode() ^
-               getArg2().hashCode() ;
+                Lib.hashCodeObject(expr1) ^
+                Lib.hashCodeObject(expr2) ;
     }
 
     @Override
@@ -58,14 +62,16 @@ public abstract class ExprFunction2 extends ExprFunction
         if ( s != null )
             return s ;
         
-        NodeValue x = expr1.eval(binding, env) ;
-        NodeValue y = expr2.eval(binding, env) ;
-        return eval(x, y) ;
+        NodeValue x = eval(binding, env, expr1) ;
+        NodeValue y = eval(binding, env, expr2) ;
+        return eval(x, y, env) ;
     }
     
     /** Special form evaluation (example, don't eval the arguments first) */
     protected NodeValue evalSpecial(Binding binding, FunctionEnv env) { return null ; } 
     
+    public NodeValue eval(NodeValue x, NodeValue y, FunctionEnv env) { return eval(x,y) ; }
+
     public abstract NodeValue eval(NodeValue x, NodeValue y) ; 
 
     // ---- Duplication
@@ -73,24 +79,39 @@ public abstract class ExprFunction2 extends ExprFunction
     @Override
     final public Expr copySubstitute(Binding binding, boolean foldConstants)
     {
-        Expr e1 = expr1.copySubstitute(binding, foldConstants) ;
-        Expr e2 = expr2.copySubstitute(binding, foldConstants) ;
+        Expr e1 = (expr1 == null ? null : expr1.copySubstitute(binding, foldConstants)) ;
+        Expr e2 = (expr2 == null ? null : expr2.copySubstitute(binding, foldConstants)) ;
         
         if ( foldConstants)
         {
             try {
-                if ( e1.isConstant() && e2.isConstant() )
+                if ( e1 != null && e2 != null && e1.isConstant() && e2.isConstant() )
                     return eval(e1.getConstant(), e2.getConstant()) ;
             } catch (ExprEvalException ex) { /* Drop through */ }
         }
         return copy(e1, e2) ;
     }
+    
+
+    @Override
+    final public Expr applyNodeTransform(NodeTransform transform)
+    {
+        Expr e1 = (expr1 == null ? null : expr1.applyNodeTransform(transform)) ;
+        Expr e2 = (expr2 == null ? null : expr2.applyNodeTransform(transform)) ;
+        return copy(e1, e2) ;
+    }
+
 
     public abstract Expr copy(Expr arg1, Expr arg2) ;
+
+    public void visit(ExprVisitor visitor) { visitor.visit(this) ; }
+    public Expr apply(ExprTransform transform, Expr arg1, Expr arg2) { return transform.transform(this, arg1, arg2) ; }
+
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,12 +6,12 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection ;
+import java.util.HashSet ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.algebra.OpVars;
-import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.sparql.algebra.OpVars ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 public class ExprVars
 {
@@ -59,8 +59,8 @@ public class ExprVars
     
     static class ExprVarsWorker<T> extends ExprVisitorBase
     {
-        Collection<T> acc ;
-        Action<T> action ;
+        final Collection<T> acc ;
+        final Action<T> action ;
         
         public ExprVarsWorker(Collection<T> acc, Action<T> action)
         { this.acc = acc ; this.action = action ; }
@@ -72,7 +72,7 @@ public class ExprVars
         @Override
         public void visit(ExprFunctionOp funcOp)
         { 
-            Set<Var> vars = OpVars.allVars(funcOp.getOp()) ;
+            Set<Var> vars = OpVars.allVars(funcOp.getGraphPattern()) ;
             
             for ( Var v : vars )
                 action.var(acc, v) ;

@@ -6,30 +6,32 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList ;
+import java.util.Collection ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 public class ExprList implements Iterable<Expr>
 {
-    private List<Expr> expressions = new ArrayList<Expr>() ;
+    private final List<Expr> expressions ;
     
-    public ExprList() {}
-    public ExprList(ExprList other) { expressions.addAll(other.expressions) ; }
+    public ExprList() { expressions = new ArrayList<Expr>() ; }
+    public ExprList(ExprList other) { this() ; expressions.addAll(other.expressions) ; }
     public ExprList(Expr expr)
     {
         this() ;
         expressions.add(expr) ;
     }
     
+    public ExprList(List<Expr> x)   { expressions = x ; }
+
     public boolean isSatisfied(Binding binding, ExecutionContext execCxt)
     {
         for (Expr expr : expressions)
@@ -40,9 +42,11 @@ public class ExprList implements Iterable<Expr>
         return true ;
     }
     
-    public Expr get(int idx) { return expressions.get(idx) ; }
-    public int size() { return expressions.size() ; }
-    public boolean isEmpty() { return expressions.isEmpty() ; }
+    public Expr get(int idx)    { return expressions.get(idx) ; }
+    public int size()           { return expressions.size() ; }
+    public boolean isEmpty()    { return expressions.isEmpty() ; }
+    public ExprList subList(int fromIdx, int toIdx)     { return new ExprList(expressions.subList(fromIdx, toIdx)) ; }
+    public ExprList tail(int fromIdx)                   { return subList(fromIdx, expressions.size()) ; }
     
     public Set<Var> getVarsMentioned()
     {
@@ -57,7 +61,7 @@ public class ExprList implements Iterable<Expr>
             expr.varsMentioned(acc) ;
     }
     
-    public ExprList copySubstitute(Binding binding) { return copySubstitute(binding, true) ; }
+    public ExprList copySubstitute(Binding binding) { return copySubstitute(binding, false) ; }
     public ExprList copySubstitute(Binding binding, boolean foldConstants)
     {
         ExprList x = new ExprList() ;

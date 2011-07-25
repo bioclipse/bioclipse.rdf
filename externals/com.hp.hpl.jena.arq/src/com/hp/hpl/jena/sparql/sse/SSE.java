@@ -6,40 +6,51 @@
 
 package com.hp.hpl.jena.sparql.sse;
 
-import java.io.*;
+import java.io.FileInputStream ;
+import java.io.FileNotFoundException ;
+import java.io.IOException ;
+import java.io.InputStream ;
+import java.io.OutputStream ;
+import java.io.Reader ;
+import java.io.StringReader ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.shared.NotFoundException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.builders.BuilderExpr;
-import com.hp.hpl.jena.sparql.sse.builders.BuilderGraph;
-import com.hp.hpl.jena.sparql.sse.builders.BuilderOp;
-import com.hp.hpl.jena.sparql.sse.builders.BuilderTable;
-import com.hp.hpl.jena.sparql.sse.lang.ParseHandler;
-import com.hp.hpl.jena.sparql.sse.lang.ParseHandlerPlain;
-import com.hp.hpl.jena.sparql.sse.lang.ParseHandlerResolver;
-import com.hp.hpl.jena.sparql.sse.lang.SSE_Parser;
-import com.hp.hpl.jena.sparql.sse.writers.WriterGraph;
-import com.hp.hpl.jena.sparql.sse.writers.WriterNode;
-import com.hp.hpl.jena.sparql.sse.writers.WriterOp;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.util.FileUtils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.shared.NotFoundException ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.shared.impl.PrefixMappingImpl ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.path.Path ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderExpr ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderGraph ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderOp ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderPath ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderTable ;
+import com.hp.hpl.jena.sparql.sse.lang.ParseHandler ;
+import com.hp.hpl.jena.sparql.sse.lang.ParseHandlerPlain ;
+import com.hp.hpl.jena.sparql.sse.lang.ParseHandlerResolver ;
+import com.hp.hpl.jena.sparql.sse.lang.SSE_Parser ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterGraph ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterNode ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterOp ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 public class SSE
 {
@@ -95,16 +106,29 @@ public class SSE
     }
 
     /** Parse a string to obtain a Triple */
-    public static Triple parseTriple(String s) { return parseTriple(s, null) ; }
+    public static Triple parseTriple(String str) { return parseTriple(str, null) ; }
     
     /** Parse a string to obtain a Triple */
-    public static Triple parseTriple(String s, PrefixMapping pmap)
+    public static Triple parseTriple(String str, PrefixMapping pmap)
     {
-        Item item = parse(s, pmap) ;
+        Item item = parse(str, pmap) ;
         if ( !item.isList() )
-            throw new ARQException("Not a list: "+s) ; 
+            throw new ARQException("Not a list: "+str) ; 
         return BuilderGraph.buildTriple(item.getList()) ;
     }
+    
+    /** Parse a string to obtain a path */
+    public static Path parsePath(String str) { return parsePath(str, null) ; }
+    
+    /** Parse a string to obtain a path */
+    public static Path parsePath(String str, PrefixMapping pmap)
+    {
+        Item item = parse(str, pmap) ;
+        if ( !item.isList() )
+            throw new ARQException("Not a list: "+str) ; 
+        return BuilderPath.buildPath(item) ;
+    }
+    
     
     /** Parse a string to obtain a SPARQL expression  */
     public static Expr parseExpr(String s) { return parseExpr(s, null) ; }
@@ -115,6 +139,17 @@ public class SSE
         Item item = parse(s, pmap) ;
         return BuilderExpr.buildExpr(item) ;
     }
+
+    /** Parse a string, and obtain a graph */
+    public static Graph parseGraph(String string) { return parseGraph(string, null) ; }
+    
+    /** Parse a string, and obtain a graph */
+    public static Graph parseGraph(String string, PrefixMapping pmap)
+    { 
+        Item item = parse(string, pmap) ;
+        return BuilderGraph.buildGraph(item) ;
+    }
+
     
     /** Read in a file, parse, and obtain a graph */
     public static Graph readGraph(String filename) { return readGraph(filename, null) ; }
@@ -245,6 +280,14 @@ public class SSE
     private static Node parseNode(Reader reader, PrefixMapping pmap)
     {
         Item item = parseTerm(reader, pmap) ;
+        if ( item.isSymbol() )
+        {
+            String str = item.getSymbol() ;
+            if ( "true".equalsIgnoreCase(str) ) return NodeConst.nodeTrue ;
+            if ( "false".equalsIgnoreCase(str) ) return NodeConst.nodeFalse ;
+            throw new SSEParseException("Not a node: "+item, item.getLine(), item.getColumn()) ;
+        }
+        
         if ( ! item.isNode() )
             throw new SSEParseException("Not a node: "+item, item.getLine(), item.getColumn()) ;
         return item.getNode() ;
@@ -300,8 +343,7 @@ public class SSE
 
     public static void write(Graph graph)
     { 
-        WriterGraph.output(IndentedWriter.stdout, graph, 
-                           new SerializationContext(graph.getPrefixMapping())) ;
+        write(IndentedWriter.stdout, graph) ; 
         IndentedWriter.stdout.flush() ;
     }
     public static void write(OutputStream out, Graph graph)
@@ -315,8 +357,25 @@ public class SSE
     { 
         WriterGraph.output(out, graph, 
                            new SerializationContext(graph.getPrefixMapping())) ;
+        out.ensureStartOfLine() ;
     }
 
+    public static void write(Model model)
+    { 
+        write(IndentedWriter.stdout, model) ; 
+        IndentedWriter.stdout.flush() ;
+    }
+    public static void write(OutputStream out, Model model)
+    { 
+        IndentedWriter iOut = new IndentedWriter(out) ;
+        write(iOut, model) ;
+        iOut.flush();
+    }
+        
+    public static void write(IndentedWriter out, Model model)
+    { 
+        WriterGraph.output(out, model.getGraph(), new SerializationContext(model)) ;
+    }
     
     
     
@@ -360,6 +419,20 @@ public class SSE
         WriterNode.output(out, triple, sCxt(defaultDefaultPrefixMapWrite)) ; 
         out.flush() ;
     }
+    
+    public static void write(Quad quad) { write(IndentedWriter.stdout, quad) ; IndentedWriter.stdout.flush() ; }
+    public static void write(OutputStream out, Quad quad)
+    { 
+        IndentedWriter iOut = new IndentedWriter(out) ;
+        write(iOut, quad) ;
+        iOut.flush();
+    }
+    public static void write(IndentedWriter out, Quad quad)                         
+    { 
+        WriterNode.output(out, quad, sCxt(defaultDefaultPrefixMapWrite)) ; 
+        out.flush() ;
+    }
+
     
     public static void write(Node node) { write(IndentedWriter.stdout, node) ; IndentedWriter.stdout.flush() ; }
     public static void write(OutputStream out, Node node)

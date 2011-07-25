@@ -6,18 +6,14 @@
 
 package com.hp.hpl.jena.sparql.engine;
 
-import com.hp.hpl.jena.query.Query;
-
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** Additional QueryEngineFactory's 
- * can be dynamically added to the registry.
- * 
- * @author Andy Seaborne
- */ 
+ * can be dynamically added to the registry. */ 
 public interface QueryEngineFactory
 {
     public boolean accept(Query query, DatasetGraph dataset, Context context) ;

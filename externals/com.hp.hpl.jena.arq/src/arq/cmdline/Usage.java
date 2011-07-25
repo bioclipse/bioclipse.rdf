@@ -1,17 +1,19 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package arq.cmdline;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.PrintStream ;
+import java.util.ArrayList ;
+import java.util.Collections ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
 
 public class Usage
 {
@@ -55,7 +57,13 @@ public class Usage
        int INDENT1 = 2 ;
        int INDENT2 = 4 ;
        out.incIndent(INDENT1) ;
-       for ( Iterator<Category> iter = categories.iterator() ; iter.hasNext() ; )
+       //for ( Iterator<Category> iter = categories.iterator() ; iter.hasNext() ; )
+       
+       List<Category> categories2 = new ArrayList<Category>(categories) ;
+       Collections.reverse(categories2) ;
+       
+       for ( Iterator<Category> iter = categories2.iterator() ; iter.hasNext() ; )
+       
        {
            Category c = iter.next() ;
            if ( c.desc != null )
@@ -87,6 +95,7 @@ public class Usage
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

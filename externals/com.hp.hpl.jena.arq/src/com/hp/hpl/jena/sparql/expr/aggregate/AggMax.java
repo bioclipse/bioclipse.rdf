@@ -1,108 +1,46 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.sse.writers.WriterExpr;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterExpr ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
 
-public class AggMax implements AggregateFactory
+public class AggMax extends AggMaxBase
 {
-    // ---- MAX(?var)
+    // ---- MAX(expr)
+    public AggMax(Expr expr) { super(expr) ; } 
+    public Aggregator copy(Expr expr) { return new AggMax(expr) ; }
+
+    @Override
+    public String toString() { return "max("+ExprUtils.fmtSPARQL(expr)+")" ; }
+    @Override
+    public String toPrefixString() { return "(max "+WriterExpr.asString(expr)+")" ; }
+
+    @Override
+    public int hashCode()   { return HC_AggMax ^ expr.hashCode() ; }
     
-    // ---- AggregatorFactory
-    private Expr expr ;
-
-    public AggMax(Expr var) { this.expr = var ; } 
-
-    public Aggregator create()
+    @Override
+    public boolean equals(Object other)
     {
-        // One per each time there is an aggregation.
-        return new AggMaxWorker() ;
-    }
-    
-    private static final NodeValue noValuesToMin = null ; 
-    
-    // ---- Aggregator
-    class AggMaxWorker extends AggregatorBase
-    {
-        public AggMaxWorker()
-        {
-            super() ;
-        }
-
-        @Override
-        public String toString() { return "max("+ExprUtils.fmtSPARQL(expr)+")" ; }
-        public String toPrefixString() { return "(max "+WriterExpr.asString(expr)+")" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccMaxVar() ;
-        }
-        
-        private final Expr getExpr() { return expr ; }
-        
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            if ( ! ( other instanceof AggMaxWorker ) )
-                return false ;
-            AggMaxWorker agg = (AggMaxWorker)other ;
-            return agg.getExpr().equals(getExpr()) ;
-        } 
-
-        
-        /* null is SQL-like. */ 
-        @Override
-        public Node getValueEmpty()     { return null ; } 
-    }
-
-    // ---- Accumulator
-    class AccMaxVar implements Accumulator
-    {
-        // Non-empty case but still can be nothing because the expression may be undefined.
-        private NodeValue maxSoFar = null ;
-        
-        public AccMaxVar() {}
-
-        static final boolean DEBUG = false ;
-        
-        public void accumulate(Binding binding, FunctionEnv functionEnv)
-        { 
-            try {
-                NodeValue nv = expr.eval(binding, functionEnv) ;
-                if ( maxSoFar == null )
-                {
-                    maxSoFar = nv ;
-                    if ( DEBUG ) System.out.println("max: init : "+nv) ;
-                    return ;
-                }
-                
-                int x = NodeValue.compareAlways(maxSoFar, nv) ;
-                if ( x < 0 )
-                    maxSoFar = nv ;
-                
-                if ( DEBUG ) System.out.println("max: "+nv+" ==> "+maxSoFar) ;
-                
-            } catch (ExprEvalException ex)
-            {}
-        }
-        public NodeValue getValue()
-        { return maxSoFar ; }
+        if ( this == other ) return true ; 
+        if ( ! ( other instanceof AggMax ) )
+            return false ;
+        AggMax agg = (AggMax)other ;
+        return expr.equals(agg.expr) ;
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

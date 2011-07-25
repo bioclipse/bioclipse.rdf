@@ -6,15 +6,15 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import java.util.Stack;
+import java.util.Stack ;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.util.ALog;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import org.openjena.atlas.logging.Log ;
 
-/**  Class to provide type-safe execution ispatch using the visitor support of Op */ 
+/**  Class to provide type-safe execution dispatch using the visitor support of Op */ 
 
 class ExecutionDispatch implements OpVisitor
 {
@@ -33,7 +33,7 @@ class ExecutionDispatch implements OpVisitor
         op.visit(this) ;
         int y = stack.size() ;
         if ( x != y )
-            ALog.warn(this, "Possible stack misalignment") ;
+            Log.warn(this, "Possible stack misalignment") ;
         QueryIterator qIter = pop() ;
         return qIter ;
     }
@@ -113,6 +113,13 @@ class ExecutionDispatch implements OpVisitor
     {
         QueryIterator input = pop() ;
         QueryIterator qIter = opExecutor.execute(opDiff, input) ;
+        push(qIter) ;
+    }
+
+    public void visit(OpMinus opMinus)
+    {
+        QueryIterator input = pop() ;
+        QueryIterator qIter = opExecutor.execute(opMinus, input) ;
         push(qIter) ;
     }
 
@@ -228,6 +235,13 @@ class ExecutionDispatch implements OpVisitor
         push(qIter) ;
     }
     
+    public void visit(OpExtend opExtend)
+    {
+        QueryIterator input = pop() ;
+        QueryIterator qIter = opExecutor.execute(opExtend, input) ;
+        push(qIter) ;
+    }
+    
     public void visit(OpSlice opSlice)
     {
         QueryIterator input = pop() ;
@@ -235,18 +249,25 @@ class ExecutionDispatch implements OpVisitor
         push(qIter) ;
     }
     
-    public void visit(OpGroupAgg opGroupAgg)
+    public void visit(OpGroup opGroup)
     { 
         QueryIterator input = pop() ;
-        QueryIterator qIter = opExecutor.execute(opGroupAgg, input) ;
+        QueryIterator qIter = opExecutor.execute(opGroup, input) ;
         push(qIter) ;
     }
     
+    public void visit(OpTopN opTop)
+    { 
+        QueryIterator input = pop() ;
+        QueryIterator qIter = opExecutor.execute(opTop, input) ;
+        push(qIter) ;
+    }
+
     private void push(QueryIterator qIter)  { stack.push(qIter) ; }
     private QueryIterator pop()
     { 
         if ( stack.size() == 0 )
-            ALog.warn(this, "Warning: pop: empty stack") ;
+            Log.warn(this, "Warning: pop: empty stack") ;
         return stack.pop() ;
     }
 }

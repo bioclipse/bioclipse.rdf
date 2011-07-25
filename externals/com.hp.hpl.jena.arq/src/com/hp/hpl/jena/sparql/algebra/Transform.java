@@ -1,14 +1,15 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
 public interface Transform
 {
@@ -28,11 +29,14 @@ public interface Transform
     public Op transform(OpProcedure opProcedure, Op subOp) ;
     public Op transform(OpPropFunc opPropFunc, Op subOp) ;
     public Op transform(OpLabel opLabel, Op subOp) ;
+    public Op transform(OpAssign opAssign, Op subOp) ;
+    public Op transform(OpExtend opExtend, Op subOp) ;
 
     // Op2
     public Op transform(OpJoin opJoin, Op left, Op right) ;
     public Op transform(OpLeftJoin opLeftJoin, Op left, Op right) ;
     public Op transform(OpDiff opDiff, Op left, Op right) ;
+    public Op transform(OpMinus opMinus, Op left, Op right) ;
     public Op transform(OpUnion opUnion, Op left, Op right) ;
     public Op transform(OpConditional opCondition, Op left, Op right) ;
     
@@ -46,17 +50,17 @@ public interface Transform
     // OpModifier
     public Op transform(OpList opList, Op subOp) ;
     public Op transform(OpOrder opOrder, Op subOp) ;
+    public Op transform(OpTopN opTop, Op subOp) ;
     public Op transform(OpProject opProject, Op subOp) ;
-    public Op transform(OpAssign opAssign, Op subOp) ;
     public Op transform(OpDistinct opDistinct, Op subOp) ;
     public Op transform(OpReduced opReduced, Op subOp) ;
     public Op transform(OpSlice opSlice, Op subOp) ;
-    
-    public Op transform(OpGroupAgg opGroupAgg, Op subOp) ;
+    public Op transform(OpGroup opGroup, Op subOp) ;
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

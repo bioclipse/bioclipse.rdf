@@ -5,23 +5,21 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Collection ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
 
 
 /** A node that is a constraint expression that can be evaluated
  * An Expr is already a Constraint - ExprNode is the base implementation
- * of all Expr classes that provides the Constraint machinary.
- * 
- * @author Andy Seaborne
- */
+ * of all Expr classes that provides the Constraint machinary. */
  
 public abstract class ExprNode implements Expr
 {
@@ -56,6 +54,12 @@ public abstract class ExprNode implements Expr
     @Override
     public abstract boolean equals(Object other) ;
     
+    protected static NodeValue eval(Binding binding, FunctionEnv funcEnv, Expr expr)
+    {   
+        if ( expr == null ) return null ;
+        return expr.eval(binding, funcEnv) ;
+    }
+    
     final public Expr copySubstitute(Binding binding)
     { return copySubstitute(binding, false) ; }
     
@@ -64,6 +68,9 @@ public abstract class ExprNode implements Expr
     
     public abstract Expr copySubstitute(Binding binding, boolean foldConstants) ;
     
+    public abstract Expr applyNodeTransform(NodeTransform transform) ;
+
+        
     // ---- Default implementations
     public boolean isVariable()        { return false ; }
     public String getVarName()         { return null ; } //throw new ExprException("Expr.getVarName called on non-variable") ; }
@@ -76,8 +83,8 @@ public abstract class ExprNode implements Expr
     public boolean isFunction()        { return false ; }
     public ExprFunction getFunction()  { return null ; }
     
-    public boolean isGraphPttern()     { return false ; }
-    public Op getGraphPttern()         { return null ; }
+    public boolean isGraphPattern()    { return false ; }
+    public Op getGraphPattern()        { return null ; }
     
     // ---- 
     

@@ -6,9 +6,9 @@
 
 package com.hp.hpl.jena.sparql.sse.lang;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.sparql.lang.ParserBase;
-import com.hp.hpl.jena.sparql.sse.SSEParseException;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.sparql.lang.ParserBase ;
+import com.hp.hpl.jena.sparql.sse.SSEParseException ;
 
 public class ParserSSEBase extends ParserBase
 {
@@ -48,7 +48,6 @@ public class ParserSSEBase extends ParserBase
     
     protected void emitLiteral(int currLine, int currColumn, String lex, String lang, String dt_iri, String dt_pname)
     { 
-        // XXX Fix escapes
         if ( lang != null )
         {
             if ( dt_iri != null || dt_pname != null )

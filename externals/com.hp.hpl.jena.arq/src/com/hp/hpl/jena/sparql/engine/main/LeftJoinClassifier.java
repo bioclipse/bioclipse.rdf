@@ -6,14 +6,15 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import java.util.Set;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVars;
-import com.hp.hpl.jena.sparql.algebra.op.OpLeftJoin;
-import com.hp.hpl.jena.sparql.algebra.op.OpModifier;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.util.SetUtils;
+import org.openjena.atlas.lib.SetUtils ;
+
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVars ;
+import com.hp.hpl.jena.sparql.algebra.op.OpLeftJoin ;
+import com.hp.hpl.jena.sparql.algebra.op.OpModifier ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 public class LeftJoinClassifier
 {
@@ -33,8 +34,12 @@ public class LeftJoinClassifier
 
     static public boolean isLinear(OpLeftJoin op)
     {
-        Op left = JoinClassifier.effectiveOp(op.getLeft()) ;
-        Op right = JoinClassifier.effectiveOp(op.getRight()) ;
+        return isLinear(op.getLeft(), op.getRight()) ;
+    }
+    static public boolean isLinear(Op left, Op right)
+    {
+        left = JoinClassifier.effectiveOp(left) ;
+        right = JoinClassifier.effectiveOp(right) ;
         
         // Subquery with modifier.  Substitution does not apply.
         // With SELECT *, it's as if the subquery were just the pattern.

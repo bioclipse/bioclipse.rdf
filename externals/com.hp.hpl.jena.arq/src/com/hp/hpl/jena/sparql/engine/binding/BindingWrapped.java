@@ -5,15 +5,12 @@
 
 package com.hp.hpl.jena.sparql.engine.binding;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
-/** A binding that wraps another.
- * 
- * @author   Andy Seaborne
- */
+/** A binding that wraps another. */
 
 
 public class BindingWrapped implements Binding
@@ -25,7 +22,9 @@ public class BindingWrapped implements Binding
     public Binding getWrapped() { return binding ; }
     
     public void add(Var var, Node node)
-    { binding.add(var, node) ; }
+    { 
+        if ( ! Var.isAnonVar(var) )
+        binding.add(var, node) ; }
 
     public void addAll(Binding other)
     { binding.addAll(other) ; }

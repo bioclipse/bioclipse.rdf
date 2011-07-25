@@ -6,19 +6,20 @@
 
 package arq.cmdline;
 
-import java.util.*;
+import java.util.ArrayList ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Map ;
 
-import arq.cmd.CmdException;
+import arq.cmd.CmdException ;
 
-import com.hp.hpl.jena.util.FileManager;
-
-import com.hp.hpl.jena.sparql.util.ALog;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.util.FileManager ;
 
 
 /** Command line, using the common named/positional arguments paradigm
- *  (also called options/arguments).
- * @author Andy Seaborne
- */
+ *  (also called options/arguments). */
 public class CmdLineArgs extends CommandLineBase
 {
     public CmdLineArgs(String[] args)
@@ -74,7 +75,7 @@ public class CmdLineArgs extends CommandLineBase
         {
             String name = iter.next();
             if ( argMap.containsKey(name))
-                ALog.warn(this, "Argument '"+name+"' already added") ; 
+                Log.warn(this, "Argument '"+name+"' already added") ; 
             argMap.put(name, arg) ;
         }
         return this ;

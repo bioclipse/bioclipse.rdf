@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Jena
 Bundle-SymbolicName: com.hp.hpl.jena.arq;singleton:=true
-Bundle-Version: 2.8.2
+Bundle-Version: 2.8.8
 Require-Bundle: org.eclipse.core.runtime,
- slf4j.api;bundle-version="1.5.0",
- com.hp.hpl.jena;bundle-version="2.6.2"
+ slf4j.api,
+ com.hp.hpl.jena
 Bundle-ClassPath: .
 Bundle-Activator: net.bioclipse.jena.arq.Activator
 Bundle-ActivationPolicy: lazy
@@ -21,7 +21,6 @@ Export-Package: arq,
  com.hp.hpl.jena.sparql,
  com.hp.hpl.jena.sparql.algebra,
  com.hp.hpl.jena.sparql.algebra.op,
- com.hp.hpl.jena.sparql.algebra.opt,
  com.hp.hpl.jena.sparql.algebra.table,
  com.hp.hpl.jena.sparql.core,
  com.hp.hpl.jena.sparql.core.assembler,
@@ -46,13 +45,7 @@ Export-Package: arq,
  com.hp.hpl.jena.sparql.lang.sparql_10,
  com.hp.hpl.jena.sparql.lang.sparql_11,
  com.hp.hpl.jena.sparql.lib,
- com.hp.hpl.jena.sparql.lib.cache,
- com.hp.hpl.jena.sparql.lib.iterator,
- com.hp.hpl.jena.sparql.lib.org.json,
- com.hp.hpl.jena.sparql.mgt,
  com.hp.hpl.jena.sparql.modify,
- com.hp.hpl.jena.sparql.modify.op,
- com.hp.hpl.jena.sparql.path,
  com.hp.hpl.jena.sparql.pfunction,
  com.hp.hpl.jena.sparql.pfunction.library,
  com.hp.hpl.jena.sparql.procedure,

@@ -6,13 +6,13 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
 
 /** Extend each solution by an expressions */ 
 
@@ -20,8 +20,12 @@ public class QueryIterAssign extends QueryIterProcessBinding
 {
     private VarExprList exprs ; 
     
-    public QueryIterAssign(QueryIterator input, VarExprList exprs, ExecutionContext qCxt)
+    public QueryIterAssign(QueryIterator input, VarExprList exprs, ExecutionContext qCxt, boolean mustBeNewVar)
     {
+        // mustBeNewVar : any variable introduced must not already exist.
+        // true => BIND
+        // false => LET 
+        // Syntax checking shoud have assured this.
         super(input, qCxt) ;
         this.exprs = exprs ;
         //super(input, new Extend(exprs, qCxt), qCxt) ;

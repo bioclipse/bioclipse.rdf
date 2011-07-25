@@ -6,10 +6,11 @@
 
 package com.hp.hpl.jena.sparql.engine.optimizer;
 
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.PrintUtils;
-import com.hp.hpl.jena.sparql.util.Printable;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.io.PrintUtils ;
+import org.openjena.atlas.io.Printable ;
+
+import com.hp.hpl.jena.sparql.sse.Item ;
 
 public class Pattern implements Printable
 {

@@ -6,14 +6,10 @@
 
 package com.hp.hpl.jena.sparql.syntax;
 
-import java.util.* ;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-
-/** 
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class ElementUnion extends Element
 {
@@ -22,6 +18,14 @@ public class ElementUnion extends Element
     public ElementUnion()
     { }
 
+    public ElementUnion(Element el)
+    { 
+        //Used by the SPARQL 1.1 style UNION
+        this() ;
+        addElement(el) ;
+    }
+
+    
     public void addElement(Element el) { elements.add(el) ; }
     public List<Element> getElements() { return elements ; }
    

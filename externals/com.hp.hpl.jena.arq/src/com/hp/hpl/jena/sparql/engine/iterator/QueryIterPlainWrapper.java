@@ -2,23 +2,23 @@
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.util.iterator.NiceIterator;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.iterator.Iter ;
 
-/** Turn an normal java.util.Iterator (of Bindings) into a QueryIterator
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.util.iterator.NiceIterator ;
+
+/** Turn an normal java.util.Iterator (of Bindings) into a QueryIterator */
 
 public class QueryIterPlainWrapper extends QueryIter
 {
@@ -51,9 +51,15 @@ public class QueryIterPlainWrapper extends QueryIter
         if ( iterator != null )
         {
             NiceIterator.close(iterator) ;
+            // In case we wrapped, for example, another QueryIterator.
+            Iter.close(iterator) ;
             iterator = null ;
         }
     }
+    
+    @Override
+    protected void requestCancel()
+    { }
     
     @Override
     public void output(IndentedWriter out, SerializationContext sCxt)

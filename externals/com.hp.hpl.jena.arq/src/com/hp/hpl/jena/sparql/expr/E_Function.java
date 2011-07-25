@@ -5,19 +5,20 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.Function;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.function.FunctionFactory;
-import com.hp.hpl.jena.sparql.function.FunctionRegistry;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
+import java.util.List ;
 
-/** SPARQL filter function
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.Function ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.function.FunctionFactory ;
+import com.hp.hpl.jena.sparql.function.FunctionRegistry ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+
+/** SPARQL filter function */
 
 public class E_Function extends ExprFunctionN
 {
@@ -26,7 +27,7 @@ public class E_Function extends ExprFunctionN
     private String functionIRI ;
     
     // Only set after a copySubstitute has been done by PlanFilter.
-    // at which point this isnatnce if not part of the query abstract syntax.  
+    // at which point this instance if not part of the query abstract syntax.  
     private Function function = null ;
     private boolean functionBound = false ;
 
@@ -39,8 +40,14 @@ public class E_Function extends ExprFunctionN
     @Override
     public String getFunctionIRI() { return functionIRI ; }
     
+    // The Function subsystem takes over evaluation via SpecialForms.
+    // This is merely to allow "function" to behave as special forms
+    // (this is discouraged).
+    // Doing the function call in evalSpecial maintains the old 
+    // interface to functions.
+    
     @Override
-    public NodeValue eval(Binding binding, FunctionEnv env)
+    public NodeValue evalSpecial(Binding binding, FunctionEnv env)
     {
         // Only needed because some tests call straight in.
         // Otherwise, the buildFunction() calls should have done everything
@@ -52,13 +59,22 @@ public class E_Function extends ExprFunctionN
         return r ;
     }
     
+    @Override
+    protected NodeValue eval(List<NodeValue> args)
+    {
+        // For functions, we delay argument evaluation to the "Function" heierarchy
+        // so applications can add their own functional forms.
+        throw new ARQInternalErrorException() ;
+        
+    }
+
     public void buildFunction(Context cxt)
     {
         try { bindFunction(cxt) ; }
         catch (ExprException ex)
         {
             if ( WarnOnUnknownFunction )
-                ALog.warn(this, "URI <"+functionIRI+"> has no registered function factory") ;
+                ARQ.getExecLogger().warn("URI <"+functionIRI+"> has no registered function factory") ;
         }
     }
     

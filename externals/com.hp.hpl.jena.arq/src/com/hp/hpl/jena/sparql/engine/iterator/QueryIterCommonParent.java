@@ -6,17 +6,16 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterConvert;
-import com.hp.hpl.jena.sparql.util.ALog;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import org.openjena.atlas.logging.Log ;
 
 /**
  * Yield new bindings, with a fixed parent, with values from an iterator. 
@@ -53,10 +52,10 @@ public class QueryIterCommonParent extends QueryIterConvert
                 {
                     Node n2 = b2.get(v) ;
                     if ( n2.equals(n) )
-                        ALog.warn(this, "Binding already for "+v+" (same value)" ) ;
+                        Log.warn(this, "Binding already for "+v+" (same value)" ) ;
                     else
                     {
-                        ALog.fatal(this, "Binding already for "+v+" (different values)" ) ;
+                        Log.fatal(this, "Binding already for "+v+" (different values)" ) ;
                         throw new ARQInternalErrorException("QueryIteratorResultSet: Incompatible bindings for "+v) ;
                     }
                 }

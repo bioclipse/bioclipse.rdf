@@ -6,19 +6,20 @@
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Collection ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.core.Var;
-
-import com.hp.hpl.jena.query.SortCondition;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.sparql.algebra.OpWalker.WalkerVisitor ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
 
 /** Get vars for a pattern  */ 
 
@@ -33,7 +34,9 @@ public class OpVars
     
     public static void patternVars(Op op, Set<Var> acc)
     {
-        OpWalker.walk(op, new OpVarsPattern(acc)) ;
+        //OpWalker.walk(op, new OpVarsPattern(acc)) ;
+        OpVisitor visitor = new OpVarsPattern(acc) ;
+        OpWalker.walk(new WalkerVisitorSkipMinus(visitor), op, visitor) ;
     }
     
     public static Set<Var> allVars(Op op)
@@ -52,6 +55,26 @@ public class OpVars
     {
         for ( Triple triple : pattern )
             addVarsFromTriple(acc, triple) ;
+    }
+    
+    /** Don't accumulate RHS of OpMinus*/
+    static class WalkerVisitorSkipMinus extends WalkerVisitor
+    {
+        public WalkerVisitorSkipMinus(OpVisitor visitor)
+        {
+            super(visitor) ;
+        }
+        
+        @Override
+        public void visit(OpMinus op)
+        {
+            before(op) ;
+            if ( op.getLeft() != null ) op.getLeft().visit(this) ;
+            // Skip right.
+            //if ( op.getRight() != null ) op.getRight().visit(this) ;
+            if ( visitor != null ) op.visit(visitor) ;      
+            after(op) ;  
+        }
     }
     
     private static class OpVarsPattern extends OpVisitorBase
@@ -113,7 +136,6 @@ public class OpVars
         {   
             // Seems a tad wasteful to do all that work then throw it away.
             // But it needs the walker redone.
-            // TODO Rethink walker for part walks. 
             // Better: extend a Walking visitor - OpWalker.Walker
             acc.clear() ;
             acc.addAll(opProject.getVars()) ;
@@ -125,6 +147,38 @@ public class OpVars
             acc.addAll(opAssign.getVarExprList().getVars()) ;
             //opAssign.getSubOp().visit(this) ;
         }
+        
+        @Override
+        public void visit(OpExtend opExtend)
+        {
+            acc.addAll(opExtend.getVarExprList().getVars()) ;
+            //opAssign.getSubOp().visit(this) ;
+        }
+        
+        @Override
+        public void visit(OpPropFunc opPropFunc)
+        {
+            addvars(opPropFunc.getSubjectArgs()) ;
+            addvars(opPropFunc.getObjectArgs()) ;
+        }
+        
+        private void addvars(PropFuncArg pfArg)
+        {
+            if ( pfArg.isNode() )
+            {
+                addVar(acc, pfArg.getArg()) ;
+                return ;
+            }
+            for ( Node n : pfArg.getArgList() )
+                addVar(acc,n) ;
+        }
+        
+        @Override
+        public void visit(OpProcedure opProc)
+        {
+            opProc.getArgs().varsMentioned(acc) ;
+        }
+
     }
     
     private static class OpVarsQuery extends OpVarsPattern
@@ -147,6 +201,7 @@ public class OpVars
                 acc.addAll(x) ;
             }
         }
+        
     }
 
     private static void addVarsFromTriple(Collection<Var> acc, Triple t)

@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -7,104 +8,167 @@
 package com.hp.hpl.jena.sparql.core;
 
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.shared.LockMRSW;
-import com.hp.hpl.jena.sparql.lib.CacheFactory;
-import com.hp.hpl.jena.sparql.lib.Cache;
+import java.util.Iterator ;
+import java.util.List ;
+
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.Transform ;
+
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.shared.Lock ;
+import com.hp.hpl.jena.shared.LockMRSW ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterGraph ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** 
- * DatasetGraph that caches graphs created.
- * Move to ARQ.
+ * <p>DatasetGraph framework : readonly dataset need only provide find(g,s,p,o), getGraph() and getDefaultGraph()
+ * although it may wish to override other operations and do better.</p>
+ * 
+ * <p>Other implementations include:</p>
+ * <ul>
+ * <li>{@link DatasetGraphBase} that adds an implementation of find based on default / named graphs.</li>
+ * <li>{@link DatasetGraphCollection} that adds mutating quad operations mapped to a collection of graphs.</li>
+ * <li>{@link DatasetGraphQuad} that maps graph operations to a quad view.
+ * </ul> 
  */
 abstract public class DatasetGraphBase implements DatasetGraph
 {
     private final Lock lock = new LockMRSW() ;
-    protected Graph defaultGraph = null ;
+    private Context context = new Context() ;
     
-    private final boolean caching = true ;
-    // read synchronised in this class, not need for a sync wrapper.
-    private Cache<Node, Graph> namedGraphs = CacheFactory.createCache(100) ;
-    
-    abstract protected void _close() ;
-    abstract protected Graph _createNamedGraph(Node graphNode) ;
-    abstract protected Graph _createDefaultGraph() ;
-    abstract protected boolean _containsGraph(Node graphNode) ;
+    protected DatasetGraphBase() {}
     
     //@Override
     public boolean containsGraph(Node graphNode)
-    {
-        if ( namedGraphs.containsKey(graphNode) )
-            // Empty graph may or may not count.
-            // If they don't, need to override ths method.
-            return true ;
-        return _containsGraph(graphNode) ;
+    { return contains(graphNode, Node.ANY, Node.ANY, Node.ANY) ; }
+    
+    //@Override
+    public abstract Graph getDefaultGraph() ;
+
+    //@Override
+    public abstract Graph getGraph(Node graphNode) ;
+
+    //@Override
+    public void addGraph(Node graphName, Graph graph)
+    { throw new UnsupportedOperationException("DatasetGraph.addGraph") ; }
+
+    //@Override
+    public void removeGraph(Node graphName)
+    { throw new UnsupportedOperationException("DatasetGraph.removeGraph") ; }
+
+    //@Override
+    public void setDefaultGraph(Graph g)
+    { throw new UnsupportedOperationException("DatasetGraph.setDefaultGraph") ; }
+    
+    //@Override
+    public void add(Quad quad) { throw new UnsupportedOperationException("DatasetGraph.add(Quad)") ; } 
+    
+    //@Override
+    public void delete(Quad quad) { throw new UnsupportedOperationException("DatasetGraph.delete(Quad)") ; }
+    
+    //@Override
+    /** Simple implementation */
+    public void deleteAny(Node g, Node s, Node p, Node o)
+    { 
+        Iterator<Quad> iter = find(g, s, p, o) ;
+        List<Quad> list = Iter.toList(iter) ;
+        for ( Quad q : list )
+            delete(q) ;
     }
     
     //@Override
-    public final Graph getDefaultGraph()
+    public Iterator<Quad> find()
+    { return find(Node.ANY, Node.ANY, Node.ANY, Node.ANY) ; }
+
+    
+    //@Override
+    public Iterator<Quad> find(Quad quad)
+    { 
+        if ( quad == null )
+            return find() ;
+        return find(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ; }
+    
+    //@Override
+    public boolean contains(Quad quad) { return contains(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ; }
+
+    //@Override
+    public boolean contains(Node g, Node s, Node p , Node o)
     {
-        if ( ! caching )
-            return _createDefaultGraph() ;
-        
-        synchronized(this)
-        {   // MRSW - need to create and update the cache atomically.
-            if ( defaultGraph == null )
-                defaultGraph = _createDefaultGraph() ;
-        }
-        return defaultGraph ;
+        Iterator<Quad> iter = find(g, s, p, o) ;
+        boolean b = iter.hasNext() ;
+        Iter.close(iter) ;
+        return b ;
+    }
+    
+    protected static boolean isWildcard(Node g)
+    {
+        return g == null || g == Node.ANY ;
+    }
+    
+    //@Override
+    public boolean isEmpty()
+    {
+        return ! contains(Node.ANY, Node.ANY, Node.ANY, Node.ANY) ;
     }
 
     //@Override
-    public final Graph getGraph(Node graphNode)
-    {
-        if ( ! caching )
-            return _createNamedGraph(graphNode) ;
-
-        synchronized(this)
-        {   // MRSW - need to create and update the cache atomically.
-            Graph graph = namedGraphs.get(graphNode) ;
-            if ( graph == null )
-            {
-                graph = _createNamedGraph(graphNode) ;
-                namedGraphs.put(graphNode, graph) ;
-            }
-            return graph ;
-        }
-    }
-
+    public long size() { return -1 ; } 
+    
     //@Override
     public Lock getLock()
     {
         return lock ;
     }
-    //@Override
-    public final void close()
+    
+    public Context getContext()
     {
-        defaultGraph = null ;
-        namedGraphs.clear() ;
-        _close() ;
+        return context ;
+    }
+    
+    //@Override
+    public void close()
+    { }
+    
+    @Override
+    public String toString()
+    {
+        // Using the size of the graphs would be better.
+        IndentedLineBuffer out = new IndentedLineBuffer() ;
+        WriterGraph.output(out, this, null) ;
+        return out.asString() ;
     }
 
-//    @Override
-//    public Iterator<Node> listGraphNodes()
-//    {
-//        return null ;
-//    }
+    // Helpers
+    
+    protected static Iterator<Quad> triples2quadsDftGraph(Iterator<Triple> iter)
+    {
+        //return triples2quads(Quad.defaultGraphIRI, iter) ;
+        return triples2quads(Quad.defaultGraphNodeGenerated, iter) ;
+        //return triples2quads(Quad.tripleInQuad, iter) ;
+    }
 
-//    @Override
-//    public int size()
-//    {
-//        return 0 ;
-//    }
+    protected static Iter<Quad> triples2quads(final Node graphNode, Iterator<Triple> iter)
+    {
+        Transform<Triple, Quad> transformNamedGraph = new Transform<Triple, Quad> () {
+            public Quad convert(Triple triple)
+            {
+                return new Quad(graphNode, triple) ;
+            }
+        } ;
+
+        return Iter.iter(iter).map(transformNamedGraph) ;
+    }
 
     
-    
+
 }
 
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

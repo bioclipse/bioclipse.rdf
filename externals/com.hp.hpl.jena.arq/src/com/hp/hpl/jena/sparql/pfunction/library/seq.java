@@ -6,12 +6,10 @@
 
 package com.hp.hpl.jena.sparql.pfunction.library;
 
-import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDF ;
 
 
-/** Seq membership 
- * @author Andy Seaborne
- */ 
+/** Seq membership */ 
 
 public class seq extends container
 {

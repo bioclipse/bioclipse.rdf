@@ -1,14 +1,11 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.syntax;
-
-/** 
- * @author Andy Seaborne
- */
 
 public interface ElementVisitor
 {
@@ -16,6 +13,7 @@ public interface ElementVisitor
     public void visit(ElementPathBlock el) ;
     public void visit(ElementFilter el) ;
     public void visit(ElementAssign el) ;
+    public void visit(ElementBind el) ;
     public void visit(ElementUnion el) ;
     public void visit(ElementOptional el) ;
     public void visit(ElementGroup el) ;
@@ -23,6 +21,7 @@ public interface ElementVisitor
     public void visit(ElementNamedGraph el) ;
     public void visit(ElementExists el) ;
     public void visit(ElementNotExists el) ;
+    public void visit(ElementMinus el) ;
     public void visit(ElementService el) ;
     public void visit(ElementFetch el) ;
     public void visit(ElementSubQuery el) ;
@@ -30,6 +29,7 @@ public interface ElementVisitor
 
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

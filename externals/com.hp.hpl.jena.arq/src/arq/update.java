@@ -1,30 +1,32 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package arq;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.Iterator ;
+import java.util.List ;
 
-import arq.cmd.CmdException;
-import arq.cmdline.ArgDecl;
-import arq.cmdline.CmdUpdate;
+import org.openjena.riot.out.NQuadsWriter ;
+import arq.cmd.CmdException ;
+import arq.cmdline.ArgDecl ;
+import arq.cmdline.CmdUpdate ;
 
-import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.sparql.util.Utils;
-
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
+import com.hp.hpl.jena.sparql.SystemARQ ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.update.GraphStore ;
+import com.hp.hpl.jena.update.UpdateExecutionFactory ;
+import com.hp.hpl.jena.update.UpdateFactory ;
+import com.hp.hpl.jena.update.UpdateRequest ;
 
 public class update extends CmdUpdate
 {
     // --service / --remote
-    ArgDecl updateArg = new ArgDecl(ArgDecl.HasValue, "update") ;
-    ArgDecl dumpArg = new ArgDecl(ArgDecl.NoValue, "dump") ;       // Write the result to stdout.
+    static final ArgDecl updateArg = new ArgDecl(ArgDecl.HasValue, "update", "file") ;
+    static final ArgDecl dumpArg = new ArgDecl(ArgDecl.NoValue, "dump") ;       // Write the result to stdout.
     
     List<String> requestFiles = null ;
     boolean dump = false ;
@@ -44,6 +46,7 @@ public class update extends CmdUpdate
     {
         requestFiles = getValues(updateArg) ;   // ????
         dump = contains(dumpArg) ;
+        
         super.processModulesAndArgs() ;
     }
     
@@ -69,29 +72,32 @@ public class update extends CmdUpdate
         for ( Iterator<String> iter = super.getPositional().iterator() ; iter.hasNext() ; )
         {
             String requestString = iter.next();
+            requestString = indirect(requestString) ;
             execOne(requestString, graphStore) ;
         }
-        
+        SystemARQ.sync(graphStore) ;
         if ( dump )
-            SSE.write(graphStore) ;
+            //SSE.write(graphStore) ;
+            NQuadsWriter.write(System.out, graphStore) ;
     }
 
 
     private void execOneFile(String filename, GraphStore store)
     {
-        UpdateRequest req = UpdateFactory.read(filename) ;
-        UpdateFactory.create(req, store).execute() ;
+        UpdateRequest req = UpdateFactory.read(filename, updateSyntax) ;
+        UpdateExecutionFactory.create(req, store).execute() ;
     }
     
     private void execOne(String requestString, GraphStore store)
     {
-        UpdateRequest req = UpdateFactory.create(requestString) ;
-        UpdateFactory.create(req, store).execute() ;
+        UpdateRequest req = UpdateFactory.create(requestString, updateSyntax) ;
+        UpdateExecutionFactory.create(req, store).execute() ;
     }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

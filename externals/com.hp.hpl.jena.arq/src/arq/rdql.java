@@ -6,17 +6,16 @@
 
 package arq;
 
-import java.util.* ;
+import java.util.ArrayList ;
+import java.util.List ;
 
-/** A program to execute queries from the command line in ARQ mode.
-  *
- * @author  Andy Seaborne
- */
+/** A program to execute queries from the command line in ARQ mode. */
 
 public class rdql
 {
     public static void main (String... argv)
     {
+        System.err.println("RDQL is deprecated - use SPARQL") ;
         List<String> a = new ArrayList<String>() ;
         for ( int i = 0 ; i < argv.length ; i++ ) a.add(argv[i]) ;
         a.add(0, "--syntax=rdql") ;

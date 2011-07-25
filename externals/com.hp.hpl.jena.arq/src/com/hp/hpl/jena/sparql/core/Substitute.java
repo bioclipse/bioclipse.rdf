@@ -6,23 +6,20 @@
 
 package com.hp.hpl.jena.sparql.core;
 
+import java.util.ArrayList ;
+import java.util.List ;
+
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.graph.Triple ;
 import com.hp.hpl.jena.sparql.algebra.Op ;
 import com.hp.hpl.jena.sparql.algebra.TransformCopy ;
 import com.hp.hpl.jena.sparql.algebra.Transformer ;
-import com.hp.hpl.jena.sparql.algebra.op.OpAssign ;
-import com.hp.hpl.jena.sparql.algebra.op.OpBGP ;
-import com.hp.hpl.jena.sparql.algebra.op.OpFilter ;
-import com.hp.hpl.jena.sparql.algebra.op.OpGraph ;
-import com.hp.hpl.jena.sparql.algebra.op.OpPath ;
-import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern ;
-import com.hp.hpl.jena.sparql.algebra.op.OpService ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 import com.hp.hpl.jena.sparql.engine.binding.Binding ;
-import com.hp.hpl.jena.sparql.engine.binding.Binding1 ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
 import com.hp.hpl.jena.sparql.expr.Expr ;
 import com.hp.hpl.jena.sparql.expr.ExprList ;
-import com.hp.hpl.jena.sparql.path.PathLib ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
 
 public class Substitute
 {
@@ -37,7 +34,7 @@ public class Substitute
     
     public static Op substitute(Op op, Var var, Node node)
     {
-        Binding b = new Binding1(null, var, node) ;
+        Binding b = BindingFactory.binding(var, node) ;
         return substitute(op, b) ;
     }
     
@@ -72,10 +69,74 @@ public class Substitute
         return t ;
     }
 
+    public static TriplePath substitute(TriplePath triplePath, Binding binding)
+    {
+        if ( triplePath.isTriple() )
+            return new TriplePath(Substitute.substitute(triplePath.asTriple(), binding)) ;
+  
+        Node s = triplePath.getSubject() ;
+        Node o = triplePath.getObject() ;
+        Node s1 = substitute(s, binding) ;
+        Node o1 = substitute(o, binding) ;
+        
+        TriplePath tp = triplePath ;
+        if ( s1 != s || o1 != o )
+            tp = new TriplePath(s1, triplePath.getPath(), o1) ;
+        return tp ;
+    }
+    
+    public static Quad substitute(Quad quad, Binding binding)
+    {
+        if ( isNotNeeded(binding) ) return quad ;
+        
+        Node g = quad.getGraph() ;
+        Node s = quad.getSubject() ;
+        Node p = quad.getPredicate() ;
+        Node o = quad.getObject() ;
+        
+        Node g1 = substitute(g, binding) ;
+        Node s1 = substitute(s, binding) ;
+        Node p1 = substitute(p, binding) ;
+        Node o1 = substitute(o, binding) ;
+
+        Quad q = quad ;
+        if ( s1 != s || p1 != p || o1 != o || g1 != g )
+            q = new Quad(g1, s1, p1, o1) ;
+        return q ;
+    }
+
+
     public static Node substitute(Node n, Binding b)
     {
         return Var.lookup(b, n) ;
     }
+    
+    public static PropFuncArg substitute(PropFuncArg propFuncArg, Binding binding)
+    {
+        if ( isNotNeeded(binding) ) return propFuncArg ;
+        
+        if ( propFuncArg.isNode() )
+            return new PropFuncArg(substitute(propFuncArg.getArg(), binding)) ;
+        
+        List<Node> newArgList = new ArrayList<Node>() ;
+        for ( Node n : propFuncArg.getArgList() )
+            newArgList.add(substitute(n, binding)) ;
+        return new PropFuncArg(newArgList) ;
+    }
+    
+    public static Expr substitute(Expr expr, Binding binding)
+    {
+        if ( isNotNeeded(binding) ) return expr ;
+        return expr.copySubstitute(binding) ;  
+    }
+    
+    public static ExprList substitute(ExprList exprList, Binding binding)
+    {
+        if ( isNotNeeded(binding) ) return exprList ;
+        return exprList.copySubstitute(binding) ;  
+    }
+    
+    
 
     private static boolean isNotNeeded(Binding b)
     {
@@ -136,39 +197,68 @@ public class Substitute
         @Override
         public Op transform(OpPath opPath)
         {
-            return new OpPath(PathLib.substitute(opPath.getTriplePath(), binding)) ;
+            return new OpPath(substitute(opPath.getTriplePath(), binding)) ;
         }
 
         @Override
+        public Op transform(OpPropFunc opPropFunc, Op subOp)
+        {
+            PropFuncArg sArgs = opPropFunc.getSubjectArgs() ;
+            PropFuncArg oArgs = opPropFunc.getObjectArgs() ;
+            
+            PropFuncArg sArgs2 = substitute(sArgs, binding) ;
+            PropFuncArg oArgs2 = substitute(oArgs, binding) ;
+            
+            if ( sArgs2 == sArgs && oArgs2 == oArgs && opPropFunc.getSubOp() == subOp)
+                return super.transform(opPropFunc, subOp) ;
+            return new OpPropFunc(opPropFunc.getProperty(), sArgs2, oArgs2, subOp) ; 
+        }
+        
+        @Override
         public Op transform(OpFilter filter, Op op)
         {
-            ExprList exprs = filter.getExprs().copySubstitute(binding, true) ;
+            ExprList exprs = filter.getExprs().copySubstitute(binding) ;
+            if ( exprs == filter.getExprs() )
+                return filter ;
             return OpFilter.filter(exprs, op) ; 
         }
 
         @Override
         public Op transform(OpAssign opAssign, Op subOp)
         { 
-            // Order?
+            VarExprList varExprList2 = transformVarExprList(opAssign.getVarExprList()) ;
+            if ( varExprList2.isEmpty() )
+                return subOp ;
+            return OpAssign.assign(subOp, varExprList2) ;
+        }
+        
+        @Override
+        public Op transform(OpExtend opExtend, Op subOp)
+        { 
+            VarExprList varExprList2 = transformVarExprList(opExtend.getVarExprList()) ;
+            if ( varExprList2.isEmpty() )
+                return subOp ;
+            
+            return OpExtend.extend(subOp, varExprList2) ;
+        }
+        
+        private  VarExprList transformVarExprList(VarExprList varExprList)
+        {
             VarExprList varExprList2 = new VarExprList() ;
-            for ( Var v : opAssign.getVarExprList().getVars() )
+            for ( Var v : varExprList.getVars() )
             {
 //                if ( binding.contains(v))
 //                    // Already bound. No need to do anything because the 
 //                    // logical assignment will test value.  
 //                    continue ;
-                Expr expr = opAssign.getVarExprList().getExpr(v) ;
-                expr = expr.copySubstitute(binding, true) ;
+                Expr expr = varExprList.getExpr(v) ;
+                expr = expr.copySubstitute(binding) ;
                 varExprList2.add(v, expr) ;
             }
-            
-            if ( varExprList2.isEmpty() )
-                return subOp ;
-            
-            return OpAssign.assign(subOp, varExprList2) ;
-            //return super.transform(opAssign, subOp) ;
+            return varExprList2 ;
         }
         
+
         // The expression?
         //public Op transform(OpLeftJoin opLeftJoin, Op left, Op right)   { return xform(opLeftJoin, left, right) ; }
         
@@ -183,7 +273,7 @@ public class Substitute
         public Op transform(OpService op, Op sub)
         {
             Node n = substitute(op.getService(), binding) ;
-            return new OpService(n, sub) ;
+            return new OpService(n, sub, op.getSilent()) ;
         }
     }
 }

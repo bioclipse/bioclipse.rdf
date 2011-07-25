@@ -6,17 +6,14 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 
 
-/** Intercept and print iterator operations  
- * 
- * @author Andy Seaborne
- */ 
+/** Intercept and print iterator operations */ 
 
 public class QueryIteratorLogging extends QueryIteratorWrapper
 {

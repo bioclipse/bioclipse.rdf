@@ -5,11 +5,11 @@
 
 package com.hp.hpl.jena.sparql.expr.nodevalue;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.expr.ExprException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.expr.ExprException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
 
 /** XSD Date (which is unrelated to XSD dateTime in the datatype hierarchy) */ 
 
@@ -33,7 +33,7 @@ public class NodeValueTime extends NodeValue
     public boolean isTime() { return true ; }
     
     @Override
-    public XSDDateTime getTime()     { return time ; }
+    public XSDDateTime getDateTime()     { return time ; }
     
     @Override
     protected Node makeNode()

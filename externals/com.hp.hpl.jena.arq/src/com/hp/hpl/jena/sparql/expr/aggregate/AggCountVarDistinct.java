@@ -1,86 +1,81 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
 
-import com.hp.hpl.jena.graph.Node;
-
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-
-public class AggCountVarDistinct implements AggregateFactory
+public class AggCountVarDistinct extends AggregatorBase
 {
     // ---- COUNT(DISTINCT ?var)
-    private Var var ;
+    private Expr expr ;
 
-    // ---- AggregatorFactory
-    public AggCountVarDistinct(Var var) { this.var = var ; } 
+    public AggCountVarDistinct(Expr expr) { this.expr = expr ; } 
+    public Aggregator copy(Expr expr) { return new AggCountVarDistinct(expr) ; }
 
-    public Aggregator create()
-    {
-        return new AggCountVarDistinctWorker(var) ;
+    @Override
+    public String toString()        { return "count(distinct "+expr+")" ; }
+    @Override
+    public String toPrefixString()  { return "(count distinct "+expr+")" ; }
+
+    @Override
+    protected Accumulator createAccumulator()
+    { 
+        return new AccCountVarDistinct() ; 
     }
 
-    // ---- Aggregator
-    class AggCountVarDistinctWorker extends AggregatorBase
+    public Expr getExpr() { return expr ; }
+
+    @Override
+    public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
+
+    @Override
+    public int hashCode()   { return HC_AggCountVar ^ expr.hashCode() ; }
+    
+    @Override
+    public boolean equals(Object other)
     {
-        //private Var var ;
-        public AggCountVarDistinctWorker(Var var) { super() ; } //this.var = var ; }
-
-        @Override
-        public String toString()        { return "count(distinct "+var+")" ; }
-        public String toPrefixString()  { return "(count distinct "+var+")" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccCountVarDistinct() ; 
-        }
-        
-        private final Var getVar() { return var ; }
-        
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            if ( ! ( other instanceof AggCountVarDistinctWorker ) )
-                return false ;
-            AggCountVarDistinctWorker agg = (AggCountVarDistinctWorker)other ;
-            return agg.getVar().equals(getVar()) ;
-        } 
-        
-        @Override
-        public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
+        if ( ! ( other instanceof AggCountVarDistinct ) )
+            return false ;
+        AggCountVarDistinct agg = (AggCountVarDistinct)other ;
+        return agg.getExpr().equals(getExpr()) ;
     }
 
     // ---- Accumulator
-    class AccCountVarDistinct implements Accumulator
+    class AccCountVarDistinct extends AccumulatorDistinctExpr
     {
-        private Set<Node> seen = new HashSet<Node>() ;
-        public AccCountVarDistinct() { } 
+        private long count = 0 ;
+
+        public AccCountVarDistinct() { super(expr) ; } 
         // The group key part of binding will be the same for all elements of the group.
-        public void accumulate(Binding binding, FunctionEnv functionEnv)
-        { 
-            Node n = binding.get(var) ;
-            if ( n == null )
-                return ;
-            seen.add(n) ;
-        }
-        
-        public NodeValue getValue()            
-        { return NodeValue.makeInteger(seen.size()) ; }
+        @Override
+        public void accumulateDistinct(NodeValue nv, Binding binding, FunctionEnv functionEnv)
+        { count++ ; } 
+
+        @Override
+        protected void accumulateError(Binding binding, FunctionEnv functionEnv)
+        {}
+
+        @Override
+        public NodeValue getAccValue()            
+        { return NodeValue.makeInteger(count) ; }
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

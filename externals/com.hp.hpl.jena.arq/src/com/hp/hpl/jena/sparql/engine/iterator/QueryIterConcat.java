@@ -1,28 +1,27 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 
 /**
- * A query iterator that joins two or more iterators into a single iterator.
- * 
- * @author Andy Seaborne
- */ 
+ * A query iterator that joins two or more iterators into a single iterator. */ 
 
 public class QueryIterConcat extends QueryIter
 {
@@ -106,8 +105,17 @@ public class QueryIterConcat extends QueryIter
         for ( Iterator<QueryIterator> iter = iteratorList.iterator() ; iter.hasNext() ; )
         {
             QueryIterator qIter = iter.next() ;
-            if ( qIter != null )
-                qIter.close() ;
+            performClose(qIter) ;
+        }
+    }
+    
+    @Override
+    protected void requestCancel()
+    {
+        for ( Iterator<QueryIterator> iter = iteratorList.iterator() ; iter.hasNext() ; )
+        {
+            QueryIterator qIter = iter.next() ;
+            performRequestCancel(qIter) ;
         }
     }
     

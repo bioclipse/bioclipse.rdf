@@ -5,12 +5,11 @@
 
 package arq.cmdline;
 
-import java.util.* ;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-/** A command line argument specification.
- *
- * @author  Andy Seaborne
- */
+/** A command line argument specification. */
 public class ArgDecl
 {
     boolean takesValue ;

@@ -6,15 +6,15 @@
 
 package com.hp.hpl.jena.sparql.serializer;
 
-import java.io.OutputStream;
+import java.io.OutputStream ;
 
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.NodeToLabelMapBNode;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.Syntax ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.NodeToLabelMapBNode ;
 
 
 public class Serializer
@@ -54,7 +54,7 @@ public class Serializer
     {
         Syntax s = query.getSyntax() ;
         if ( s == null )
-            s = Syntax.syntaxSPARQL ;
+            s = Syntax.defaultQuerySyntax ;
         serialize(query, buff, s) ;
     }
     
@@ -67,7 +67,7 @@ public class Serializer
     
     static public void serialize(Query query, IndentedLineBuffer buff, Syntax outSyntax)
     {
-        serialize(query, buff.getIndentedWriter(), outSyntax) ;
+        _serialize(query, buff, outSyntax) ;
     }
     
     /** Format the query
@@ -79,7 +79,7 @@ public class Serializer
     {
         Syntax s = query.getSyntax() ;
         if ( s == null )
-            s = Syntax.syntaxSPARQL ;
+            s = Syntax.defaultQuerySyntax ;
         serialize(query, writer, s) ;
     }
     
@@ -91,8 +91,13 @@ public class Serializer
     
     static public void serialize(Query query, IndentedWriter writer, Syntax outSyntax)
     {
+        _serialize(query, writer, outSyntax) ;
+    }
+    
+    static private void _serialize(Query query, IndentedWriter writer, Syntax outSyntax)
+    {
         if ( outSyntax == null )
-            outSyntax = Syntax.syntaxSPARQL ;
+            outSyntax = Syntax.defaultQuerySyntax ;
         
         if ( outSyntax.equals(Syntax.syntaxARQ) )
         {
@@ -122,7 +127,7 @@ public class Serializer
 //            return ;
 //        }
         
-        ALog.warn(Serializer.class, "Unknown syntax: "+outSyntax) ;
+        Log.warn(Serializer.class, "Unknown syntax: "+outSyntax) ;
     }
      
     static public void serializeARQ(Query query, IndentedWriter writer)

@@ -6,21 +6,19 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
-import com.hp.hpl.jena.sparql.util.Utils;
-
-public class P_Link extends PathBase
+public class P_Link extends P_Path0
 {
-    private Node node ;
-
     public P_Link(Node n)
     {
-        this.node = n ;
+        super(n) ;
     }
     
-    public Node getNode() { return node ; }
+    @Override
+    public boolean isForward()  { return true ; }
     
     //@Override
     public void visit(PathVisitor visitor)
@@ -37,7 +35,7 @@ public class P_Link extends PathBase
     @Override
     public int hashCode()
     {
-        return node.hashCode() ;
+        return node.hashCode() ^ hashLink ;
     }
 }
 

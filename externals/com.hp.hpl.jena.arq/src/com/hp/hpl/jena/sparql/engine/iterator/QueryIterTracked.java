@@ -2,19 +2,17 @@
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.util.iterator.NiceIterator;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.util.iterator.NiceIterator ;
 
-/** Track a QueryIterator
- * 
- * @author Andy Seaborne
- */
+/** Track a QueryIterator */
 
 public class QueryIterTracked extends QueryIter
 {
@@ -40,6 +38,15 @@ public class QueryIterTracked extends QueryIter
         {
             NiceIterator.close(iterator) ;
             iterator = null ;
+        }
+    }
+    
+    @Override
+    protected void requestCancel()
+    {
+        if ( iterator != null )
+        {
+        	iterator.cancel();
         }
     }
 }

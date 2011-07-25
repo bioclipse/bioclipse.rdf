@@ -5,12 +5,13 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Collection ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
 
 public interface Expr
 {
@@ -45,11 +46,25 @@ public interface Expr
      */
     public NodeValue eval(Binding binding, FunctionEnv env) ;
     
+    // These (copySubstitute, copyNodeTransform) predate transform support and should be chnaged.
+    // But they work so there is no hurry.
+    
     /** Deep copy with substitution */
     public Expr copySubstitute(Binding binding) ;
 
-    /** Deep copy with substitution, possibly collapsing constant sub-expressions */
+//    /** Deep copy with substitution, possibly collapsing constant sub-expressions */
+// Issues: 
+// 1/ folding constants should be separated out (static optimization)
+// 2/ Danger of some functions not evaluating if the FunctionEnv is not available.
     public Expr copySubstitute(Binding binding, boolean foldConstants) ;
+
+    /**
+     * Rewrite, applying a node->node transformation
+     */
+    public Expr applyNodeTransform(NodeTransform transform) ;
+
+//    /** Transform. */
+//    public Expr apply(ExprTransform transform) ;
     
     /** Deep copy */
     public Expr deepCopy() ;

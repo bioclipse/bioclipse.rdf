@@ -6,12 +6,9 @@
 
 package com.hp.hpl.jena.query.larq;
 
-import com.hp.hpl.jena.sparql.lib.iterator.IteratorTruncate ;
+import org.openjena.atlas.iterator.IteratorTruncate ;
 
-/** Class to provide the truncation limit based on hit score
- * 
- * @author Andy Seaborne
- */
+/** Class to provide the truncation limit based on hit score */
 
 class ScoreTest implements IteratorTruncate.Test
 {

@@ -5,12 +5,7 @@
 
 package com.hp.hpl.jena.sparql;
 
-import com.hp.hpl.jena.shared.JenaException;
-
-/**  
- * @author		Andy Seaborne
- */
-
+import com.hp.hpl.jena.shared.JenaException ;
 
 public class DoesNotExist extends JenaException
 {

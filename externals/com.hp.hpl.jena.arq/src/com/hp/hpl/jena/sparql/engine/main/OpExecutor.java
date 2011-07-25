@@ -6,27 +6,34 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.ARQNotImplemented;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.*;
-import com.hp.hpl.jena.sparql.engine.main.iterator.*;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.lib.iterator.Iter;
-import com.hp.hpl.jena.sparql.procedure.ProcEval;
-import com.hp.hpl.jena.sparql.procedure.Procedure;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.logging.Log ;
 
-import com.hp.hpl.jena.query.QueryExecException;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.QueryExecException ;
+import com.hp.hpl.jena.sparql.ARQNotImplemented ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.* ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterGraph ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterJoin ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterLeftJoin ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterOptionalIndex ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterService ;
+import com.hp.hpl.jena.sparql.engine.main.iterator.QueryIterUnion ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.procedure.ProcEval ;
+import com.hp.hpl.jena.sparql.procedure.Procedure ;
 
 /**
  * Turn an Op expression into an execution of QueryIterators.
@@ -36,10 +43,7 @@ import com.hp.hpl.jena.query.QueryExecException;
  * execution. During execution, when a substitution into an algebra expression
  * happens (in other words, a streaming operation, index-join-like), there is a
  * call into the executor each time so it does not just happen once before a
- * query starts.
- * 
- * @author Andy Seaborne
- */
+ * query starts. */
 
 public class OpExecutor
 {
@@ -81,6 +85,8 @@ public class OpExecutor
     
     protected ExecutionContext execCxt ;
     protected ExecutionDispatch dispatcher = null ;
+    protected static final int TOP_LEVEL = 0 ; 
+    protected int level = TOP_LEVEL-1 ;
 
     protected OpExecutor(ExecutionContext execCxt)
     { 
@@ -97,7 +103,11 @@ public class OpExecutor
     
     public QueryIterator executeOp(Op op, QueryIterator input)
     {
-        return dispatcher.exec(op, input) ;
+        level++ ;
+        QueryIterator qIter = dispatcher.exec(op, input) ;
+        // Intentionally not try/finally so exceptions leave some evidence around.
+        level-- ;
+        return qIter ;
     }
     
     // ---- All the cases
@@ -115,17 +125,21 @@ public class OpExecutor
 
     protected QueryIterator execute(OpQuadPattern quadPattern, QueryIterator input)
     {
-        if ( false )
+        // Convert to BGP forms to execute in this graph-centric engine.
+        if ( quadPattern.isDefaultGraph() && execCxt.getActiveGraph() == execCxt.getDataset().getDefaultGraph() )
         {
-            if ( quadPattern.isDefaultGraph() )
-            {
-                // Easy case.
-                OpBGP opBGP = new OpBGP(quadPattern.getBasicPattern()) ;
-                return execute(opBGP, input) ;  
-            }
-        }        
-        // Turn into a OpGraph/OpBGP.
-        throw new ARQNotImplemented("execute/OpQuadPattern") ;
+            // Note we tested that the containing graph was the dataset's default graph. 
+            // Easy case.
+            OpBGP opBGP = new OpBGP(quadPattern.getBasicPattern()) ;
+            return execute(opBGP, input) ;  
+        }
+        if ( Quad.isUnionGraph(quadPattern.getGraphNode()) )
+            Log.warn(this, "Not implemented yet: quad/union default graph in general OpExecutor") ;
+        
+        // Not default graph - (graph .... )
+        OpBGP opBGP = new OpBGP(quadPattern.getBasicPattern()) ;
+        OpGraph op = new OpGraph(quadPattern.getGraphNode(), opBGP) ;
+        return execute(op, input) ;
     }
 
     protected QueryIterator execute(OpPath opPath, QueryIterator input)
@@ -147,7 +161,6 @@ public class OpExecutor
         QueryIterator qIter = executeOp(opPropFunc.getSubOp(), input) ;
         return new QueryIterProcedure(qIter, procedure, execCxt) ;
     }
-
 
     protected QueryIterator execute(OpJoin opJoin, QueryIterator input)
     {
@@ -216,6 +229,13 @@ public class OpExecutor
         return new QueryIterDiff(left, right, execCxt) ;
     }
     
+    protected QueryIterator execute(OpMinus opMinus, QueryIterator input)
+    { 
+        QueryIterator left = executeOp(opMinus.getLeft(), input) ;
+        QueryIterator right = executeOp(opMinus.getRight(), root()) ;
+        return new QueryIterMinus(left, right, execCxt) ;
+    }
+
     protected QueryIterator execute(OpUnion opUnion, QueryIterator input)
     {
         List<Op> x = flattenUnion(opUnion) ;
@@ -258,24 +278,47 @@ public class OpExecutor
 
     protected QueryIterator execute(OpGraph opGraph, QueryIterator input)
     { 
+        QueryIterator qIter = specialcase(opGraph.getNode(), opGraph.getSubOp(), input) ;
+        if ( qIter != null )
+            return qIter ;
         return new QueryIterGraph(input, opGraph, execCxt) ;
     }
     
+    private QueryIterator specialcase(Node gn, Op subOp, QueryIterator input)
+    {
+        if ( true ) return null ;
+        
+        if ( gn == Quad.defaultGraphIRI || gn == Quad.defaultGraphNodeGenerated )
+        {
+            ExecutionContext cxt2 = new ExecutionContext(execCxt, execCxt.getDataset().getDefaultGraph()) ;
+            return execute(subOp, cxt2) ;
+        }
+        
+        if ( gn == Quad.unionGraph )
+        {}
+
+        /* Bad
+        if ( gn == Quad.tripleInQuad ) {}
+         */
+
+        return null ;
+    }
+
     protected QueryIterator execute(OpService opService, QueryIterator input)
     {
         return new QueryIterService(input, opService, execCxt) ;
     }
     
+    // Quad form, "GRAPH ?g {}"  Flip back to OpGraph.
+    // Normally quad stores override this.
     protected QueryIterator execute(OpDatasetNames dsNames, QueryIterator input)
     { 
-        if ( true ) throw new ARQNotImplemented("OpDatasetNames") ;
-        
-        // Augment (join) iterator with a table.
-        Table t = null ;
-        Op left = null ; 
-        Op right = OpTable.create(t) ;
-        Op opJoin = OpJoin.create(left, right) ;
-        return executeOp(opJoin , input) ;    //??
+        if ( false )
+        {
+            OpGraph op = new OpGraph(dsNames.getGraphNode(), new OpBGP()) ;
+            return execute(op, input) ;
+        }
+        throw new ARQNotImplemented("execute/OpDatasetNames") ;
     }
 
     protected QueryIterator execute(OpTable opTable, QueryIterator input)
@@ -338,11 +381,31 @@ public class OpExecutor
         return qIter ;
     }
 
+    protected QueryIterator execute(OpTopN opTop, QueryIterator input)
+    { 
+        // XXX Do better; execute - OpTopN
+        QueryIterator qIter = executeOp(opTop.getSubOp(), input) ;
+        qIter = new QueryIterSort(qIter, opTop.getConditions(), execCxt) ;
+        qIter = new QueryIterSlice(qIter, 0, opTop.getLimit(), execCxt) ;
+        return qIter ;
+    }
+
     protected QueryIterator execute(OpProject opProject, QueryIterator input)
     {
-        // TODO If the input has any vars bound, ensure that project does not mask them
-        QueryIterator  qIter = executeOp(opProject.getSubOp(), input) ;
-        qIter = new QueryIterProject(qIter, opProject.getVars(), execCxt) ;
+        // This may be under a (graph) in which case we need to operate 
+        // the active graph.
+        
+        // More intelligent QueryIterProject needed.
+        
+        if ( input instanceof QueryIterRoot )
+        {
+            QueryIterator  qIter = executeOp(opProject.getSubOp(), input) ;
+            qIter = new QueryIterProject(qIter, opProject.getVars(), execCxt) ;
+            return qIter ;
+        }
+        // Nested projected : need to ensure the input is seen.
+        // ROLL into QueryIterProject
+        QueryIterator qIter = new QueryIterProject2(opProject, input, this, execCxt) ; 
         return qIter ;
     }
 
@@ -353,10 +416,10 @@ public class OpExecutor
         return qIter ;
     }
     
-    protected QueryIterator execute(OpGroupAgg opGroupAgg, QueryIterator input)
+    protected QueryIterator execute(OpGroup opGroup, QueryIterator input)
     { 
-        QueryIterator qIter = executeOp(opGroupAgg.getSubOp(), input) ;
-        qIter = new QueryIterGroup(qIter, opGroupAgg.getGroupVars(), opGroupAgg.getAggregators(), execCxt) ;
+        QueryIterator qIter = executeOp(opGroup.getSubOp(), input) ;
+        qIter = new QueryIterGroup(qIter, opGroup.getGroupVars(), opGroup.getAggregators(), execCxt) ;
         return qIter ;
     }
     
@@ -378,7 +441,14 @@ public class OpExecutor
     {
         // Need prepare?
         QueryIterator qIter = executeOp(opAssign.getSubOp(), input) ;
-        qIter = new QueryIterAssign(qIter, opAssign.getVarExprList(), execCxt) ;
+        qIter = new QueryIterAssign(qIter, opAssign.getVarExprList(), execCxt, false) ;
+        return qIter ;
+    }
+
+    protected QueryIterator execute(OpExtend opExtend, QueryIterator input)
+    {
+        QueryIterator qIter = executeOp(opExtend.getSubOp(), input) ;
+        qIter = new QueryIterAssign(qIter, opExtend.getVarExprList(), execCxt, true) ;
         return qIter ;
     }
 

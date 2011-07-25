@@ -6,19 +6,17 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
 
-/** Query iterator that checks everything was closed correctly 
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+
+/** Query iterator that checks everything was closed correctly */
 
 public class QueryIteratorCheck extends QueryIteratorWrapper
 {
@@ -27,6 +25,9 @@ public class QueryIteratorCheck extends QueryIteratorWrapper
     private QueryIteratorCheck(QueryIterator qIter, ExecutionContext execCxt)
     {
         super(qIter) ;
+        if ( qIter instanceof QueryIteratorCheck )
+            Log.warn(this, "Checking checked iterator") ;
+        
         this.execCxt = execCxt ;
         
     }
@@ -36,6 +37,9 @@ public class QueryIteratorCheck extends QueryIteratorWrapper
         super.close() ;
         checkForOpenIterators(execCxt) ;
     }
+    
+    // Remove me sometime.
+    @Deprecated
     @Override
     public void abort()
     {
@@ -95,7 +99,7 @@ public class QueryIteratorCheck extends QueryIteratorWrapper
             if ( x.length() > 0 )
                 str = str+" : "+x ;
         }
-        ALog.warn(QueryIteratorCheck.class, str) ;
+        Log.warn(QueryIteratorCheck.class, str) ;
     }
 }
 /*

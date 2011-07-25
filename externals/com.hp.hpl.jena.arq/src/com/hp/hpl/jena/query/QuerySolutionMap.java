@@ -6,19 +6,16 @@
 
 package com.hp.hpl.jena.query;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.sparql.core.QuerySolutionBase;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.sparql.core.QuerySolutionBase ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
-/** Implementation of QuerySolution that is backed by an in-memory map.
- * 
- * @author Andy Seaborne
- */ 
+/** Implementation of QuerySolution that is backed by an in-memory map. */ 
 
 public class QuerySolutionMap extends QuerySolutionBase
 {
@@ -28,12 +25,12 @@ public class QuerySolutionMap extends QuerySolutionBase
 
     public void add(String name, RDFNode node)
     { map.put(Var.canonical(name), node) ; }
-    
-    @Override
-    protected RDFNode _get(String varName)          { return map.get(Var.canonical(varName)) ; } 
 
     @Override
-    protected boolean _contains(String varName)     { return map.containsKey(Var.canonical(varName)) ; } 
+    protected RDFNode _get(String varName)          { return map.get(varName) ; } 
+
+    @Override
+    protected boolean _contains(String varName)     { return map.containsKey(varName) ; } 
 
     @Override
     public Iterator<String> varNames()                   { return map.keySet().iterator() ; }

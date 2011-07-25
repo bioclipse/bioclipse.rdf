@@ -6,16 +6,16 @@
 
 package com.hp.hpl.jena.sparql.algebra.table;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterNullIterator;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton;
-import com.hp.hpl.jena.sparql.expr.ExprList;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterNullIterator ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
 
 public class TableEmpty extends TableBase
 {
@@ -32,7 +32,7 @@ public class TableEmpty extends TableBase
                                         ExecutionContext execContext)
     {
         if ( includeOnNoMatch )
-            return new QueryIterSingleton(bindingLeft, execContext) ;
+            return QueryIterSingleton.create(bindingLeft, execContext) ;
         else
             // No rows - no match
             return new QueryIterNullIterator(execContext) ;

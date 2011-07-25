@@ -6,13 +6,13 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class OpFilter extends Op1
 {
@@ -41,6 +41,22 @@ public class OpFilter extends Op1
         f.getExprs().addAll(exprs) ;
         return f ;
     }
+    
+    
+//    public static Op filterRaw(ExprList exprs, Op op)
+//    {
+//        if ( exprs.isEmpty() )
+//            return op ;
+//        OpFilter f = new OpFilter(exprs, op) ;
+//        return f ;
+//    }
+
+    /** Make a OpFilter - guarantteed to return an OpFilter */
+    public static OpFilter filterDirect(ExprList exprs, Op op)
+    {
+        return new OpFilter(exprs, op) ;
+    }
+
     
     private OpFilter(Op sub)
     { 

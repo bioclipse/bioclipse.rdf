@@ -1,26 +1,33 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.lang;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryParseException;
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryParseException ;
+import com.hp.hpl.jena.query.Syntax ;
 
 /** This class provides the root of lower level access to all the parsers.
  *  Each subclass hides the details of the per-language exception handlers and other
  *  javacc details to provide a methods that deal with setting up Query objects
- *  and using QueryException exceptions for problems.    
- * 
- * @author Andy Seaborne
- */
+ *  and using QueryException exceptions for problems. */
 
 public abstract class Parser
 {
-    public abstract Query parse(Query query, String queryString) throws QueryParseException ;
+    public final Query parse(Query query, String queryString) throws QueryParseException
+    {
+        // Sort out BOM
+        if ( queryString.startsWith("\uFEFF") )
+            queryString = queryString.substring(1) ;
+        return parse$(query, queryString) ;
+    }
+    
+    protected abstract Query parse$(Query query, String queryString) throws QueryParseException ;
+    
     
     public static boolean canParse(Syntax syntaxURI)
     {
@@ -35,11 +42,13 @@ public abstract class Parser
     // Do any testing of queries after the construction of the parse tree.
     protected void validateParsedQuery(Query query)
     {
+        SyntaxVarScope.check(query) ;
     }
 }
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

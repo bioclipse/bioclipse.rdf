@@ -6,12 +6,12 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterDistinguishedVars;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterDistinguishedVars ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** The stage builder (there is only one) is a library that encapsulates
  * evaluation of a basic graph pattern (BGP).  Matching BGPs is an extension
@@ -29,8 +29,6 @@ import com.hp.hpl.jena.sparql.util.Context;
  * to all query execution created after the point of setting.
  * 
  * Helper static methods for setting the stage generator are provided.  
- * 
- * @see StageGenerator
  */
 
 public class StageBuilder

@@ -6,40 +6,56 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.HashSet ;
+import java.util.List ;
+import java.util.Map ;
+import java.util.Map.Entry ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitorBase ;
+import com.hp.hpl.jena.sparql.algebra.op.OpAssign ;
+import com.hp.hpl.jena.sparql.algebra.op.OpBGP ;
+import com.hp.hpl.jena.sparql.algebra.op.OpExt ;
+import com.hp.hpl.jena.sparql.algebra.op.OpExtend ;
+import com.hp.hpl.jena.sparql.algebra.op.OpFilter ;
+import com.hp.hpl.jena.sparql.algebra.op.OpGraph ;
+import com.hp.hpl.jena.sparql.algebra.op.OpJoin ;
+import com.hp.hpl.jena.sparql.algebra.op.OpLeftJoin ;
+import com.hp.hpl.jena.sparql.algebra.op.OpNull ;
+import com.hp.hpl.jena.sparql.algebra.op.OpProject ;
+import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern ;
+import com.hp.hpl.jena.sparql.algebra.op.OpTable ;
+import com.hp.hpl.jena.sparql.algebra.op.OpUnion ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitorBase;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Var;
-
-class VarFinder
+public class VarFinder
 {
     // See also VarUtils and OpVars.
     // This class is specific to the needs of the main query engine and scoping of variables
     
-    static Set<Var> optDefined(Op op)
+    public static Set<Var> optDefined(Op op)
     {
         return VarUsageVisitor.apply(op).optDefines ;
     }
     
-    private static Set<Var> fixed(Op op)
+    public static Set<Var> fixed(Op op)
     {
         return VarUsageVisitor.apply(op).defines ;
     }
     
-    
-    static Set<Var> filter(Op op)
+    public static Set<Var> filter(Op op)
     {
         return VarUsageVisitor.apply(op).filterMentions ;
     }
 
+    // See also VarUtils.
+    
     private static void vars(Set<Var> vars, Triple triple)
     {
         slot(vars, triple.getSubject()) ;
@@ -61,7 +77,7 @@ class VarFinder
 
     VarUsageVisitor varUsageVisitor ;
     
-    VarFinder(Op op)
+    public VarFinder(Op op)
     { varUsageVisitor = VarUsageVisitor.apply(op) ; }
     
     public Set<Var> getOpt() { return varUsageVisitor.optDefines ; }
@@ -169,6 +185,7 @@ class VarFinder
             VarUsageVisitor leftUsage = VarUsageVisitor.apply(opUnion.getLeft()) ;
             VarUsageVisitor rightUsage = VarUsageVisitor.apply(opUnion.getRight()) ;
             
+            // defines = union(left.define, right.define) ??
             // Can be both definite and optional (different sides).
             defines.addAll(leftUsage.defines) ;
             optDefines.addAll(leftUsage.optDefines) ;
@@ -182,6 +199,7 @@ class VarFinder
         public void visit(OpGraph opGraph)
         {
             slot(defines, opGraph.getNode()) ;
+            opGraph.getSubOp().visit(this) ;
         }
         
         // @Override
@@ -196,8 +214,24 @@ class VarFinder
         public void visit(OpAssign opAssign)
         {
             opAssign.getSubOp().visit(this) ;
-            List<Var> vars = opAssign.getVarExprList().getVars() ;
-            defines.addAll(vars) ;
+            processVarExprList(opAssign.getVarExprList()) ;
+        }
+        
+        @Override
+        public void visit(OpExtend opExtend)
+        {
+            opExtend.getSubOp().visit(this) ;
+            processVarExprList(opExtend.getVarExprList()) ;
+        }
+        
+        private void processVarExprList(VarExprList varExprList)
+        {
+            Map<Var, Expr> map = varExprList.getExprs() ;
+            for ( Entry<Var, Expr> e : map.entrySet() )
+            {
+                defines.add(e.getKey()) ;
+                e.getValue().varsMentioned(filterMentions);
+            }
         }
         
         @Override

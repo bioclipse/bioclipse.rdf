@@ -1,33 +1,33 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.pfunction;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.*;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.PrintSerializableBase ;
 
 /** Class representing an argument (subject or object position) of a property function.
  *  Such an argument can be a graph node (variable, IRI, literal).
  * 
  *  Blank nodes from the query will be seen as variables.  Most implementations will want to
- *  work with the property function arguments after substitution from the current binding.
- *  See method {@link #evalIfExists(Binding)} below.   
- *  
- * @author Andy Seaborne
- */
+ *  work with the property function arguments after substitution from the current binding. */
 
 public class PropFuncArg extends PrintSerializableBase
 {
@@ -104,19 +104,21 @@ public class PropFuncArg extends PrintSerializableBase
     }
 
     
-    public void output(IndentedWriter out, final SerializationContext sCxt)
+    public void output(final IndentedWriter out, final SerializationContext sCxt)
     {
         if ( argList == null && arg == null )
             out.print("<<null>>") ;
         if ( argList != null )
         {
             out.print("(") ;
-            PrintUtils.printList(out, argList, " ",
-                                 new PrintUtils.Fmt(){
-                                    public String fmt(Object thing)
-                                    {
-                                        return FmtUtils.stringForNode((Node)thing, sCxt) ;
-                                    }}) ;
+            boolean first = true ;
+            for ( Node n : argList )
+            {
+                if ( ! first ) out.print(" ") ;
+                String str = FmtUtils.stringForNode(n, sCxt) ;
+                out.print(str) ;
+                first = false ;
+            }
             out.print(")") ;
         }
         if ( arg != null )
@@ -128,32 +130,18 @@ public class PropFuncArg extends PrintSerializableBase
      *  
      * @param binding
      * @return A PropFuncArg with any varibales substituted by values in the binding
+     * @deprecated Use {@link Substitute#substitute(PropFuncArg, Binding)}
      */  
-    
+    @Deprecated
     public PropFuncArg evalIfExists(Binding binding)
     {
-        if ( isNode() )
-            return new PropFuncArg(evalIfExistsOneArg(binding, arg)) ;
-        List<Node> newArgList = new ArrayList<Node>() ;
-        for ( Iterator<Node> iter = argList.iterator() ; iter.hasNext() ; )
-        {
-            Node n = iter.next();
-            newArgList.add(evalIfExistsOneArg(binding, n)) ;
-        }
-        return new PropFuncArg(newArgList) ;
-    }
-    
-    private static Node evalIfExistsOneArg(Binding binding, Node n)
-    {
-        if ( ! n.isVariable() )
-            return n ;
-        Node r = binding.get(Var.alloc(n)) ; 
-        return ( r != null ) ? r : n ; 
+        return Substitute.substitute(this, binding) ;
     }
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

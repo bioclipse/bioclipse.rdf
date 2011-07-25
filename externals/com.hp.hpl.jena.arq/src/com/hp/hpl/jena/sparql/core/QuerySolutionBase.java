@@ -6,17 +6,14 @@
 
 package com.hp.hpl.jena.sparql.core;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.rdf.model.Literal ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.Resource ;
 
-/** Implementation of QuerySolution that contains the canonicalization and casting code.
- * 
- * @author Andy Seaborne
- */ 
+/** Implementation of QuerySolution that contains the canonicalization and casting code. */ 
 
 public abstract class QuerySolutionBase implements QuerySolution
 {

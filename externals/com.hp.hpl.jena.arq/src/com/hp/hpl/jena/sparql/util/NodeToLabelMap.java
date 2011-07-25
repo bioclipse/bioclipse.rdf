@@ -6,15 +6,12 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashMap ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
 
-/** Map nodes to blank node representations.
- * 
- * @author Andy Seaborne
- */ 
+/** Map nodes to blank node representations. */ 
 public class NodeToLabelMap
 {
     // Could abstract again as a node -> label cache + cache miss handler.
@@ -44,7 +41,8 @@ public class NodeToLabelMap
         return mapNode(n) ;
     }
 
-    protected String mapNode(Node n)
+    // synchronized because this may be used from a static via FmtUtils
+    protected synchronized String mapNode(Node n)
     {
         String s = bNodeStrings.get(n) ;
         if ( s != null )
@@ -78,12 +76,12 @@ public class NodeToLabelMap
 //    {
 //        if ( prefix == null )
 //        {
-//            ALog.fatal(this,"Prefix string is null") ;
+//            Log.fatal(this,"Prefix string is null") ;
 //            throw new ARQInternalErrorException("Prefix string is null") ;
 //        }
 //        if ( prefix.equals("") )
 //        {
-//            ALog.fatal(this,"Prefix string is the empty string") ;
+//            Log.fatal(this,"Prefix string is the empty string") ;
 //            throw new ARQInternalErrorException("Prefix string is the empty string") ;
 //        }
 //            

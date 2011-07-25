@@ -5,11 +5,6 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.graph.Node ;
-
-/** 
- * @author Andy Seaborne
- */
 
 public class E_IsLiteral extends ExprFunction1
 {
@@ -23,10 +18,7 @@ public class E_IsLiteral extends ExprFunction1
     @Override
     public NodeValue eval(NodeValue v)
     { 
-//      if ( ! v.isNode() )
-//      return NodeValue.FALSE ;
-        Node n = v.getNode() ;
-        if ( n.isLiteral() )
+        if ( v.isLiteral() )
             return NodeValue.TRUE ;
         return NodeValue.FALSE ;
     }

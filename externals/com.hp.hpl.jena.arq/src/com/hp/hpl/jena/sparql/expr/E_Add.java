@@ -1,15 +1,13 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp;
-
-/**
- * @author Andy Seaborne
- */ 
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp ;
 
 public class E_Add extends ExprFunction2
 {
@@ -22,14 +20,28 @@ public class E_Add extends ExprFunction2
     }
     
     @Override
-    public NodeValue eval(NodeValue x, NodeValue y) { return XSDFuncOp.add(x, y) ; }
+    public NodeValue eval(NodeValue x, NodeValue y)
+    {
+        if ( ARQ.isStrictMode() )
+            return XSDFuncOp.add(x, y) ;
+
+        if ( true )
+        {
+            if ( x.isString() && y.isString() )
+                return NodeValue.makeString(x.asString()+y.asString()) ;
+            if ( ! x.isNumber() ||  ! y.isNumber() )
+                throw new ExprEvalTypeException("Operator '+' requires two numbers or two strings: got: "+x+" and "+y) ;
+        }   
+        return XSDFuncOp.add(x, y) ;
+    }
 
     @Override
     public Expr copy(Expr e1, Expr e2) {  return new E_Add(e1 , e2 ) ; }
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

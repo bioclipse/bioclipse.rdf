@@ -1,26 +1,27 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.n3.IRIResolver;
-import com.hp.hpl.jena.query.DataSource;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DataSourceImpl;
-import com.hp.hpl.jena.sparql.core.DatasetDesc;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.n3.IRIResolver ;
+import com.hp.hpl.jena.query.DataSource ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.core.DataSourceImpl ;
+import com.hp.hpl.jena.sparql.core.DatasetDesc ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
+import com.hp.hpl.jena.sparql.util.graph.GraphFactory ;
+import com.hp.hpl.jena.util.FileManager ;
 
 /** Internal Dataset/DataSource factory + graph equivalents. */
 
@@ -48,7 +49,7 @@ public class DatasetUtils
     public static Dataset createDataset(List<String> uriList, List<String> namedSourceList,
                                         FileManager fileManager, String baseURI)
     {
-        DataSource ds = new DataSourceImpl() ;
+        DataSource ds = DataSourceImpl.createMem() ;
         addInGraphs(ds, uriList, namedSourceList, fileManager, baseURI) ;
         return ds ;
     }
@@ -71,7 +72,7 @@ public class DatasetUtils
         return addInGraphs(ds, uriList, namedSourceList, null, null) ;
     }
     
-    /** add graphs into an exiting DataSource */
+    /** add graphs into an existing DataSource */
     public static Dataset addInGraphs(DataSource ds, List<String> uriList, List<String> namedSourceList,
                                       FileManager fileManager, String baseURI)
     {
@@ -80,7 +81,7 @@ public class DatasetUtils
         
         if ( ds.getDefaultModel() == null )
             // Merge into background graph
-            ds.setDefaultModel(GraphUtils.makeDefaultModel()) ;
+            ds.setDefaultModel(GraphFactory.makeDefaultModel()) ;
         
         if ( uriList != null )
         {
@@ -106,7 +107,7 @@ public class DatasetUtils
                     absURI = IRIResolver.resolve(sourceURI, baseURI) ;
                 else
                     absURI = IRIResolver.resolveGlobal(sourceURI) ;
-                Model m = GraphUtils.makeDefaultModel() ;
+                Model m = GraphFactory.makeDefaultModel() ;
                 fileManager.readModel(m, sourceURI, absURI, null) ;
                 ds.addNamedModel(absURI, m) ;
             }
@@ -140,7 +141,7 @@ public class DatasetUtils
     public static DatasetGraph createDatasetGraph(List<String> uriList, List<String> namedSourceList,
                                                   FileManager fileManager, String baseURI)
     {
-        DataSourceGraphImpl ds = new DataSourceGraphImpl() ;
+        DatasetGraph ds = DatasetGraphFactory.createMem() ;
         
         if ( fileManager == null )
             fileManager = FileManager.get() ;
@@ -148,13 +149,13 @@ public class DatasetUtils
         // Merge into background graph
         if ( uriList != null )
         {
-            Model m = GraphUtils.makeDefaultModel() ;
+            Model m = GraphFactory.makeDefaultModel() ;
             for (Iterator<String> iter = uriList.iterator() ; iter.hasNext() ; )
             {
                 String sourceURI = iter.next() ;
                 String absURI = null ;
                 if ( baseURI != null )
-                    absURI = IRIResolver.resolve(baseURI, sourceURI) ;
+                    absURI = IRIResolver.resolve(sourceURI, baseURI) ;
                 else
                     absURI = IRIResolver.resolveGlobal(sourceURI) ;
                 // FileManager.readGraph?
@@ -164,7 +165,7 @@ public class DatasetUtils
         }
         else
         {
-            ds.setDefaultGraph(GraphUtils.makeDefaultModel().getGraph()) ;
+            ds.setDefaultGraph(GraphFactory.createDefaultGraph()) ;
         }
         
         if ( namedSourceList != null )
@@ -195,6 +196,7 @@ public class DatasetUtils
  
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

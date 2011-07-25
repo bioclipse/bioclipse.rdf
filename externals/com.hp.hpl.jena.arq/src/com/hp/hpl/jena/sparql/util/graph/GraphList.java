@@ -6,19 +6,20 @@
 
 package com.hp.hpl.jena.sparql.util.graph;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList ;
+import java.util.Collection ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.util.iterator.NiceIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.util.iterator.NiceIterator ;
+import com.hp.hpl.jena.vocabulary.RDF ;
 
 // Support function for RDF collections (graph level)
 
@@ -94,7 +95,7 @@ public class GraphList
             return null ;
         Triple t = iter.next() ;
         if ( iter.hasNext() )
-            ALog.warn(GraphList.class, "Unusual list: two arcs with same property ("+arc+")") ;
+            Log.warn(GraphList.class, "Unusual list: two arcs with same property ("+arc+")") ;
         NiceIterator.close(iter) ;
         return t ;    
     }
@@ -271,6 +272,32 @@ public class GraphList
         return acc ;
     }
     
+    /** Convert a list of nodes into triples, placing them in BPG, returning the head of the list*/
+    public static Node listToTriples(List<Node> list, BasicPattern bgp)
+    {
+        // List ...
+        if ( list.size() == 0 )
+            return RDF.Nodes.nil ;
+        
+        Node head = Node.createAnon() ;
+        Node n = head ;
+        for ( Node elt : list )
+        {
+            // Cell:
+            Node consCell = Node.createAnon() ;
+            // Last cell to this one.
+            Triple t = new Triple(n, RDF.Nodes.rest, consCell) ;
+            Triple t1 = new Triple(consCell, RDF.Nodes.first, elt) ;
+            n = consCell ;
+            bgp.add(t) ;
+            bgp.add(t1) ;
+        }
+        // Finish list.
+        Triple t = new Triple(n, RDF.Nodes.rest, RDF.Nodes.nil) ;
+        bgp.add(t) ;
+        return head ;
+    }
+    
     private static final Node CAR = RDF.first.asNode() ;
     private static final Node CDR = RDF.rest.asNode() ;
     private static final Node NIL = RDF.nil.asNode() ;
@@ -310,7 +337,7 @@ public class GraphList
             return null ;
         Triple t = iter.next() ;
         if ( iter.hasNext() )
-            ALog.warn(GraphList.class, "Unusual list: two arcs with same property ("+arc+")") ;
+            Log.warn(GraphList.class, "Unusual list: two arcs with same property ("+arc+")") ;
         NiceIterator.close(iter) ;
         return t ;         
     }

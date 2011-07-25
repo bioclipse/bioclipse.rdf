@@ -5,15 +5,12 @@
 
 package com.hp.hpl.jena.sparql.expr.nodevalue;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
 
 
 /** A NodeValue that isn't anything else - unrecognized literals, URIs and blank nodes.
- *  Unrecognized literals includes ones with a known type but wrong lexical form
- * 
- * @author Andy Seaborne
- */
+ *  Unrecognized literals includes ones with a known type but wrong lexical form */
 
 public class NodeValueNode extends NodeValue
 {
@@ -23,7 +20,7 @@ public class NodeValueNode extends NodeValue
 
     @Override
     protected Node makeNode()
-    { return getNode() ; } 
+    { return asNode() ; } 
     
     @Override
     public void visit(NodeValueVisitor visitor) { visitor.visit(this) ; }

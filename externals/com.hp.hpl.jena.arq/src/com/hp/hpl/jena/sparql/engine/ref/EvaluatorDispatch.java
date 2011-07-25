@@ -6,19 +6,19 @@
 
 package com.hp.hpl.jena.sparql.engine.ref;
 
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.Iterator ;
+import java.util.Stack ;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.TableFactory;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.http.Service;
-import com.hp.hpl.jena.sparql.util.ALog;
-
-import com.hp.hpl.jena.query.QueryExecException;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.QueryExecException ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.algebra.TableFactory ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.http.Service ;
+import org.openjena.atlas.logging.Log ;
 
 /**  Class to provide type-safe eval() dispatch using the visitor support of Op */
 
@@ -43,7 +43,7 @@ public class EvaluatorDispatch implements OpVisitor
     Table getResult()
     {
         if ( stack.size() != 1 )
-            ALog.warn(this, "Warning: getResult: stack size = "+stack.size()) ;
+            Log.warn(this, "Warning: getResult: stack size = "+stack.size()) ;
         
         Table table = pop() ;
         return table ;
@@ -137,6 +137,14 @@ public class EvaluatorDispatch implements OpVisitor
         push(table) ;
     }
 
+    public void visit(OpMinus opMinus)
+    {
+        Table left = eval(opMinus.getLeft()) ;
+        Table right = eval(opMinus.getRight()) ;
+        Table table = evaluator.minus(left, right) ;
+        push(table) ;
+    }
+
     public void visit(OpUnion opUnion)
     {
         Table left = eval(opUnion.getLeft()) ;
@@ -168,7 +176,7 @@ public class EvaluatorDispatch implements OpVisitor
 
     public void visit(OpService opService)
     {
-        QueryIterator qIter = Service.exec(opService) ;
+        QueryIterator qIter = Service.exec(opService, ARQ.getContext()) ;
         Table table = TableFactory.create(qIter) ;
         push(table) ;
     }
@@ -214,6 +222,15 @@ public class EvaluatorDispatch implements OpVisitor
         push(table) ;
     }
 
+    public void visit(OpTopN opTop)
+    {
+        Table table = eval(opTop.getSubOp()) ;
+        //table = evaluator.topN(table, opTop.getLimti(), opTop.getConditions()) ;
+        table = evaluator.order(table, opTop.getConditions()) ;
+        table = evaluator.slice(table, 0, opTop.getLimit()) ;
+        push(table) ;
+    }
+
     public void visit(OpProject opProject)
     {
         Table table = eval(opProject.getSubOp()) ;
@@ -249,10 +266,17 @@ public class EvaluatorDispatch implements OpVisitor
         push(table) ;
     }
 
-    public void visit(OpGroupAgg opGroupAgg)
+    public void visit(OpExtend opExtend)
     {
-        Table table = eval(opGroupAgg.getSubOp()) ;
-        table = evaluator.groupBy(table, opGroupAgg.getGroupVars(), opGroupAgg.getAggregators()) ;
+        Table table = eval(opExtend.getSubOp()) ;
+        table = evaluator.extend(table, opExtend.getVarExprList()) ;
+        push(table) ;
+    }
+
+    public void visit(OpGroup opGroup)
+    {
+        Table table = eval(opGroup.getSubOp()) ;
+        table = evaluator.groupBy(table, opGroup.getGroupVars(), opGroup.getAggregators()) ;
         push(table) ;
     }
 
@@ -260,7 +284,7 @@ public class EvaluatorDispatch implements OpVisitor
     protected Table pop()
     { 
         if ( stack.size() == 0 )
-            ALog.warn(this, "Warning: pop: empty stack") ;
+            Log.warn(this, "Warning: pop: empty stack") ;
         return stack.pop() ;
     }
 

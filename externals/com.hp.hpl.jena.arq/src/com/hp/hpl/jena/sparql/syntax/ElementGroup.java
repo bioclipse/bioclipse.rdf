@@ -6,18 +6,14 @@
 
 package com.hp.hpl.jena.sparql.syntax;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Triple;
-
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 /** A number of graph query elements.
- *  Evaluation is a conjunction(AND) of the elements of the groups  
- * 
- * @author Andy Seaborne
- */
+ *  Evaluation is a conjunction(AND) of the elements of the groups */
 
 public class ElementGroup extends Element
 {

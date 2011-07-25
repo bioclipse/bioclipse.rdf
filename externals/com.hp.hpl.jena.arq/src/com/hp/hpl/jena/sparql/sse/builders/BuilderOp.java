@@ -6,28 +6,32 @@
 
 package com.hp.hpl.jena.sparql.sse.builders;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ArrayList ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Map ;
+import java.util.Map.Entry ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.SortCondition;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.core.*;
-import com.hp.hpl.jena.sparql.expr.E_Aggregator;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemList;
-import com.hp.hpl.jena.sparql.sse.Tags;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
 
 
 public class BuilderOp
@@ -71,16 +75,19 @@ public class BuilderOp
         addBuild(Tags.tagDisjunction,   buildDisjunction) ;
         addBuild(Tags.tagLeftJoin,      buildLeftJoin) ;
         addBuild(Tags.tagDiff,          buildDiff) ;
+        addBuild(Tags.tagMinus,         buildMinus) ;
         addBuild(Tags.tagUnion,         buildUnion) ;
         addBuild(Tags.tagConditional,   buildConditional) ;
 
         addBuild(Tags.tagToList,        buildToList) ;
         addBuild(Tags.tagGroupBy,       buildGroupBy) ;
         addBuild(Tags.tagOrderBy,       buildOrderBy) ;
+        addBuild(Tags.tagTopN,          buildTopN) ;
         addBuild(Tags.tagProject,       buildProject) ;
         addBuild(Tags.tagDistinct,      buildDistinct) ;
         addBuild(Tags.tagReduced,       buildReduced) ;
         addBuild(Tags.tagAssign,        buildAssign) ;
+        addBuild(Tags.tagExtend,        buildExtend) ;
         addBuild(Tags.symAssign,        buildAssign) ;
         addBuild(Tags.tagSlice,         buildSlice) ;
 
@@ -244,7 +251,7 @@ public class BuilderOp
                     if ( ! g.equals(q.getGraph()) )
                         BuilderLib.broken(item, "Quad has different graph node in quadapttern: "+q) ;
                 }
-                bp.add(q.getTriple()) ;
+                bp.add(q.asTriple()) ;
                 
             }
             
@@ -353,6 +360,18 @@ public class BuilderOp
         }
     } ;
 
+    final protected Build buildMinus = new Build()
+    {
+        public Op make(ItemList list)
+        {
+            BuilderLib.checkLength(3, 4, list, "minus: wanted 2 arguments") ;
+            Op left = build(list, 1) ;
+            Op right  = build(list, 2) ;
+            Op op = OpMinus.create(left, right) ;
+            return op ;
+        }
+    } ;
+
     final protected Build buildUnion = new Build()
     {
         public Op make(ItemList list)
@@ -395,12 +414,25 @@ public class BuilderOp
     {
         public Op make(ItemList list)
         {
-            BuilderLib.checkLength(3, list, "service") ;
-            Node service = BuilderNode.buildNode(list.get(1)) ;
+            boolean silent = false ;
+            BuilderLib.checkLength(3, 4, list, "service") ;
+            list = list.cdr() ;
+            if ( list.size() == 3 )
+            {
+                if ( !list.car().isSymbol() )
+                    BuilderLib.broken(list, "Expected a keyword") ;
+                if ( ! list.car().getSymbol().equalsIgnoreCase("SILENT") )
+                    BuilderLib.broken(list, "Service: Expected SILENT") ;
+                silent = true ;
+                list = list.cdr() ;
+            }
+            
+            Node service = BuilderNode.buildNode(list.car()) ;
             if ( ! service.isURI() && ! service.isVariable() )
                 BuilderLib.broken(list, "Service must provide a URI or variable") ;
-            Op sub  = build(list, 2) ;
-            return new OpService(service, sub) ;
+            list = list.cdr() ;
+            Op sub  = build(list, 0) ;
+            return new OpService(service, sub, silent) ;
         }
     } ;
     
@@ -468,7 +500,7 @@ public class BuilderOp
             BuilderLib.checkLength(3, 4, list,  "Group") ;
             // GroupBy
             VarExprList vars = BuilderExpr.buildNamedExprList(list.get(1).getList()) ;
-            List<E_Aggregator> aggregators = new ArrayList<E_Aggregator>() ;
+            List<ExprAggregator> aggregators = new ArrayList<ExprAggregator>() ;
             
             if ( list.size() == 4 )
             {
@@ -480,16 +512,16 @@ public class BuilderOp
                 // Bind aggregation to variable
                 for (  Entry<Var, Expr> entry : y.getExprs().entrySet() )
                 {
-                    if ( ! ( entry.getValue() instanceof E_Aggregator ) )
+                    if ( ! ( entry.getValue() instanceof ExprAggregator ) )
                         BuilderLib.broken(list, "Not a aggregate expression: "+entry.getValue()) ;
-                    E_Aggregator eAgg = (E_Aggregator)entry.getValue() ;
+                    ExprAggregator eAgg = (ExprAggregator)entry.getValue() ;
                     eAgg.setVar(entry.getKey()) ;
                     aggregators.add(eAgg) ;    
                 }
             }
             
             Op sub = build(list, list.size()-1) ;
-            Op op = new OpGroupAgg(sub,vars, aggregators) ;
+            Op op = new OpGroup(sub,vars, aggregators) ;
             return op ;
         }
     } ;
@@ -533,11 +565,35 @@ public class BuilderOp
         }
         Expr expr = BuilderExpr.buildExpr(item) ;
         if ( expr.isVariable() )
-            return  new SortCondition(expr.getExprVar().asVar(), direction) ;
+            return new SortCondition(expr.getExprVar().asVar(), direction) ;
         else
             return new SortCondition(expr, direction) ;
     }
     
+    final protected Build buildTopN = new Build()
+    {
+        public Op make(ItemList list)
+        {
+            BuilderLib.checkLength(4, list,  Tags.tagTopN) ;
+            int N = BuilderNode.buildInt(list, 1, -1) ;
+            ItemList conditions = list.get(2).getList() ;
+            
+            // Maybe tagged (asc, desc or a raw expression)
+            List<SortCondition> x = new ArrayList<SortCondition>() ;
+            
+            for ( int i = 0 ; i < conditions.size() ; i++ )
+            {
+                //int direction = Query.ORDER_DEFAULT ;
+                Item item = conditions.get(i) ;
+                SortCondition sc = scBuilder(item) ;
+                x.add(sc) ;
+            }
+            Op sub = build(list, 2) ;
+            Op op = new OpTopN(sub, N, x) ;
+            return op ;
+        }
+    } ;
+
     
     final protected Build buildProject = new Build()
     {
@@ -557,7 +613,7 @@ public class BuilderOp
         {
             BuilderLib.checkLength(2, list, "distinct") ;
             Op sub = build(list, 1) ;
-            return new OpDistinct(sub) ;
+            return OpDistinct.create(sub) ;
         }
     } ;
 
@@ -567,7 +623,7 @@ public class BuilderOp
         {
             BuilderLib.checkLength(2, list, "reduced") ;
             Op sub = build(list, 1) ;
-            return new OpReduced(sub) ;
+            return OpReduced.create(sub) ;
         }
     } ;
 
@@ -579,6 +635,17 @@ public class BuilderOp
             VarExprList x = BuilderExpr.buildNamedExprOrExprList(list.get(1)) ; 
             Op sub = build(list, 2) ;
             return OpAssign.assign(sub, x) ;
+        }
+    } ;
+
+    final protected Build buildExtend = new Build()
+    {
+        public Op make(ItemList list)
+        {
+            BuilderLib.checkLength(3, list, "extend") ;
+            VarExprList x = BuilderExpr.buildNamedExprOrExprList(list.get(1)) ; 
+            Op sub = build(list, 2) ;
+            return OpExtend.extend(sub, x) ;
         }
     } ;
 

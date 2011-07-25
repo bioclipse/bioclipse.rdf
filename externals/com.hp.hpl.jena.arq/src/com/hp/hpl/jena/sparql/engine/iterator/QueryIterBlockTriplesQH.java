@@ -1,36 +1,42 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimoprhics Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.query.BindingQueryPlan;
-import com.hp.hpl.jena.graph.query.Domain;
-import com.hp.hpl.jena.graph.query.QueryHandler;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecUtils;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.util.iterator.ClosableIterator;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.logging.Log ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.graph.query.BindingQueryPlan ;
+import com.hp.hpl.jena.graph.query.Domain ;
+import com.hp.hpl.jena.graph.query.QueryHandler ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.util.iterator.ClosableIterator ;
 
 
-/** An Iterator that takes a binding and executes a pattern.
- * 
- * @author     Andy Seaborne
+/** An Iterator that takes a binding and executes 
+ * a pattern via the Jena graph QueryHandler interface.
  */
  
+// This is only used for RDB - see QueryIterBlockTriples for main BGP solver in ARQ 
+
 public class QueryIterBlockTriplesQH extends QueryIterRepeatApply
 {
     protected BasicPattern pattern ;
@@ -80,8 +86,8 @@ public class QueryIterBlockTriplesQH extends QueryIterRepeatApply
             //System.out.println("StageBasePattern: "+pattern) ;
             
             Set<Var> vars = new HashSet<Var>() ;
-            ExecUtils.compilePattern(graphQuery, pattern.getList(), binding, vars) ;
-            projectionVars = ExecUtils.projectionVars(vars) ; 
+            compilePattern(graphQuery, pattern.getList(), binding, vars) ;
+            projectionVars = projectionVars(vars) ; 
             // **** No constraints done here currently
             //QueryEngineUtils.compileConstraints(graphQuery, constraints) ;
             
@@ -89,7 +95,7 @@ public class QueryIterBlockTriplesQH extends QueryIterRepeatApply
             BindingQueryPlan plan = qh.prepareBindings(graphQuery, projectionVars);
             graphIter = plan.executeBindings() ;
             if ( graphIter == null )
-                ALog.warn(this, "Graph Iterator is null") ;
+                Log.warn(this, "Graph Iterator is null") ;
         }
 
         @Override
@@ -117,6 +123,50 @@ public class QueryIterBlockTriplesQH extends QueryIterRepeatApply
                 graphIter = null ;
             }
         }
+        
+        @Override
+        protected void requestCancel() { }
+    }
+    
+    private static void compilePattern(com.hp.hpl.jena.graph.query.Query graphQuery,
+                                      List<Triple> pattern, Binding presets, Set<Var> vars)
+    {
+        if ( pattern == null )
+            return ;
+        for (Iterator<Triple>iter = pattern.listIterator(); iter.hasNext();)
+        {
+            Triple t = iter.next();
+            t = Substitute.substitute(t, presets) ;
+            if ( vars != null )
+            {
+                if ( t.getSubject().isVariable() )
+                    vars.add(Var.alloc(t.getSubject())) ;
+                if ( t.getPredicate().isVariable() )
+                    vars.add(Var.alloc(t.getPredicate())) ;
+                if ( t.getObject().isVariable() )
+                    vars.add(Var.alloc(t.getObject())) ;
+            }
+            graphQuery.addMatch(t);
+        }
+    }
+    
+    private static void compileConstraints(com.hp.hpl.jena.graph.query.Query graphQuery, List<?> constraints)
+    {
+        Log.warn(QueryIterBlockTriplesQH.class, "Call to compileConstraints for Jena Expressions") ;
+    }
+    
+    public static Var[] projectionVars(Set<Var> vars)
+    {
+        Var[] result = new Var[vars.size()] ;
+    
+        int i = 0 ; 
+        for ( Iterator<Var> iter = vars.iterator() ; iter.hasNext() ; )
+        {
+            Var n = iter.next() ;
+            result[i] = n ;
+            i++ ;
+        }
+        return result ;
     }
     
     private static Binding graphResultsToBinding(Binding parent, Domain d, Var[] projectionVars)
@@ -150,8 +200,9 @@ public class QueryIterBlockTriplesQH extends QueryIterRepeatApply
 }
 
 /*
- *  (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
- *  All rights reserved.
+ * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimoprhics Ltd.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

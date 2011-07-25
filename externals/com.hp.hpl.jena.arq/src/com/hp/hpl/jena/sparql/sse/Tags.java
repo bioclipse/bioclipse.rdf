@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -38,7 +39,6 @@ public class Tags
 
     // SPARQL 
     public static final String tagDataset       = "dataset" ;
-    public static final String tagNamedGraph    = "namedgraph" ;
     public static final String tagBinding       = "binding" ;
     public static final String tagTable         = "table" ;
     public static final String tagResultSet     = "resultset" ;
@@ -58,15 +58,18 @@ public class Tags
     public static final String tagLeftJoin      = "leftjoin" ;
     public static final String tagConditional   = "conditional" ;
     public static final String tagDiff          = "diff" ;
+    public static final String tagMinus         = "minus" ;
     public static final String tagUnion         = "union" ;
 
     public static final String tagToList        = "tolist" ;
     public static final String tagOrderBy       = "order" ;
+    public static final String tagTopN          = "top" ;
     public static final String tagGroupBy       = "group" ;
     public static final String tagProject       = "project" ;
     public static final String tagDistinct      = "distinct" ;
     public static final String tagReduced       = "reduced" ;
     public static final String tagAssign        = "assign" ;
+    public static final String tagExtend        = "extend" ;
     public static final String symAssign        = ":=" ;
     public static final String tagSlice         = "slice" ;
     
@@ -75,7 +78,15 @@ public class Tags
     public static final String tagPathSeq       = "seq" ;
     public static final String tagPathAlt       = "alt" ;
     public static final String tagPathMod       = "mod" ;
+    
+    public static final String tagPathZeroOrMore    = "path*" ;
+    public static final String tagPathOneOrMore     = "path+" ;
+    public static final String tagPathZeroOrOne     = "path?" ;
+    public static final String tagPathFixedLength   = "pathN" ;
+    
     public static final String tagPathReverse   = "reverse" ;
+    public static final String tagPathRev       = "rev" ;
+    public static final String pathNotOneOf     = "notoneof" ;
 
     // Not used - nowadays extensions are not explicitly flagged in the algebra.
     // But needed to override existing operations.
@@ -105,6 +116,10 @@ public class Tags
     
     public static final String tagNot           = "not" ;
     public static final String tagStr           = "str" ;
+    public static final String tagStrLang       = "strlang" ;
+    public static final String tagStrDatatype   = "strdt" ;
+    public static final String tagRand          = "rand" ;
+    
     public static final String tagLang          = "lang" ;
     public static final String tagLangMatches   = "langmatches" ;
     public static final String tagSameTerm      = "sameterm" ;
@@ -120,6 +135,47 @@ public class Tags
     public static final String tagExists        = "exists" ;
     public static final String tagNotExists     = "notexists" ;
 
+    public static final String tagYear          = "year" ;
+    public static final String tagMonth         = "month" ;
+    public static final String tagDay           = "day" ;
+    public static final String tagHours         = "hours" ;
+    public static final String tagMinutes       = "minutes" ;
+    public static final String tagSeconds       = "seconds" ;
+    public static final String tagTimezone      = "timezone" ;
+    public static final String tagTZ            = "tz" ;
+    
+    public static final String tagNow           = "now" ;
+    public static final String tagVersion       = "version" ;
+
+    public static final String tagMD5           = "md5" ;
+    public static final String tagSHA1          = "sha1" ;
+    public static final String tagSHA224        = "sha224" ;
+    public static final String tagSHA256        = "sha256" ;
+    public static final String tagSHA384        = "sha384" ;
+    public static final String tagSHA512        = "sha512" ;
+    
+    public static final String tagStrlen        = "strlen" ;
+    public static final String tagSubstr        = "substr" ;
+    public static final String tagStrUppercase  = "ucase" ;
+    public static final String tagStrLowercase  = "lcase" ;
+    public static final String tagStrEnds       = "strends" ;
+    public static final String tagStrStarts     = "strstarts" ;
+    public static final String tagStrContains   = "contains" ;
+    public static final String tagStrEncodeForURI     = "encode_for_uri" ;
+    public static final String tagConcat        = "concat" ;
+    
+    public static final String tagNumAbs        = "abs" ;
+    public static final String tagNumRound      = "round" ;
+    public static final String tagNumCeiling    = "ceil" ;
+    public static final String tagNumFloor      = "floor" ;
+    
+    public static final String tagBNode         = "bnode" ;
+    public static final String tagIri           = "iri" ;
+    public static final String tagUri           = "uri" ;
+
+    public static final String tagIn             = "in" ;
+    public static final String tagNotIn          = "notin" ;
+    
     public static final String tagTrue          = "true" ;
     public static final String tagFalse         = "false" ;
 
@@ -128,10 +184,17 @@ public class Tags
     
     public static final String tagCount         = "count" ;
     public static final String tagSum           = "sum" ;
+    public static final String tagMin           = "min" ;
+    public static final String tagMax           = "max" ;
+    public static final String tagAvg           = "avg" ;
+    public static final String tagSample        = "sample" ;
+    public static final String tagGroupConcat   = "group_concat" ;
+    public static final String tagSeparator     = "separator" ;
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP All rights
+ * (c) Copyright 2010 Talis Systems Ltd.
  * reserved.
  * 
  * Redistribution and use in source and binary forms, with or without

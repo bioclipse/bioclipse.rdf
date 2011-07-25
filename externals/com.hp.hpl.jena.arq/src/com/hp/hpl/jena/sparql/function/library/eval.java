@@ -8,22 +8,20 @@ package com.hp.hpl.jena.sparql.function.library;
 
 
 //import org.apache.commons.logging.*;
-import com.hp.hpl.jena.query.QueryBuildException;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.Function;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import com.hp.hpl.jena.query.QueryBuildException ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.Function ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
 
 /** Function that evaluates an expression - catches evaluation failures
  *  and returns false.
  *  Mainly used in extensions.
- *  Would be better if that were eval and this were "safe" or somesuch
- * @author Andy Seaborne
- */
+ *  Would be better if that were eval and this were "safe" or somesuch */
 
 public class eval implements Function
 {

@@ -6,23 +6,23 @@
 
 package com.hp.hpl.jena.sparql.pfunction.library;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.QueryBuildException;
-import com.hp.hpl.jena.query.QueryException;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArgType;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionBase;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IterLib;
-import com.hp.hpl.jena.sparql.util.NodeUtils;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.QueryBuildException ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArgType ;
+import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionEval ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.IterLib ;
+import com.hp.hpl.jena.sparql.util.NodeUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
-public class splitIRI extends PropertyFunctionBase
+public class splitIRI extends PropertyFunctionEval //PropertyFunctionBase
 {
     public splitIRI()
     {
@@ -50,12 +50,9 @@ public class splitIRI extends PropertyFunctionBase
     // Do not throw an exception except when an internal error situation occurs. 
     
     @Override
-    public QueryIterator exec(Binding binding, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt)
+    public QueryIterator execEvaluated(Binding binding, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt)
     {
         try {
-            argSubject = argSubject.evalIfExists(binding) ;
-            argObject = argObject.evalIfExists(binding) ;
-    
             // Subject bound to something other a URI. 
             if ( argSubject.getArg().isLiteral() || argSubject.getArg().isBlank() )
                 // Only split IRIs
@@ -69,7 +66,7 @@ public class splitIRI extends PropertyFunctionBase
                 return subjectIsVariable(argSubject.getArg(), argObject, execCxt) ;
         } catch (QueryException ex)
         {
-            ALog.warn(this, "Unexpected problems in splitIRI: "+ex.getMessage()) ;
+            Log.warn(this, "Unexpected problems in splitIRI: "+ex.getMessage()) ;
             return null ;
         }
     }
@@ -124,7 +121,7 @@ public class splitIRI extends PropertyFunctionBase
 
     private QueryIterator subjectIsVariable(Node arg, PropFuncArg argObject, ExecutionContext execCxt)
     {
-        ALog.warn(this, "Subject to property function splitURI is not a bound nor a constant.") ;
+        Log.warn(this, "Subject to property function splitURI is not a bound nor a constant.") ;
         return IterLib.noResults(execCxt) ;
     }
 }

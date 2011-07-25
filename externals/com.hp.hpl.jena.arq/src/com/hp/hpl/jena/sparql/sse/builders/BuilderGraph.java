@@ -7,36 +7,33 @@
 package com.hp.hpl.jena.sparql.sse.builders;
 
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-
-import com.hp.hpl.jena.graph.Factory;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemList;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeUtils;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.ModelFactory ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeUtils ;
+import com.hp.hpl.jena.sparql.util.graph.GraphFactory ;
+import com.hp.hpl.jena.util.FileManager ;
 
 public class BuilderGraph
 {
     public static Graph buildGraph(Item item)
     { 
-        Graph graph = Factory.createDefaultGraph() ;
+        Graph graph = GraphFactory.createDefaultGraph() ;
         buildGraph(graph, item) ;
         return graph ;
     }
     
     public static Graph buildGraph(ItemList itemList)
     { 
-        Graph graph = Factory.createDefaultGraph() ;
+        Graph graph = GraphFactory.createDefaultGraph() ;
         buildGraph(graph, itemList) ;
         return graph ;
     }
@@ -66,8 +63,11 @@ public class BuilderGraph
     
     public static Graph buildGraph(Graph graph, ItemList list)
     {
-        BuilderLib.checkTag(list, Tags.tagGraph) ;
-        list = list.cdr();
+        if ( ! list.isEmpty() && list.get(0).isSymbol() )
+        {
+            if ( list.get(0).isSymbol(Tags.tagGraph) )
+                list = list.cdr();
+        }
         
         for (Item item : list)
         {
@@ -80,9 +80,9 @@ public class BuilderGraph
     
     /** Format:
      * (dataset
-     *    (default (graph ...))
-     *    (namedgraph IRIa (graph ...))
-     *    (namedgraph IRIb (graph ...))
+     *    (graph ...))
+     *    (graph IRIa ...))
+     *    (graph IRIb ...))
      *    )
      * (graph ...) is an abbrevaition for a dataset with a default graph and no named graphs.
      */
@@ -98,8 +98,7 @@ public class BuilderGraph
         if ( item.isTagged(Tags.tagGraph) )
         {
             Graph g = BuilderGraph.buildGraph(item.getList()) ;
-            DataSourceGraphImpl ds = new DataSourceGraphImpl(g) ;
-            return ds ;
+            return DatasetGraphFactory.create(g) ;
         }
         
         if ( ! item.isTagged(Tags.tagDataset) )
@@ -111,34 +110,43 @@ public class BuilderGraph
     {
         BuilderLib.checkTag(list, Tags.tagDataset) ;
         list = list.cdr();
-        DataSourceGraphImpl ds = new DataSourceGraphImpl((Graph)null) ;
+        DatasetGraph ds = DatasetGraphFactory.createMem() ;
         
         for (Item item : list)
         {
-            if ( item.isTagged(Tags.tagDefault) )
-            {
-                if ( ds.getDefaultGraph() != null )
-                    BuilderLib.broken(item, "Multiple default graphs") ;
-                // (default (graph ...))
-                BuilderLib.checkLength(2, item.getList(), "Expected (default (graph...))") ;
-                Graph g = BuilderGraph.buildGraph(item.getList().get(1)) ;
-                ds.setDefaultGraph(g) ;
-                continue ;
-            }
-            if ( item.isTagged(Tags.tagNamedGraph) )
-            {
-                ItemList ngList = item.getList() ;
-                BuilderLib.checkLength(3, ngList, "Expected (namedgraph IRI (graph...))") ;
-                Node n = BuilderNode.buildNode(ngList.get(1)) ;
-                Graph g = BuilderGraph.buildGraph(item.getList().get(2)) ;
-                ds.addGraph(n, g) ;
-                continue ;
-            }
-            BuilderLib.broken(item, "Not expected in dataset") ;
-        }
-        if ( ds.getDefaultGraph() == null )
-            ds.setDefaultGraph(GraphUtils.makeDefaultGraph()) ;
+            if ( ! item.isTagged(Tags.tagGraph) )
+                BuilderLib.broken(item, "Expected (graph ...) as elements of a dataset") ;
             
+            Node name = null ;
+            ItemList graphContent = item.getList().cdr();
+
+            if ( !graphContent.isEmpty() && graphContent.car().isNode() )
+            {
+                name = graphContent.car().getNode();
+                graphContent = graphContent.cdr() ;
+            }
+            
+            Graph g ;
+            if ( name == null )
+            {
+                g = ds.getDefaultGraph() ;
+                if ( g == null )
+                {
+                    g = GraphFactory.createDefaultGraph() ;
+                    ds.setDefaultGraph(g) ;
+                }
+            }
+            else
+            {
+                g = ds.getGraph(name) ;
+                if ( g == null )
+                {
+                    g = GraphFactory.createDefaultGraph() ;
+                    ds.addGraph(name, g) ;
+                }
+            }
+            BuilderGraph.buildGraph(g, graphContent) ;
+        }
         return ds ;
     }
     

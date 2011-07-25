@@ -6,18 +6,16 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import java.util.List;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Quad;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Quad ;
 import com.hp.hpl.jena.sparql.core.QuadPattern ;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public class OpQuadPattern extends Op0
 {
@@ -61,18 +59,25 @@ public class OpQuadPattern extends Op0
         return quads ;
     } 
     
-    @Deprecated
-    public List<Quad> getQuads()
-    {
-        initQuads() ;
-        return quads.getList() ;
-    }
+//    @Deprecated
+//    public List<Quad> getQuads()
+//    {
+//        initQuads() ;
+//        return quads.getList() ;
+//    }
     
     public Node getGraphNode()              { return graphNode ; } 
     public BasicPattern getBasicPattern()   { return triples ; }
     public boolean isEmpty()                { return triples.size() == 0 ; }
     
-    public boolean isDefaultGraph()         { return Quad.isQuadDefaultGraphNode(graphNode) ; }
+    /** Is this quad pattern referring to the default graph by quad transformation or explict naming? */ 
+    public boolean isDefaultGraph()         { return Quad.isDefaultGraph(graphNode) ; }
+    
+    /** Is this quad pattern explicitly naming the default graph? */ 
+    public boolean isExplicitDefaultGraph() { return Quad.isDefaultGraphExplicit(graphNode) ; }
+    /** Is this quad pattern explicitly naming the union graph? */
+    
+    public boolean isUnionGraph()           { return Quad.isUnionGraph(graphNode) ; }
     
     public String getName()                 { return Tags.tagQuadPattern ; }
     @Override

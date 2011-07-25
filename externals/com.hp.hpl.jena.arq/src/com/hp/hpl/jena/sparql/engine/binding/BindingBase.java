@@ -1,24 +1,24 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.engine.binding;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openjena.atlas.iterator.IteratorConcat ;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.lib.iterator.IteratorConcat;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
-/** Machinary encapsulating a mapping from a name to a value.
- * 
- * @author   Andy Seaborne
- */
+import org.openjena.atlas.lib.Lib ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+
+/** Machinary encapsulating a mapping from a name to a value. */
 
 
 abstract public class BindingBase implements Binding
@@ -56,7 +56,7 @@ abstract public class BindingBase implements Binding
     { 
         if ( node == null )
         {
-            ALog.warn(this, "Binding.add: null value - ignored") ;
+            Log.warn(this, "Binding.add: null value - ignored") ;
             return ;
         }
         checkAdd(var, node) ;
@@ -188,6 +188,8 @@ abstract public class BindingBase implements Binding
     {
         if ( ! CHECKING )
             return ;
+        if ( var == null )
+            throw new ARQInternalErrorException("check("+var+", "+node+"): null var" ) ;
         if ( node == null )
             throw new ARQInternalErrorException("check("+var+", "+node+"): null node value" ) ;
         if ( UNIQUE_NAMES_CHECK && contains(var) )
@@ -210,7 +212,7 @@ abstract public class BindingBase implements Binding
         Binding binding = (Binding)other ;
         return equals(this, binding) ; 
     }
-    
+
     // Not everything derives from BindingBase.
     public static int hashCode(Binding bind)
     {
@@ -239,14 +241,7 @@ abstract public class BindingBase implements Binding
             Var var = iter1.next() ; 
             Node node1 = bind1.get(var) ;
             Node node2 = bind2.get(var) ;
-            
-            if ( node1 == null && node2 == null )
-                continue ;
-            if (node1 == null )
-                return false ;      // node2 not null
-            if (node2 == null )
-                return false ;      // node1 not null
-            if ( !node1.equals(node2) )
+            if ( ! Lib.equal(node1, node2) )
                 return false ;
         }
         
@@ -256,7 +251,8 @@ abstract public class BindingBase implements Binding
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

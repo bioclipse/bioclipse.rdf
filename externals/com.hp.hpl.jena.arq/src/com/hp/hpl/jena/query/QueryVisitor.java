@@ -6,7 +6,7 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
+import com.hp.hpl.jena.sparql.core.Prologue ;
 
 /** Query visitor pattern */
 
@@ -29,6 +29,7 @@ public interface QueryVisitor
     public void visitOrderBy(Query query) ;
     public void visitLimit(Query query) ;
     public void visitOffset(Query query) ;
+    public void visitBindings(Query query) ;
     
     public void finishVisit(Query query) ;
 }

@@ -6,26 +6,29 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import static com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternElements.TERM;
+import static com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternElements.TERM ;
 
-import com.hp.hpl.jena.db.GraphRDB;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphStatisticsHandler;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.mem.GraphMem;
-import com.hp.hpl.jena.mem.faster.GraphMemFaster;
-
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriples;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriplesQH;
-import com.hp.hpl.jena.sparql.engine.optimizer.reorder.*;
-import com.hp.hpl.jena.sparql.mgt.Explain;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Symbol;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.db.GraphRDB ;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.GraphStatisticsHandler ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.mem.GraphMem ;
+import com.hp.hpl.jena.mem.faster.GraphMemFaster ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriples ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriplesQH ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternTriple ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderFixed ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderLib ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformationBase ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Symbol ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** Generic - always works - StageGenerator */
 public class StageGeneratorGeneric implements StageGenerator
@@ -39,7 +42,7 @@ public class StageGeneratorGeneric implements StageGenerator
                                  ExecutionContext execCxt)
     {
         if ( input == null )
-            ALog.fatal(this, "Null input to "+Utils.classShortName(this.getClass())) ;
+            Log.fatal(this, "Null input to "+Utils.classShortName(this.getClass())) ;
 
         Graph graph = execCxt.getActiveGraph() ; 
 
@@ -91,7 +94,6 @@ public class StageGeneratorGeneric implements StageGenerator
 
         return execution.execute(pattern, input, execCxt) ; 
     }
-    
     
     // ---- Execution policies
     private static StageGenerator executeQueryHandler = new StageGenerator() {

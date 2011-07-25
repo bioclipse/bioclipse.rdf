@@ -5,18 +5,19 @@
  */
 
 package com.hp.hpl.jena.sparql.procedure ;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.writers.WriterExpr;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.IterLib;
-import com.hp.hpl.jena.sparql.util.PrintSerializableBase;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterExpr ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.IterLib ;
+import com.hp.hpl.jena.sparql.util.PrintSerializableBase ;
 
 public abstract class ProcedureBase extends PrintSerializableBase implements Procedure
 {
@@ -31,7 +32,7 @@ public abstract class ProcedureBase extends PrintSerializableBase implements Pro
  
     public final QueryIterator proc(QueryIterator input, ExecutionContext execCxt)
     {
-        return new RepeatApplyIterator(input, execCxt) ;
+        return new RepeatApplyIteratorProc(input, execCxt) ;
     }
     
     public abstract QueryIterator exec(Binding binding, Node name, ExprList args, ExecutionContext execCxt) ;
@@ -46,12 +47,12 @@ public abstract class ProcedureBase extends PrintSerializableBase implements Pro
         out.println() ;
     }
     
-    class RepeatApplyIterator extends QueryIterRepeatApply
+    class RepeatApplyIteratorProc extends QueryIterRepeatApply
     {
         private ExecutionContext execCxt ;
         private Node name ;
         
-       public RepeatApplyIterator(QueryIterator input, ExecutionContext execCxt)
+       public RepeatApplyIteratorProc(QueryIterator input, ExecutionContext execCxt)
        { 
            super(input, execCxt) ;
        }

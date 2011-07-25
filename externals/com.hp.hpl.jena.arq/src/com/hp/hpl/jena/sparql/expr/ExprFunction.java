@@ -5,10 +5,12 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
 
 /** A function in the expression hierarchy.
  *  Everything that is evaluable (i.e. not NodeValue, NodeVar) is a function).
@@ -20,6 +22,7 @@ public abstract class ExprFunction extends ExprNode
 {
     protected FunctionLabel funcSymbol ;
     protected String opSign ;
+    private List<Expr> argList = null ;
     
     protected ExprFunction(String fName)
     {
@@ -36,12 +39,15 @@ public abstract class ExprFunction extends ExprNode
     public abstract Expr getArg(int i) ;
     public abstract int numArgs() ;
 
+    // ExprFunctionN overrides this.
     public List<Expr> getArgs()
     {
-        List<Expr> x = new ArrayList<Expr>() ;
+        if ( argList != null )
+            return argList ; 
+        argList = new ArrayList<Expr>() ;
         for ( int i = 1 ; i <= numArgs() ; i++ )
-            x.add(this.getArg(i)) ;
-        return x ;        
+            argList.add(this.getArg(i)) ;
+        return argList ;        
     }
 
     @Override
@@ -80,13 +86,11 @@ public abstract class ExprFunction extends ExprNode
         {
             Expr a1 = this.getArg(i) ;
             Expr a2 = ex.getArg(i) ;
-            if ( ! a1.equals(a2) )
+            if ( ! Lib.equal(a1, a2) )
                 return false ;
         }
         return true ;
     }
-    
-    public void visit(ExprVisitor visitor) { visitor.visit(this) ; }
     
     /** Name used for output:
      *    SPARQL format: just the extension functions

@@ -6,21 +6,22 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.*;
-import com.hp.hpl.jena.graph.impl.SimpleEventManager;
-import com.hp.hpl.jena.mem.SmallGraphMem;
-import com.hp.hpl.jena.util.iterator.*;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.graph.TripleMatch ;
+import com.hp.hpl.jena.graph.impl.SimpleEventManager ;
+import com.hp.hpl.jena.mem.SmallGraphMem ;
+import com.hp.hpl.jena.util.iterator.ClosableIterator ;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator ;
+import com.hp.hpl.jena.util.iterator.Filter ;
 
 /** A lightweight implementation of graph that uses syntactic identity
  * for find(), that is, .equals(), not .sameValueAs(), and also compares
  * language tags canonically (as lowercase).
  * 
- * Suitable for small graph only (no indexing of s/p/o)
- * 
- * @author Andy Seaborne
- */
+ * Suitable for small graph only (no indexing of s/p/o) */
 
 public class PlainGraphMem extends SmallGraphMem
 {

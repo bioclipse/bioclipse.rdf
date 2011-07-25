@@ -5,23 +5,20 @@
 
 package com.hp.hpl.jena.sparql.core;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingBase;
-import com.hp.hpl.jena.sparql.util.ModelUtils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingBase ;
+import com.hp.hpl.jena.sparql.util.ModelUtils ;
 
 
 /** A mapping from variable name to an RDF value.
- *  A wrapper around the graph level Binding.
- * 
- * @author   Andy Seaborne
- */
+ *  A wrapper around the graph level Binding. */
 
 
 public class ResultBinding extends QuerySolutionBase
@@ -42,21 +39,16 @@ public class ResultBinding extends QuerySolutionBase
 //    }
     
     @Override
-    public RDFNode _get(String varName)
+    protected RDFNode _get(String varName)
     {
-        Node n = getNode(varName) ;
+        Node n = binding.get(Var.alloc(varName)) ;
         if ( n == null )
             return null;
         return ModelUtils.convertGraphNodeToRDFNode(n, model) ;
     }
     
-    private Node getNode(String varName)
-    {
-        return binding.get(Var.alloc(varName)) ;
-    }
-
     @Override
-    public boolean _contains(String varName)
+    protected boolean _contains(String varName)
     {
         return binding.contains(Var.alloc(varName)) ;
     }

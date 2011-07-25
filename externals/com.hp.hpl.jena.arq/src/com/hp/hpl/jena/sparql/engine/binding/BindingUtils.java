@@ -1,44 +1,42 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimoprhics Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.engine.binding;
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
-/**
- * @author     Andy Seaborne
- */
- 
 public class BindingUtils
 {
-    public static Triple substituteIntoTriple(Triple t, Binding binding)
-    {
-        Node subject = substituteNode(t.getSubject(), binding) ;
-        Node predicate = substituteNode(t.getPredicate(), binding) ;
-        Node object = substituteNode(t.getObject(), binding) ;
-        
-        if ( subject == t.getSubject() &&
-             predicate == t.getPredicate() &&
-             object == t.getObject() )
-             return t ;
-             
-        return new Triple(subject, predicate, object) ;
-    }
     
-    public static Node substituteNode(Node n, Binding binding)
-    {
-        return Var.lookup(binding, n) ;
-    }
+//    public static Triple substituteIntoTriple(Triple t, Binding binding)
+//    {
+//        Node subject = substituteNode(t.getSubject(), binding) ;
+//        Node predicate = substituteNode(t.getPredicate(), binding) ;
+//        Node object = substituteNode(t.getObject(), binding) ;
+//        
+//        if ( subject == t.getSubject() &&
+//             predicate == t.getPredicate() &&
+//             object == t.getObject() )
+//             return t ;
+//             
+//        return new Triple(subject, predicate, object) ;
+//    }
+//    
+//    public static Node substituteNode(Node n, Binding binding)
+//    {
+//        return Var.lookup(binding, n) ;
+//    }
     
     public static Binding asBinding(QuerySolution qSolution)
     {
+        if ( qSolution == null )
+            return null ;
         Binding binding = new BindingMap(null) ;
         addToBinding(binding, qSolution) ;
         return binding ;
@@ -48,11 +46,24 @@ public class BindingUtils
     {
         if ( qSolution == null )
             return ;
+        
+        
+        
         for ( Iterator<String> iter = qSolution.varNames() ; iter.hasNext() ; )
         {
             String n = iter.next() ;
+            
+            
             RDFNode x = qSolution.get(n) ;
+            //XXX
+            if ( Var.isBlankNodeVarName(n) )
+                continue ;
+            try {
             binding.add(Var.alloc(n), x.asNode()) ;
+            } catch (Exception ex)
+            {
+                System.err.println("!!!") ;
+            }
         }
     }
     
@@ -63,7 +74,8 @@ public class BindingUtils
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimoprhics Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

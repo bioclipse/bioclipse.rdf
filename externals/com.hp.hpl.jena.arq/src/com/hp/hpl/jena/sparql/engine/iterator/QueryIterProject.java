@@ -1,22 +1,24 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingProject;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.PrintUtils;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.lib.ListUtils ;
+
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingProject ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 
 public class QueryIterProject extends QueryIterConvert
@@ -41,7 +43,7 @@ public class QueryIterProject extends QueryIterConvert
     {
         out.print(Utils.className(this)) ;
         out.print(" ") ;
-        PrintUtils.printList(out, projectionVars) ;
+        ListUtils.print(out, projectionVars) ;
     }
     
     static
@@ -59,41 +61,11 @@ public class QueryIterProject extends QueryIterConvert
             return new BindingProject(projectionVars, bind) ;
         }
     }
-//    
-//    static
-//    class ProjectionExpr implements QueryIterConvert.Converter
-//    {
-//        FunctionEnv funcEnv ;
-//        VarExprList projectionVars ; 
-//
-//        ProjectionExpr(VarExprList vars, ExecutionContext qCxt)
-//        { 
-//            this.projectionVars = vars ;
-//            funcEnv = qCxt ;
-//        }
-//
-//        public Binding convert(Binding bind)
-//        {
-//            Binding b = new BindingMap(bind) ;
-//            for ( Iterator iter = projectionVars.getVars().iterator() ; iter.hasNext(); )
-//            {
-//                Var v = (Var)iter.next();
-//                // Only add those variables that have expressions associated with them
-//                // The parent, bind, already has bound variables for the non-expressions. 
-//                if ( ! projectionVars.hasExpr(v) )
-//                    continue ;
-//                
-//                Node n = projectionVars.get(v, bind, funcEnv) ;
-//                if ( n != null )
-//                    b.add(v, n) ;
-//            }
-//            return new BindingProject(projectionVars.getVars(), b) ;
-//        }
-//    }
 }
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -3,13 +3,11 @@
  * [See end of file]
  */
 
-/** Exception for things going wrong in the evaluation of a filter expression
- * @author		Andy Seaborne
- */
+/** Exception for things going wrong in the evaluation of a filter expression */
 
 
 package com.hp.hpl.jena.sparql.lang.rdql;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
 
 public class RDQLEvalFailureException extends ExprEvalException
 {

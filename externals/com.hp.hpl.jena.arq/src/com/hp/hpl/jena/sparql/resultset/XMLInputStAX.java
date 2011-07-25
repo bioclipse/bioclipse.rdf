@@ -5,45 +5,42 @@
  */
 
 package com.hp.hpl.jena.sparql.resultset;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.io.InputStream ;
+import java.io.Reader ;
+import java.io.StringReader ;
+import java.util.ArrayList ;
+import java.util.List ;
+import java.util.NoSuchElementException ;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.QName ;
+import javax.xml.stream.XMLInputFactory ;
+import javax.xml.stream.XMLStreamConstants ;
+import javax.xml.stream.XMLStreamException ;
+import javax.xml.stream.XMLStreamReader ;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.rdf.model.Model;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.StrUtils ;
 
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.ResultBinding;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.LabelToNodeMap;
-import com.hp.hpl.jena.sparql.util.StringUtils;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.datatypes.RDFDatatype ;
+import com.hp.hpl.jena.datatypes.TypeMapper ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.AnonId ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.core.ResultBinding ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.LabelToNodeMap ;
+import com.hp.hpl.jena.sparql.util.graph.GraphFactory ;
 
 /** Code that reads an XML Results format and builds the ARQ structure for the same.
  *  Can read result set and boolean result forms.
- *  This is a streaming implementation.
- * 
- * @author Andy Seaborne
- */
+ *  This is a streaming implementation. */
 
 
 class XMLInputStAX extends SPARQLResult
@@ -133,7 +130,7 @@ class XMLInputStAX extends SPARQLResult
     private void worker(XMLStreamReader xReader, Model model)
     {
         if ( model == null )
-            model = GraphUtils.makeJenaDefaultModel() ;
+            model = GraphFactory.makeJenaDefaultModel() ;
         
         ResultSetStAX rss = new ResultSetStAX(xReader, model) ;
         if ( rss.isResultSet )
@@ -147,7 +144,7 @@ class XMLInputStAX extends SPARQLResult
     // -------- Result Set
 
     
-    class ResultSetStAX  implements ResultSet
+    class ResultSetStAX  implements ResultSet, Closeable
     {
         // ResultSet variables
         QuerySolution current = null ; 
@@ -204,7 +201,7 @@ class XMLInputStAX extends SPARQLResult
             
         } catch (XMLStreamException ex)
         {
-            ALog.warn(this ,"XMLStreamException: "+ex.getMessage(), ex) ;
+            Log.warn(this ,"XMLStreamException: "+ex.getMessage(), ex) ;
         }
     }
         
@@ -220,10 +217,13 @@ class XMLInputStAX extends SPARQLResult
                 binding = getOneSolution() ;
         } catch (XMLStreamException ex)
         {
+            ex.printStackTrace(System.err) ;
             staxError("XMLStreamException: "+ex.getMessage(), ex) ;
         }
         row++ ;
-        return binding != null ;
+        boolean b = (binding != null) ;
+        //parser.close() ; // Some way to close the input stream.
+        return b ;
     }
 
     public QuerySolution next()
@@ -271,6 +271,9 @@ class XMLInputStAX extends SPARQLResult
         throw new UnsupportedOperationException(XMLInputStAX.class.getName()) ; 
     }
     
+    public void close()
+    { finished = true ; }
+
     // -------- Boolean stuff
     
     private void processBoolean() throws XMLStreamException
@@ -332,12 +335,12 @@ class XMLInputStAX extends SPARQLResult
         {
             String s1 = "" ;
             if ( startElementNames != null )
-                s1 = StringUtils.join(", ",startElementNames) ;
+                s1 = StrUtils.strjoin(", ",startElementNames) ;
             
             String s2 = "" ;
             if ( stopElementNames != null )
-                s2 = StringUtils.join(", ",stopElementNames) ;
-            ALog.warn(this, "Failed to find start of stop of specified elements: "+s1+" :: "+s2) ; 
+                s2 = StrUtils.strjoin(", ",stopElementNames) ;
+            Log.warn(this, "Failed to find start and stop of specified elements: "+s1+" :: "+s2) ; 
         }
     }
     
@@ -442,7 +445,7 @@ class XMLInputStAX extends SPARQLResult
                             node = Node.createAnon(new AnonId(label)) ;
                         else
                             node = bNodes.asNode(label) ;
-                        binding.add(Var.alloc(varName), node) ;
+                        addBinding(binding, Var.alloc(varName), node) ;
                         break ;
                     }
                     
@@ -465,7 +468,9 @@ class XMLInputStAX extends SPARQLResult
                             dType = TypeMapper.getInstance().getSafeTypeByName(datatype);
                         
                         Node n = Node.createLiteral(text,  langTag, dType) ;
-                        binding.add(Var.alloc(varName), n) ;
+                        if ( varName == null )
+                            throw new ResultSetException("No name for variable") ;
+                        addBinding(binding, Var.alloc(varName), n) ;
                         break ;
                     }
                     
@@ -478,7 +483,7 @@ class XMLInputStAX extends SPARQLResult
                     {
                         String uri = parser.getElementText() ;
                         Node node = Node.createURI(uri) ;
-                        binding.add(Var.alloc(varName), node) ;
+                        addBinding(binding, Var.alloc(varName), node) ;
                         break ;
                     }
                     break ;
@@ -499,13 +504,13 @@ class XMLInputStAX extends SPARQLResult
 
     private void staxError(String msg)
     {
-        ALog.warn(this, "StAX error: "+msg) ;
+        Log.warn(this, "StAX error: "+msg) ;
         throw new ResultSetException(msg) ;
     }
 
     private void staxError(String msg, Throwable th)
     {
-        ALog.warn(this, "StAX error: "+msg, th) ;
+        Log.warn(this, "StAX error: "+msg, th) ;
         throw new ResultSetException(msg, th) ;
     }
     }

@@ -6,14 +6,14 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPath;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton;
-import com.hp.hpl.jena.sparql.pfunction.PFuncSimple;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPath ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton ;
+import com.hp.hpl.jena.sparql.pfunction.PFuncSimple ;
 
 public class PathPropertyFunction extends PFuncSimple
 {
@@ -30,7 +30,7 @@ public class PathPropertyFunction extends PFuncSimple
                                        ExecutionContext execCxt)
     {
         return new QueryIterPath(new TriplePath(subject, path, object),
-                                 new QueryIterSingleton(binding, execCxt),
+                                 QueryIterSingleton.create(binding, execCxt),
                                  execCxt) ;
     }
  

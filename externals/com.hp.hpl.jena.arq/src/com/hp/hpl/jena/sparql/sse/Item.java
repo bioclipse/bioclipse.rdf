@@ -7,12 +7,13 @@
 package com.hp.hpl.jena.sparql.sse;
 
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 public class Item extends ItemLocation
 {
@@ -346,7 +347,7 @@ public class Item extends ItemLocation
     public String toString()
     {
         IndentedLineBuffer iBuff = new IndentedLineBuffer() ;
-        ItemWriter.write(iBuff.getIndentedWriter(), this, null) ;
+        ItemWriter.write(iBuff, this, null) ;
         //iBuff.getIndentedWriter().ensureStartOfLine() ;
         //iBuff.getIndentedWriter().flush() ;
         return iBuff.asString() ;

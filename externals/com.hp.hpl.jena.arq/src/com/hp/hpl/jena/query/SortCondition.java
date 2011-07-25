@@ -6,15 +6,19 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.lib.Lib ;
+import org.openjena.atlas.logging.Log ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.expr.E_Function;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprVar;
-import com.hp.hpl.jena.sparql.serializer.FmtExpr;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.*;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.expr.E_Function ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprVar ;
+import com.hp.hpl.jena.sparql.serializer.FmtExpr ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
+import com.hp.hpl.jena.sparql.util.PrintSerializableBase ;
 
 
 public class SortCondition extends PrintSerializableBase
@@ -34,7 +38,7 @@ public class SortCondition extends PrintSerializableBase
         direction = dir ;
         
         if ( dir != Query.ORDER_ASCENDING && dir != Query.ORDER_DESCENDING && dir != Query.ORDER_DEFAULT )
-            ALog.fatal(this, "Unknown sort direction") ;
+            Log.fatal(this, "Unknown sort direction") ;
     }
     
     public void format(FmtExpr fmt,
@@ -52,10 +56,19 @@ public class SortCondition extends PrintSerializableBase
         }
         
         if ( direction == Query.ORDER_ASCENDING )
+        {
+            // Not always necessary but safe.
+            // At this point theer must be brackets but some forms (e.g. ?x+?y)
+            // are going to put their own brackets in regardless.
             writer.print("ASC") ;
+            //needParens = true ;
+        }
         
         if ( direction == Query.ORDER_DESCENDING )
+        {
             writer.print("DESC") ;
+            needParens = true ;
+        }
         
         if ( needParens )
             writer.print("(") ;
@@ -100,7 +113,7 @@ public class SortCondition extends PrintSerializableBase
         if ( sc.getDirection() != this.getDirection() )
             return false ;
         
-        if ( ! Utils.equals(this.getExpression(), sc.getExpression()) )
+        if ( ! Lib.equal(this.getExpression(), sc.getExpression()) )
             return false ;
         
 //        if ( ! Utils.eq(this.getVariable(), sc.getVariable()) )

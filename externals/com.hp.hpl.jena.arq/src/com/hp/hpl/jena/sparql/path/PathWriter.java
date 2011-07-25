@@ -6,10 +6,17 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import static com.hp.hpl.jena.sparql.path.P_Mod.UNSET ;
+
+import java.util.List ;
+
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 public class PathWriter
 {
@@ -31,7 +38,7 @@ public class PathWriter
     public static String asString(Path path, Prologue prologue)
     {
         IndentedLineBuffer buff = new IndentedLineBuffer() ;
-        PathWriterWorker w = new PathWriterWorker(buff.getIndentedWriter(), prologue) ;
+        PathWriterWorker w = new PathWriterWorker(buff, prologue) ;
         path.visit(w) ;
         w.out.flush();
         return buff.asString() ;
@@ -39,7 +46,6 @@ public class PathWriter
 
     static class PathWriterWorker implements PathVisitor
     {
-
         private IndentedWriter out ;
         private Prologue prologue ;
         private static boolean alwaysInnerParens = true ;
@@ -65,11 +71,75 @@ public class PathWriter
         }
         
         //@Override
+        private void output(Node node)
+        {
+            out.print(FmtUtils.stringForNode(node, prologue)) ;
+        }
+        
+      //@Override
+        private void output(P_Path0 path0)
+        {
+            if ( ! path0.isForward() )
+                out.print("^") ;
+            out.print(FmtUtils.stringForNode(path0.getNode(), prologue)) ;
+        }
+        
+        //@Override
         public void visit(P_Link pathNode)
         {
-            out.print(FmtUtils.stringForNode(pathNode.getNode(), prologue)) ;
+            output(pathNode.getNode()) ;
+        }
+        
+        public void visit(P_ReverseLink pathNode)
+        {
+            out.println("^") ;
+            output(pathNode.getNode()) ;
         }
 
+        //@Override
+        public void visit(P_NegPropSet pathNotOneOf)
+        {
+            List<P_Path0> props = pathNotOneOf.getNodes() ;
+            if ( props.size() == 0 )
+                throw new ARQException("Bad path element: NotOneOf found with no elements") ;
+            out.print("!") ;
+            if ( props.size() == 1 )
+                output(props.get(0)) ;
+            else
+            {
+                out.print("(") ;
+                boolean first = true ;
+                for (P_Path0 p : props)
+                {
+                    if (!first) out.print("|") ;
+                    first = false ;
+                    output(p) ;
+                }
+                out.print(")") ;
+            }
+
+//            List<P_Path0> props = pathNotOneOf.getNodes()  ;
+//            if ( props.size() == 0 )
+//                throw new ARQException("Bad path element: NotOneOf found with no elements") ;
+//            out.print("!") ;
+//            if ( props.size() == 1 )
+//                output(props.get(0)) ;
+//            else
+//            {
+//                out.print("(") ;
+//                boolean first = true ;
+//                for (P_Path0 p : props)
+//                {
+//                    if (!first) out.print("|") ;
+//                    first = false ;
+//                    output(p) ;
+//                }
+//                out.print(")") ;
+//            }
+        }
+
+        
+        
         //@Override
         public void visit(P_Alt pathAlt)
         {
@@ -113,31 +183,77 @@ public class PathWriter
             pathMod.getSubPath().visit(this) ;
             if ( alwaysInnerParens )
                 out.print(")") ;
-            
-            
-            if ( pathMod.isZeroOrMore() )
-                out.print("*") ;
-            else if ( pathMod.isOneOrMore() )
-                out.print("+") ;
-            else if ( pathMod.isZeroOrOne() )
-                out.print("?") ;
-            else
-            {
-                out.print("{") ;
+
+            out.print("{") ;
+            if ( pathMod.getMin() != UNSET )
                 out.print(Long.toString(pathMod.getMin())) ;
-                out.print(",") ;
+            out.print(",") ;
+            if ( pathMod.getMax() != UNSET )
                 out.print(Long.toString(pathMod.getMax())) ;
-                out.print("}") ;
-            }
+            out.print("}") ;
+            
+//            if ( pathMod.isZeroOrMore() )
+//                out.print("*") ;
+//            else if ( pathMod.isOneOrMore() )
+//                out.print("+") ;
+//            else if ( pathMod.isZeroOrOne() )
+//                out.print("?") ;
+//            else
+//            {
+//                out.print("{") ;
+//                if ( pathMod.getMin() != UNSET )
+//                    out.print(Long.toString(pathMod.getMin())) ;
+//                out.print(",") ;
+//                if ( pathMod.getMax() != UNSET )
+//                    out.print(Long.toString(pathMod.getMax())) ;
+//                out.print("}") ;
+//            }
             if ( needParens )
                 out.print(")") ;
         }
 
+        public void visit(P_FixedLength pFixedLength)
+        {
+            if ( needParens )
+                out.print("(") ;
+            if ( alwaysInnerParens )
+                out.print("(") ;
+            pFixedLength.getSubPath().visit(this) ;
+            if ( alwaysInnerParens )
+                out.print(")") ;
+
+            out.print("{") ;
+            out.print(Long.toString(pFixedLength.getCount())) ;
+            out.print("}") ;
+            if ( needParens )
+                out.print(")") ;
+        }
+
+        public void visit(P_ZeroOrOne path)
+        { printPathMod("?", path.getSubPath()) ; }
+
+        public void visit(P_ZeroOrMore path)
+        { printPathMod("*", path.getSubPath()) ; }
+
+        public void visit(P_OneOrMore path)
+        { printPathMod("+", path.getSubPath()) ; }
+
+        private void printPathMod(String mod, Path path)
+        {
+            boolean doParens = ( needParens || alwaysInnerParens ) ;
+            if ( doParens )
+                out.print("(") ;
+            path.visit(this) ;
+            if ( doParens )
+                out.print(")") ;
+            out.print(mod) ;
+        }
+        
         // Need to consider binary ^
-        public void visit(P_Reverse reversePath)
+        public void visit(P_Inverse inversePath)
         {
             out.print("^") ;
-            Path p = reversePath.getSubPath() ;
+            Path p = inversePath.getSubPath() ;
             boolean parens = true ; 
             if ( p instanceof P_Link )
                 parens = false ;

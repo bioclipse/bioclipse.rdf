@@ -5,11 +5,7 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.expr.nodevalue.NodeFunctions;
-
-/** 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.expr.nodevalue.NodeFunctions ;
 
 public class E_LangMatches extends ExprFunction2
 {

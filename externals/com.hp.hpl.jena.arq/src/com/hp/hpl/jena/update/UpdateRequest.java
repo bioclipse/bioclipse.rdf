@@ -1,68 +1,68 @@
 /*
- * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.update;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Collections ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.modify.op.Update;
-import com.hp.hpl.jena.sparql.serializer.PrologueSerializer;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.PrintUtils;
-import com.hp.hpl.jena.sparql.util.Printable;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.io.PrintUtils ;
+import org.openjena.atlas.io.Printable ;
 
-/** A single request which may consist of several updates, to be performed in the order added to the request */
-public class UpdateRequest extends Prologue
-    implements Printable//, Iterable<Update>
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.modify.request.UpdateWriter ;
+
+
+public class UpdateRequest extends Prologue implements Printable, Iterable<Update>
 {
-    private List<Update> requests = new ArrayList<Update>() ;
+    private List<Update> operations = new ArrayList<Update>() ;
+    private List<Update> operationsView = Collections.unmodifiableList(operations) ;
+
     public UpdateRequest() { super() ; }
-    public UpdateRequest(Update graphUpdate) { super() ; requests.add(graphUpdate) ; }
-    
-    public void addUpdate(Update update) { requests.add(update) ; }
-    public List<Update> getUpdates() { return requests ; }
-
-    @Override
-    public String toString()
-    { return PrintUtils.toString(this) ; } 
-
-    //@Override
-    public void output(IndentedWriter out)
-    {  
-        PrologueSerializer.output(out, this) ;
-        SerializationContext sCxt = new SerializationContext(this) ;
-        boolean first = true ;
-        out.println() ;
-        
-        for ( Iterator<Update> iter = requests.iterator() ; iter.hasNext(); )
-        {
-            Update update = iter.next() ;
-
-            if ( ! first )
-                out.println("    # ----------------") ;
-            else
-                first = false ;
-            update.output(out, sCxt) ;
-            out.ensureStartOfLine() ;
-            //out.println();
-        }
+    public UpdateRequest(Update update)
+    {
+        this() ;
+        add(update) ;
     }
+
+    /** @deprecated Use {#add(Update) */
+    @Deprecated
+    public void addUpdate(Update update) { add(update) ; } 
+
+    public UpdateRequest add(Update update) { operations.add(update) ; return this ; } 
+    public UpdateRequest add(String string)
+    { 
+        UpdateFactory.parse(this, string) ;
+        return this ;
+    }
+
+    public List<Update> getOperations() { return operationsView ; }
+    
+    @Deprecated
+    /** @deprecated Use getOperations instead. */
+    public List<Update> getUpdates() { return operationsView ; }
     
     public Iterator<Update> iterator()
     {
-        return requests.iterator() ;
+        return operationsView.iterator() ;
     }
+    
+    @Override
+    public String toString()
+    { return PrintUtils.toString(this) ; } 
+    
+    public void output(IndentedWriter out)
+    { UpdateWriter.output(this, out) ; }
 }
 
 /*
- * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

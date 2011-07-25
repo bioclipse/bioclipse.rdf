@@ -5,34 +5,31 @@
 
 package com.hp.hpl.jena.query;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.ByteArrayOutputStream ;
+import java.io.OutputStream ;
+import java.io.PrintWriter ;
+import java.io.UnsupportedEncodingException ;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.util.FileUtils;
-
-import com.hp.hpl.jena.sparql.ARQNotImplemented;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.resultset.*;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.ALog;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.ARQNotImplemented ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.resultset.* ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 /** ResultSetFormatter - Convenience ways to call the various output formatters.
- *  in various formats. 
- * 
- * @author   Andy Seaborne
- */
+ *  in various formats. */
 
 public class ResultSetFormatter
 {
+    private ResultSetFormatter() {}
     /**
      * Output a result set in a text format.  The result set is consumed.
      * Use @see{ResultSetFactory.makeRewindable(ResultSet)} for a rewindable one.
@@ -144,7 +141,7 @@ public class ResultSetFormatter
         try { return new String(arr.toByteArray(), "UTF-8") ; }
         catch (UnsupportedEncodingException e)
         {
-            ALog.warn(ResultSetFormatter.class, "UnsupportedEncodingException") ;
+            Log.warn(ResultSetFormatter.class, "UnsupportedEncodingException") ;
             return null ;
         }
     }
@@ -164,7 +161,7 @@ public class ResultSetFormatter
         try { return new String(arr.toByteArray(), "UTF-8") ; }
         catch (UnsupportedEncodingException e)
         {
-            ALog.warn(ResultSetFormatter.class, "UnsupportedEncodingException") ;
+            Log.warn(ResultSetFormatter.class, "UnsupportedEncodingException") ;
             return null ;
         }
     }
@@ -306,7 +303,7 @@ public class ResultSetFormatter
             return ;
         }
         
-        ALog.warn(ResultSetFormatter.class, "Unknown ResultSetFormat: "+rFmt);
+        Log.warn(ResultSetFormatter.class, "Unknown ResultSetFormat: "+rFmt);
     }
     
     /** Write out an RDF model that encodes the result set
@@ -572,7 +569,7 @@ public class ResultSetFormatter
     // ---- SSE
     
     /** Output a boolean result in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a> 
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a> 
      *  
      * @param booleanResult The boolean result to encode
      */
@@ -581,7 +578,7 @@ public class ResultSetFormatter
     { outputAsSSE(System.out, booleanResult ) ; }
     
     /** Output a boolean result in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a> 
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a> 
      *  
      * @param outStream     output stream
      * @param booleanResult The boolean result to encode
@@ -593,7 +590,7 @@ public class ResultSetFormatter
     }
 
     /** Output a result set in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a>
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a>
      *  @param resultSet     result set
      */
     
@@ -601,7 +598,7 @@ public class ResultSetFormatter
     { outputAsSSE(System.out, resultSet) ; }
     
     /** Output a result set in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a>
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a>
      *  @param resultSet     result set
      */
     
@@ -609,7 +606,7 @@ public class ResultSetFormatter
     { outputAsSSE(System.out, resultSet, prologue) ; }
 
     /** Output a result set in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a>
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a>
      * @param outStream  The output stream
      * @param resultSet     The result set
      */
@@ -618,7 +615,7 @@ public class ResultSetFormatter
     { outputAsSSE(outStream, resultSet, null) ; }
     
     /** Output a result set in the SSE format
-     *  Format: <a href="http://jena.hpl.hp.com/wiki/SSE">SSE</a>
+     *  Format: <a href="http://openjena.org/wiki/SSE">SSE</a>
      * @param outStream     output stream
      * @param resultSet     result set
      * @param prologue
@@ -669,6 +666,47 @@ public class ResultSetFormatter
         fmt.format(outStream, resultSet) ;
     }
 
+    // ---- TSV
+    
+    /** Output a boolean result in TSV (tab separated values) format
+     *  
+     * @param booleanResult The boolean result to encode
+     */
+    
+    static public void outputAsTSV(boolean booleanResult)
+    { outputAsTSV(System.out, booleanResult ) ; }
+    
+    /** Output a boolean result in in TSV format
+     *  
+     * @param outStream     output stream
+     * @param booleanResult The boolean result to encode
+     */
+    
+    static public void outputAsTSV(OutputStream outStream, boolean booleanResult)
+    {
+        TSVOutput fmt = new TSVOutput() ;
+        fmt.format(outStream, booleanResult) ;
+    }
+
+    /** Output a result set in TSV format
+     *  @param resultSet     result set
+     */
+    
+    static public void outputAsTSV(ResultSet resultSet)
+    { outputAsTSV(System.out, resultSet) ; }
+    
+    /** Output a result set in TSV format
+     * @param outStream  The output stream
+     * @param resultSet     The result set
+     */
+    
+    static public void outputAsTSV(OutputStream outStream, ResultSet resultSet)
+    {
+        TSVOutput fmt = new TSVOutput() ;
+        fmt.format(outStream, resultSet) ;
+    }
+
+    
 }
 
 /*

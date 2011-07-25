@@ -1,74 +1,77 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openjena.atlas.logging.Log ;
 
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-
-public class AggCountDistinct implements AggregateFactory
+public class AggCountDistinct extends AggregatorBase
 {
     // ---- COUNT(DISTINCT *)
+    public AggCountDistinct() { super() ; }
+    public Aggregator copy(Expr expr)
+    { 
+        if ( expr != null )
+            Log.warn(this, "Copying non-null expression for COUNT(DISTINCT *)") ;
+        return new AggCountDistinct() ; 
+    }
+    
+    @Override
+    public String toString()        { return "count(distinct *)" ; }
+    @Override
+    public String toPrefixString()  { return "(count distinct)" ; }
 
-    private static AggCountDistinct singleton = new AggCountDistinct() ;
-    public static AggregateFactory get() { return singleton ; }
-
-    private AggCountDistinct() {} 
-
-    public Aggregator create()
-    {
-        return new AggCountDistinctWorker() ;
+    public Expr getExpr()           { return null ; }
+    
+    @Override
+    protected Accumulator createAccumulator()
+    { 
+        return new AccCountDistinct() ; 
     }
 
-    static class AggCountDistinctWorker extends AggregatorBase
+    @Override
+    public Node getValueEmpty()     { return NodeConst.nodeZero ; }
+
+    @Override
+    public int hashCode()   { return HC_AggCountDistinct ; }
+
+    @Override
+    public boolean equals(Object other)
     {
-        public AggCountDistinctWorker() { super() ; }
-
-        @Override
-        public String toString()        { return "count(distinct *)" ; }
-        public String toPrefixString()  { return "(count distinct)" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccCountDistinct() ; 
-        }
-        
-        @Override
-        public Node getValueEmpty()     { return NodeConst.nodeZero ; }
-
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            // Stateless as expression
-            return ( other instanceof AggCountDistinctWorker ) ;
-        } 
+        if ( this == other ) return true ;
+        if ( ! ( other instanceof AggCountDistinct ) ) return false ;
+        return true ;
     }
 
-    // ---- COUNT(DISTINCT *)
-    static class AccCountDistinct implements Accumulator
+    static class AccCountDistinct extends AccumulatorDistinctAll
     {
-        private Set<Binding> rows = new HashSet<Binding>() ;
-        public AccCountDistinct()               { } 
-        // The group key part of binding will be the same for all elements of the group.
-        public void accumulate(Binding binding, FunctionEnv functionEnv)
-        { rows.add(binding) ; }
-        
-        public NodeValue getValue()             { return NodeValue.makeInteger(rows.size()) ; }
+        private long count = 0 ;
+        public AccCountDistinct()   { }
+
+        @Override public void accumulateDistinct(Binding binding, FunctionEnv functionEnv)
+        { count++ ; }
+
+        public NodeValue getValue()
+        { return NodeValue.makeInteger(count) ; }
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,10 +6,10 @@
 
 package com.hp.hpl.jena.sparql.lang;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashMap ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.query.Syntax ;
 
 /** original code - contribution from Olaf Hartig */
 
@@ -35,7 +35,7 @@ public class ParserRegistry
         ParserRegistry reg = new ParserRegistry() ;
         
         reg.add(Syntax.syntaxSPARQL_10, 
-                     new ParserFactory() {
+                new ParserFactory() {
             public boolean accept( Syntax syntax ) { return Syntax.syntaxSPARQL_10.equals(syntax) ; } 
             public Parser create( Syntax syntax ) { return new ParserSPARQL10() ; } }) ;
         
@@ -45,12 +45,12 @@ public class ParserRegistry
             public Parser create( Syntax syntax ) { return new ParserSPARQL11() ; } }) ;
    
         reg.add(Syntax.syntaxARQ, 
-                     new ParserFactory() {
+                new ParserFactory() {
             public boolean accept(Syntax syntax ) { return Syntax.syntaxARQ.equals(syntax) ; } 
             public Parser create ( Syntax syntax ) { return new ParserARQ() ; } }) ;
 
         reg.add(Syntax.syntaxRDQL, 
-                     new ParserFactory() {
+                new ParserFactory() {
             public boolean accept ( Syntax syntax ) { return Syntax.syntaxRDQL.equals(syntax) ; } 
             public Parser create ( Syntax syntax ) { return new ParserRDQL() ; } }) ;
         

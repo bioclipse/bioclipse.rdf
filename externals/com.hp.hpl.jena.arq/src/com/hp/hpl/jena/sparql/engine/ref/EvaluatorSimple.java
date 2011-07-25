@@ -6,39 +6,40 @@
 
 package com.hp.hpl.jena.sparql.engine.ref;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFormatter;
-import com.hp.hpl.jena.query.SortCondition;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.TableFactory;
-import com.hp.hpl.jena.sparql.algebra.table.TableN;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.ResultSetStream;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.*;
-import com.hp.hpl.jena.sparql.engine.main.QC;
-import com.hp.hpl.jena.sparql.expr.E_Aggregator;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.procedure.ProcEval;
-import com.hp.hpl.jena.sparql.procedure.Procedure;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.query.ResultSetFormatter ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.algebra.TableFactory ;
+import com.hp.hpl.jena.sparql.algebra.table.TableN ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.ResultSetStream ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.* ;
+import com.hp.hpl.jena.sparql.engine.main.QC ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
+import com.hp.hpl.jena.sparql.procedure.ProcEval ;
+import com.hp.hpl.jena.sparql.procedure.Procedure ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class EvaluatorSimple implements Evaluator
 {
     // Simple, slow, correct
 
     private ExecutionContext execCxt ;
-    boolean debug = false ;
+    public static boolean debug = false ;
 
     public EvaluatorSimple(ExecutionContext context)
     {
@@ -113,6 +114,18 @@ public class EvaluatorSimple implements Evaluator
         return diffWorker(tableLeft, tableRight) ;
     }
 
+    public Table minus(Table tableLeft, Table tableRight)
+    {
+        if ( debug )
+        {
+            System.out.println("Minus") ;
+            dump(tableLeft) ;
+            dump(tableRight) ;
+        }
+        
+        return minusWorker(tableLeft, tableRight) ;
+    }
+
     public Table filter(ExprList expressions, Table table)
     {
         if ( debug )
@@ -168,7 +181,7 @@ public class EvaluatorSimple implements Evaluator
         return new TableN(qIter) ;
     }
 
-    public Table groupBy(Table table, VarExprList groupVars, List<E_Aggregator> aggregators)
+    public Table groupBy(Table table, VarExprList groupVars, List<ExprAggregator> aggregators)
     {
         QueryIterator qIter = table.iterator(getExecContext()) ;
         qIter = new QueryIterGroup(qIter, groupVars, aggregators, getExecContext()) ;
@@ -206,7 +219,14 @@ public class EvaluatorSimple implements Evaluator
     public Table assign(Table table, VarExprList exprs)
     {
         QueryIterator qIter = table.iterator(getExecContext()) ;
-        qIter = new QueryIterAssign(qIter, exprs, getExecContext()) ;
+        qIter = new QueryIterAssign(qIter, exprs, getExecContext(), false) ;
+        return new TableN(qIter) ;
+    }
+
+    public Table extend(Table table, VarExprList exprs)
+    {
+        QueryIterator qIter = table.iterator(getExecContext()) ;
+        qIter = new QueryIterAssign(qIter, exprs, getExecContext(), true) ;
         return new TableN(qIter) ;
     }
 
@@ -236,6 +256,7 @@ public class EvaluatorSimple implements Evaluator
         return new TableN(output) ;
     }
     
+    // @@ Abstract compatibility
     private Table diffWorker(Table tableLeft, Table tableRight)
     {
         QueryIterator left = tableLeft.iterator(execCxt) ;
@@ -251,6 +272,44 @@ public class EvaluatorSimple implements Evaluator
         return r ;
     }
     
+    private Table minusWorker(Table tableLeft, Table tableRight)
+    {
+        // Minus(Ω1, Ω2) = { μ | μ in Ω1 such that for all μ' in Ω2, either μ and μ' are not compatible or dom(μ) and dom(μ') are disjoint }
+        
+        TableN results = new TableN() ;
+        QueryIterator iterLeft = tableLeft.iterator(execCxt) ;
+        for ( ; iterLeft.hasNext() ; )
+        {
+            Binding bindingLeft = iterLeft.nextBinding() ;
+            boolean includeThisRow = true ;
+            // Find a reason not to include the row.
+            // That's is not disjoint and not compatible.
+            
+            QueryIterator iterRight = tableRight.iterator(execCxt) ;
+            for ( ; iterRight.hasNext() ; )
+            {
+                Binding bindingRight = iterRight.nextBinding() ;
+                if ( Algebra.disjoint(bindingLeft, bindingRight) )
+                    // Disjoint - not a reason to exclude
+                    continue ;
+                
+                if ( ! Algebra.compatible(bindingLeft, bindingRight) )
+                    // Compatible - not a reason to exclude.
+                    continue ;
+                
+                includeThisRow = false ;
+                break ;
+                
+            }
+            iterRight.close();
+            if ( includeThisRow )
+                results.addBinding(bindingLeft) ;
+        } 
+
+        iterLeft.close();
+        return results ;
+    }
+
     private static void dump(Table table)
     {
         System.out.println("Table: "+Utils.className(table)) ;

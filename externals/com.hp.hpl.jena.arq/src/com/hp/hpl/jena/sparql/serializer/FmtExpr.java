@@ -6,20 +6,19 @@
 
 package com.hp.hpl.jena.sparql.serializer;
 
-import com.hp.hpl.jena.shared.PrefixMapping;
+import org.openjena.atlas.io.IndentedWriter ;
 
-import com.hp.hpl.jena.sparql.algebra.OpAsQuery;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.expr.*;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.algebra.OpAsQuery ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.expr.* ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
 
 /** Output expressions in the syntax that ARQ expects them */
 
 public class FmtExpr
 {
     static final int INDENT = 2 ;
-    // Rename as ExprWriter, move to expr.
     
     FmtExprARQVisitor visitor ; 
 
@@ -71,8 +70,24 @@ public class FmtExpr
 
         public void startVisit() { }
 
-        private void visitFunction1(ExprFunction1 expr)
+        public void visit(ExprFunction0 expr)
         {
+            if ( expr.getOpName() == null )
+            {
+                printInFunctionForm(expr) ;
+                return ;
+            }
+            out.print("()") ;
+        }
+
+        
+        public void visit(ExprFunction1 expr)
+        {
+            if ( expr.getOpName() == null )
+            {
+                printInFunctionForm(expr) ;
+                return ;
+            }
             out.print("( ") ;
             out.print( expr.getOpName() ) ;
             out.print(" ") ;
@@ -80,8 +95,13 @@ public class FmtExpr
             out.print(" )");
         }
 
-        private void visitFunction2(ExprFunction2 expr)
+        public void visit(ExprFunction2 expr)
         {
+            if ( expr.getOpName() == null )
+            {
+                printInFunctionForm(expr) ;
+                return ;
+            }
             out.print("( ") ;
             expr.getArg1().visit(this) ;
             out.print(" ") ;
@@ -91,34 +111,60 @@ public class FmtExpr
             out.print(" )");
         }
 
-        public void visit(ExprFunction func)
+        public void visit(ExprFunction3 expr)
         {
-            if ( func.getOpName() != null && func instanceof ExprFunction2 )
-            {
-                visitFunction2((ExprFunction2)func) ;
-                return ;
-            }
-
-            if ( func.getOpName() != null && func instanceof ExprFunction1 )
-            {
-                visitFunction1((ExprFunction1)func) ;
-                return ;
-            }
-
-            out.print( func.getFunctionPrintName(context) ) ;
-            out.print("(") ;
-            for ( int i = 1 ; ; i++ )
-            {
-                Expr expr = func.getArg(i) ;
-                if ( expr == null )
-                    break ; 
-                if ( i != 1 )
-                    out.print(", ") ;
-                expr.visit(this) ;
-            }
-            out.print(")");
+            printInFunctionForm(expr) ;
         }
 
+
+        public void visit(ExprFunctionN func)
+        {
+            if ( func instanceof E_OneOf )
+            {
+                E_OneOf oneOf = (E_OneOf)func ;
+                out.print("( ") ;
+                oneOf.getLHS().visit(this) ;
+                out.print(" IN ") ;
+                printExprList(oneOf.getRHS()) ;
+                out.print(" )") ;
+                return ;
+            }
+
+            if ( func instanceof E_NotOneOf )
+            {
+                E_NotOneOf oneOf = (E_NotOneOf)func ;
+                out.print("( ") ;
+                oneOf.getLHS().visit(this) ;
+                out.print(" NOT IN ") ;
+                printExprList(oneOf.getRHS()) ;
+                out.print(" )") ;
+                return ;
+            }
+            printInFunctionForm(func) ;
+        }
+
+        private void printInFunctionForm(ExprFunction func)
+        {
+            out.print( func.getFunctionPrintName(context) ) ;
+            printExprList(func.getArgs()) ;
+        }
+        
+        private void printExprList(Iterable<Expr> exprs)
+        {
+            out.print("(") ;
+            boolean first = true ;
+            for ( Expr expr : exprs )
+            {
+                if ( expr == null )
+                    break ; 
+                if ( ! first )
+                    out.print(", ") ;
+                first = false ;
+                expr.visit(this) ;
+            }  
+            out.print(")");
+        }
+        
         public void visit(ExprFunctionOp funcOp)
         {
             FormatterElement fmtElt = new FormatterElement(out, context) ;
@@ -126,7 +172,7 @@ public class FmtExpr
             out.print(" ") ;
             Element el = funcOp.getElement() ; 
             if ( el == null )
-                el = OpAsQuery.asQuery(funcOp.getOp()).getQueryPattern() ;
+                el = OpAsQuery.asQuery(funcOp.getGraphPattern()).getQueryPattern() ;
             el.visit(fmtElt) ;
         }
 
@@ -151,10 +197,14 @@ public class FmtExpr
             }
         }
 
+        public void visit(ExprAggregator eAgg)
+        {
+            out.print(eAgg.asSparqlExpr()) ;
+        }
+        
+        
         public void finishVisit() { out.flush() ; }
     }
-
-
 }
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP

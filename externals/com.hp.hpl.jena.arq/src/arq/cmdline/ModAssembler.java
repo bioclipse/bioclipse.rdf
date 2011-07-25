@@ -6,19 +6,18 @@
 
 package arq.cmdline;
 
-import arq.cmd.CmdException;
+import arq.cmd.CmdException ;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.shared.NotFoundException;
-
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.shared.NotFoundException ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils ;
 
 
 public class ModAssembler extends ModBase
 {
-    protected final ArgDecl assemblerDescDecl = new ArgDecl(ArgDecl.HasValue, "desc", "dataset") ;
+    public static final ArgDecl assemblerDescDecl = new ArgDecl(ArgDecl.HasValue, "desc", "dataset") ;
     private String assemblerFile = null ;
     Object thingDescribed = null ;
     

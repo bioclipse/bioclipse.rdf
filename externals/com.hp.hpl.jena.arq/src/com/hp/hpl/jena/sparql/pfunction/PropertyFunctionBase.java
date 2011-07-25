@@ -6,21 +6,20 @@
 
 package com.hp.hpl.jena.sparql.pfunction;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.QueryBuildException;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.IterLib;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.QueryBuildException ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.IterLib ;
 
 /** Basic property function handler that calls the implementation 
- * subclass one binding at a time
- * @author Andy Seaborne
- */ 
+ * subclass one binding at a time */ 
 
 public abstract class PropertyFunctionBase implements PropertyFunction
 {
@@ -44,17 +43,15 @@ public abstract class PropertyFunctionBase implements PropertyFunction
             if ( argSubject.isList() )
                 throw new QueryBuildException("List arguments (subject) to "+predicate.getURI()) ;
         
-        if ( subjArgType.equals(PropFuncArgType.PF_ARG_LIST) )
-            if ( ! argSubject.isList() )
+        if ( subjArgType.equals(PropFuncArgType.PF_ARG_LIST) && ! argSubject.isList() )
                 throw new QueryBuildException("Single argument, list expected (subject) to "+predicate.getURI()) ;
 
-        if ( objFuncArgType.equals(PropFuncArgType.PF_ARG_SINGLE) )
-            if ( argObject.isList() )
-            {
-                if ( ! argObject.isNode() )
-                    // But allow rdf:nil.
-                    throw new QueryBuildException("List arguments (object) to "+predicate.getURI()) ;
-            }
+        if ( objFuncArgType.equals(PropFuncArgType.PF_ARG_SINGLE) && argObject.isList() )
+        {
+            if ( ! argObject.isNode() )
+                // But allow rdf:nil.
+                throw new QueryBuildException("List arguments (object) to "+predicate.getURI()) ;
+        }
         
         if ( objFuncArgType.equals(PropFuncArgType.PF_ARG_LIST) )
             if ( ! argObject.isList() )
@@ -65,20 +62,25 @@ public abstract class PropertyFunctionBase implements PropertyFunction
     
     public QueryIterator exec(QueryIterator input, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt)
     {
-        return new RepeatApplyIterator(input, argSubject, predicate, argObject, execCxt) ;
+        // This is the property function equivalent of Substitute.
+        // To allow property functions to see the whole input stream,
+        // the exec() operation allows the PF implementation to get at the
+        // input iterator.  Normally, we just want that applied one binding at a time.
+
+        return new RepeatApplyIteratorPF(input, argSubject, predicate, argObject, execCxt) ;
     }
     
     public abstract QueryIterator exec(Binding binding, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt) ;
     
     
-    class RepeatApplyIterator extends QueryIterRepeatApply
+    class RepeatApplyIteratorPF extends QueryIterRepeatApply
     {
         private ExecutionContext execCxt ;
         private PropFuncArg argSubject ; 
         private Node predicate ;
         private PropFuncArg argObject ;
         
-       public RepeatApplyIterator(QueryIterator input, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt)
+       public RepeatApplyIteratorPF(QueryIterator input, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt)
        { 
            super(input, execCxt) ;
            this.argSubject = argSubject ;
