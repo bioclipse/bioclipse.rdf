@@ -38,7 +38,8 @@ public class RDFContentProvider implements IGraphContentProvider {
         		return (Literal)resource;
         	if (resource.isResource()) {
         		Resource res = (Resource)resource;
-            	if (!res.getURI().startsWith("http://www.w3.org/"))
+            	if (res.getURI() != null &&
+            		!res.getURI().startsWith("http://www.w3.org/"))
             		return resource; 
         	}
         	return ((Statement)rel).getObject();
@@ -52,10 +53,11 @@ public class RDFContentProvider implements IGraphContentProvider {
         while (iter.hasNext()) {
         	Statement stmt = iter.next();
         	Resource subject = stmt.getSubject();
-        	if (!subject.getURI().startsWith("http://www.w3.org/"))
+        	if (subject.getURI() != null &&
+        		!subject.getURI().startsWith("http://www.w3.org/"))
         		elements.add(stmt);
         }
-        System.out.println(elements);
+//        System.out.println(elements);
         return elements.toArray();
     }
 
