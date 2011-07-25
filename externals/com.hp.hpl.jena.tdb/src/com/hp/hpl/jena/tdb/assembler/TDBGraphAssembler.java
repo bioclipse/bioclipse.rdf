@@ -8,8 +8,8 @@ package com.hp.hpl.jena.tdb.assembler;
 
 import static com.hp.hpl.jena.sparql.util.graph.GraphUtils.*;
 import static com.hp.hpl.jena.tdb.assembler.VocabTDB.*;
+import org.openjena.atlas.logging.Log ;
 
-import atlas.logging.Log;
 
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.*;
@@ -38,7 +38,7 @@ public class TDBGraphAssembler extends AssemblerBase implements Assembler
         // and that probably means TDB.init
         TDB.init() ;
         
-        // Make a model.
+        // Make a model - the default model of the TDB dataset
         // [] rdf:type tdb:GraphTDB ;
         //    tdb:location "dir" ;
         
@@ -47,9 +47,6 @@ public class TDBGraphAssembler extends AssemblerBase implements Assembler
         //    tdb:location "dir" ;
         //    tdb:graphName <http://example/name> ;
 
-        // Or [not ready]
-        // [] rdf:type tdb:GraphBDB ;
-        
         // Location or dataset reference.
         String locationDir = getStringValue(root, pLocation) ;
         Resource dataset = getResourceValue(root, pDataset) ;
@@ -80,12 +77,10 @@ public class TDBGraphAssembler extends AssemblerBase implements Assembler
             ds = DatasetAssemblerTDB.make(dataset) ;
 
         try {
-        
-        if ( graphName != null )
-            return ds.getNamedModel(graphName) ;
-        else
-            return ds.getDefaultModel() ;
-        
+            if ( graphName != null )
+                return ds.getNamedModel(graphName) ;
+            else
+                return ds.getDefaultModel() ;
         } catch (RuntimeException ex)
         {
             ex.printStackTrace(System.err) ;

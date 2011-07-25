@@ -1,28 +1,30 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.store;
 
-import static com.hp.hpl.jena.sparql.core.Quad.isDefaultGraph;
-import static com.hp.hpl.jena.sparql.core.Quad.isQuadUnionGraph;
+import static com.hp.hpl.jena.sparql.core.Quad.isDefaultGraph ;
+import static com.hp.hpl.jena.sparql.core.Quad.isUnionGraph ;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import atlas.lib.Tuple;
+import org.openjena.atlas.lib.Tuple ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.tdb.TDBException;
-import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.graph.TripleMatch ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.tdb.TDBException ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator ;
 
 /** A graph implementation that projects a graph from a quad table */
 public class GraphNamedTDB extends GraphTDBBase
@@ -64,33 +66,32 @@ public class GraphNamedTDB extends GraphTDBBase
     }
 
     @Override
-    public void performAdd( Triple t ) 
+    protected boolean _performAdd( Triple t ) 
     { 
-        if ( isQuadUnionGraph(graphNode) )
+        if ( isUnionGraph(graphNode) )
             throw new TDBException("Can't add a triple to the RDF merge of all named graphs") ;
         boolean changed ;
         if ( isDefaultGraph(graphNode) )
             changed = dataset.getTripleTable().add(t) ;
-            //throw new TDBException("Attempt to add a triple to the default graph via its named form");
         else 
             changed = dataset.getQuadTable().add(graphNode, t) ;
         
         if ( ! changed )
             duplicate(t) ;
+        return changed ; 
     }
 
  
     @Override
-    public void performDelete( Triple t ) 
+    protected boolean _performDelete( Triple t ) 
     { 
-        if ( isQuadUnionGraph(graphNode) )
+        if ( isUnionGraph(graphNode) )
             throw new TDBException("Can't delete triple from the RDF merge of all named graphs") ;
-        boolean changed ;
+        
         if ( isDefaultGraph(graphNode) )
-            changed = dataset.getTripleTable().delete(t) ;
-            //throw new TDBException("Attempt to delete a triple from the default graph via its named form"); 
-        else 
-            changed = dataset.getQuadTable().delete(graphNode, t) ;
+            return dataset.getTripleTable().delete(t) ;
+
+        return dataset.getQuadTable().delete(graphNode, t) ;
     }
     
     @Override
@@ -108,9 +109,10 @@ public class GraphNamedTDB extends GraphTDBBase
     protected Iterator<Tuple<NodeId>> countThis()
     {
         NodeId gn = getGraphNodeId() ;
-        Tuple<NodeId> t = Tuple.create(gn, null, null, null) ;
-        //Iterator<Tuple<NodeId>> iter = dataset.getQuadTable().getNodeTupleTable().getTupleTable().find(t) ;
-        Iterator<Tuple<NodeId>> iter = dataset.getQuadTable().getNodeTupleTable().getTupleTable().getIndex(0).find(t) ;
+        Iterator<Tuple<NodeId>> iter = dataset.getQuadTable().getNodeTupleTable().find(gn, null, null, null) ;
+//        Tuple<NodeId> t = Tuple.create(gn, null, null, null) ;
+//        //Iterator<Tuple<NodeId>> iter = dataset.getQuadTable().getNodeTupleTable().getTupleTable().find(t) ;
+//        Iterator<Tuple<NodeId>> iter = dataset.getQuadTable().getNodeTupleTable().getTupleTable().getIndex(0).find(t) ;
         return iter ;
     }
     
@@ -148,19 +150,22 @@ public class GraphNamedTDB extends GraphTDBBase
     @Override
     final public void close()
     { 
-        // Do nothing much.  May be returned via the dataset again later. 
-        sync(true) ;
+        sync() ;
     }
     
     @Override
-    public void sync(boolean force)
+    public void sync()
     {
-        dataset.sync(force);
+        dataset.sync();
     }
+    
+    @Override
+    public String toString() { return Utils.className(this)+":<"+this.graphNode+">" ; }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

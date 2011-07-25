@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -14,7 +15,7 @@ import com.hp.hpl.jena.tdb.TDBException;
 
 public enum NodeType implements Named
 {
-    // Do not allocate id 0 (which is the return for NULL in JDBC)
+    // Do not allocate id 0
 //  NULL
 //  {
 //  @Override public XSDDatatype getDatatype()  { return null ; }
@@ -46,42 +47,79 @@ public enum NodeType implements Named
 //    STRING
 //    {
 //        @Override public XSDDatatype getDatatype()  { return null ; }
-//        @Override public int getTypeId()            { return 3 ; }
+//        @Override public int getTypeId()            { return 4 ; }
 //        @Override public String getName()           { return "String" ; }
 //    } ,
 //
 //    XSDSTRING
 //    {
 //        @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDstring ; }
-//        @Override public int getTypeId()            { return 4 ; }
+//        @Override public int getTypeId()            { return 5 ; }
 //        @Override public String getName()           { return "XSD String" ; }
 //    } ,
 //
 //    INTEGER
 //    {
 //        @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDinteger ; }
-//        @Override public int getTypeId()            { return 5 ; }
+//        @Override public int getTypeId()            { return 6 ; }
 //        @Override public String getName()           { return "Integer" ; }
 //    } ,
 //
 //    DOUBLE
 //    { 
 //        @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDdouble ; }
-//        @Override public int getTypeId()            { return 6 ; }
+//        @Override public int getTypeId()            { return 7 ; }
 //        @Override public String getName()           { return "Double" ; }
 //    } ,
 //
 //    DATETIME
 //    { 
 //        @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDdateTime ; }
-//        @Override public int getTypeId()            { return 7 ; }
+//        @Override public int getTypeId()            { return 8 ; }
 //        @Override public String getName()         { return "Datetime" ; }
 //    } ,
+    
+//  G_YEAR
+//  { 
+//      @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDgYear ; }
+//      @Override public int getTypeId()            { return 9 ; }
+//      @Override public String getName()         { return "gYear" ; }
+//  } ,
+    
+//  G_YEARMONTH
+//  { 
+//      @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDgYearMonth ; }
+//      @Override public int getTypeId()            { return 10 ; }
+//      @Override public String getName()         { return "gYearMonth" ; }
+//  } ,
+        
+//  G_MONTH
+//  { 
+//      @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDgMonth ; }
+//      @Override public int getTypeId()            { return 11 ; }
+//      @Override public String getName()         { return "gMonth" ; }
+//  } ,
+    
+//  G_MONTHDAY
+//  { 
+//      @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDgMonthDay ; }
+//      @Override public int getTypeId()            { return 12 ; }
+//      @Override public String getName()         { return "gMonthDay" ; }
+//  } ,
+    
+//  G_DAY
+//  { 
+//      @Override public XSDDatatype getDatatype()  { return XSDDatatype.XSDgDay ; }
+//      @Override public int getTypeId()            { return 13 ; }
+//      @Override public String getName()         { return "gDay" ; }
+//  } ,
+    
+            
 //
 //    VAR
 //    { 
 //        @Override public XSDDatatype getDatatype()  { return null ; }
-//        @Override public int getTypeId()            { return 8 ; }
+//        @Override public int getTypeId()            { return 40; }
 //        @Override public String getName()           { return "var" ; }
 //    } ,
 //
@@ -150,6 +188,7 @@ public enum NodeType implements Named
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

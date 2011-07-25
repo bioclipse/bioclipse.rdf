@@ -1,39 +1,42 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package tdb;
 
-import java.util.List;
+import java.util.List ;
 
-import tdb.cmdline.CmdTDB;
-import arq.cmdline.ArgDecl;
-import atlas.logging.Log;
+import org.openjena.riot.Lang ;
+import tdb.cmdline.CmdTDB ;
+import tdb.cmdline.ModModel ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.tdb.store.BulkLoader;
-import com.hp.hpl.jena.tdb.store.GraphTDB;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.tdb.TDB ;
+import com.hp.hpl.jena.tdb.TDBLoader ;
+import com.hp.hpl.jena.tdb.store.GraphTDB ;
 
 public class tdbloader extends CmdTDB
 {
 //    private static final ArgDecl argGraphDeafult = new ArgDecl(ArgDecl.NoValue, "default") ;
     
-    private static final ArgDecl argParallel         = new ArgDecl(ArgDecl.NoValue, "parallel") ;
-    private static final ArgDecl argIncremental      = new ArgDecl(ArgDecl.NoValue, "incr", "incremental") ;
-    private static final ArgDecl argStats            = new ArgDecl(ArgDecl.NoValue, "stats") ;
+//    private static final ArgDecl argParallel         = new ArgDecl(ArgDecl.NoValue, "parallel") ;
+//    private static final ArgDecl argIncremental      = new ArgDecl(ArgDecl.NoValue, "incr", "incremental") ;
     
-    private boolean timing = true ;
-    private boolean doInParallel = false ;
+    private static final ModModel modRDFS            = new ModModel("rdfs") ;
+    
+//    private  String rdfsVocabFilename   = null ;
+//    private  Model  rdfsVocab           = null ;
+    
+    private boolean showProgress = true ;
+//    private boolean doInParallel = false ;
     private boolean doIncremental = false ;
-    private boolean generateStats = false ;
     
     static public void main(String... argv)
     { 
-        Log.setLog4j() ;
+        TDB.setOptimizerWarningFlag(false) ;
         new tdbloader(argv).mainRun() ;
     }
 
@@ -41,18 +44,19 @@ public class tdbloader extends CmdTDB
     {
         super(argv) ;
         
-        super.add(argParallel, "--parallel", "Do rebuilding of secondary indexes in a parallel") ;
-        super.add(argIncremental, "--incremental", "Do an incremental load (keep indexes during load, don't rebuild)") ;
-        super.add(argStats, "--stats", "Generate statistics while loading (new graph only)") ;
-    }
+//        super.add(argParallel, "--parallel", "Do rebuilding of secondary indexes in a parallel") ;
+//        super.add(argIncremental, "--incremental",  "Do an incremental load (keep indexes during data load)") ;
+//        super.add(argStats, "--stats",              "Generate statistics while loading (new graph only)") ;
+//        addModule(modRDFS) ;
+    }        
+
 
     @Override
     protected void processModulesAndArgs()
     {
         super.processModulesAndArgs() ;
-        doInParallel = super.contains(argParallel) ;
-        doIncremental = super.contains(argIncremental) ;
-        generateStats = super.contains(argStats) ;
+//        doInParallel = super.contains(argParallel) ;
+//        doIncremental = super.contains(argIncremental) ;
     }
     
     @Override
@@ -70,30 +74,87 @@ public class tdbloader extends CmdTDB
             System.out.println(ARQ.getContext()) ;
         }
         if ( isVerbose() )
-            timing = true ;
+            showProgress = true ;
         if ( isQuiet() )
-            timing = false ;
+            showProgress = false ;
         
         List<String> urls = getPositional() ;
         if ( urls.size() == 0 )
             urls.add("-") ;
         
+        if ( modRDFS.getModel() != null )
+        {
+            // TODO
+        }
+        
+        boolean allTriples = true ;
+        for ( String url : urls )
+        {
+            Lang lang = Lang.guess(url, Lang.NQUADS) ;
+            if ( lang != null && lang.isQuads() )
+            {
+                allTriples = false ;
+                break ; 
+            }
+        }
+        
+        if ( allTriples && graphName == null )
+        {
+            loadDefaultGraph(urls) ;
+            return ;
+        }
+        
         if ( graphName == null )
         {
-            Graph graph = getGraph() ;
-            BulkLoader loader = new BulkLoader((GraphTDB)graph, timing, doInParallel, doIncremental, generateStats) ;
-            loader.load(urls) ;
+            loadQuads(urls) ;
+            return ; 
         }
-        else
+
+        // graphName != null
+        if ( ! allTriples )
         {
-            Model model = getModel() ;
-            BulkLoader.loadSimple(model, urls, timing) ;
+            for ( String url : urls )
+            {
+                Lang lang = Lang.guess(url, Lang.NQUADS) ;
+                if ( lang == null )
+                    // Does not happen due to default above.
+                    cmdError("File suffix not recognized: " +url) ;
+                if ( lang != null && ! lang.isTriples() )
+                    cmdError("Can only load triples into a named model: "+url) ;
+            }
+            cmdError("Internal error: deteched quad input but can't find it again") ;
+            return ;
         }
+        
+        loadNamedGraph(urls) ;
+    }
+    
+    // RDFS
+    
+    void loadDefaultGraph(List<String> urls)
+    {
+        GraphTDB graph = getGraph() ;
+        TDBLoader.load(graph, urls, showProgress) ;
+        return ;
+    }
+    
+    void loadNamedGraph(List<String> urls)
+    {
+        GraphTDB graph = getGraph() ;
+        TDBLoader.load(graph, urls, showProgress) ;
+        return ;
+    }
+
+    void loadQuads(List<String> urls)
+    {
+        TDBLoader.load(getDatasetGraph(), urls, showProgress) ;
+        return ;
     }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

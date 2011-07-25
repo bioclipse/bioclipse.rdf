@@ -3,6 +3,7 @@
  * All rights reserved.
  * [See end of file]
  */
+/* This file contains code under the Apache 2 license - see hashFNV */
 
 package com.hp.hpl.jena.tdb.index.ext;
 
@@ -13,14 +14,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import atlas.io.IndentedLineBuffer;
-import atlas.io.IndentedWriter;
-import atlas.lib.BitsLong;
-import atlas.lib.Bytes;
 
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.lib.BitsLong ;
+import org.openjena.atlas.lib.Bytes ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hp.hpl.jena.sparql.util.Utils ;
 import com.hp.hpl.jena.tdb.base.StorageException;
 import com.hp.hpl.jena.tdb.base.block.BlockMgr;
 import com.hp.hpl.jena.tdb.base.block.BlockMgrFactory;
@@ -36,7 +38,7 @@ import com.hp.hpl.jena.tdb.sys.SystemTDB;
  * http://en.wikipedia.org/wiki/Extendible_hashing
  */
 
-public class ExtHash implements Index
+public final class ExtHash implements Index
 {
     /* Hashing.
      * Extendible hashing is based on taking more of the bits of the hash
@@ -140,16 +142,42 @@ public class ExtHash implements Index
 
     // See java.util.HashMap#hash for discussion of supplemental hashing. 
 
-    
     interface HashRecordKey { public int hashCode(byte[] key) ; }
-    private HashRecordKey hashFunction = hash4bytes ;
+    private HashRecordKey hashFunction = hashFNV ; //hash4bytes ;
     
     // Hash function that is the first 4 bytes of the key (key must be at least 4 bytes long). 
     static HashRecordKey hash4bytes = new HashRecordKey(){
         //@Override
-        public int hashCode(byte[] key)
+        public final int hashCode(byte[] key)
         { return Bytes.getInt(key) ; }
     } ;
+    
+    /** From Project Voldemort / Apache License / Thanks! 
+     *  who in turn got it from 
+     *  
+     *  Taken from http://www.isthe.com/chongo/tech/comp/fnv
+     * 
+     * hash = basis for each octet_of_data to be hashed hash 
+     *      = hash * FNV_prime hash
+     *      = hash xor octet_of_data return hash
+     * 
+     */
+    
+    static HashRecordKey hashFNV = new HashRecordKey(){
+        private static final long FNV_BASIS = 0x811c9dc5;
+        private static final long FNV_PRIME = (1 << 24) + 0x193;
+        //@Override
+        public final int hashCode(byte[] key)
+        {
+            long hash = FNV_BASIS;
+            for(int i = 0; i < key.length; i++) {
+                hash ^= 0xFF & key[i];
+                hash *= FNV_PRIME;
+            }
+            return (int) hash;
+        }
+    } ;
+    
 
     /** Turn a key into a bit trie hash value */ 
     private int trieKey(Record k)             
@@ -198,7 +226,7 @@ public class ExtHash implements Index
             for ( int i = oldSize-1 ; i>=0 ; i-- )
             {
                 int b = dictionary.get(i) ; 
-                if ( logging() ) log("Resize: put: (%d, %d)", 2*i, b) ;
+                //if ( logging() ) log("Resize: put: (%d, %d)", 2*i, b) ;
                 newDictionary.put(2*i, b) ; 
                 newDictionary.put(2*i+1, b) ; 
             }
@@ -209,8 +237,8 @@ public class ExtHash implements Index
 
         if ( logging() )
         {
-            dump() ;
-            log(this) ; 
+            if ( false ) dump() ;
+            if ( false ) log(this) ; 
             log("<<<<Resize") ;
         }
         internalCheck() ;
@@ -266,7 +294,7 @@ public class ExtHash implements Index
         if ( logging() )
         {
             log("<< add(%s)", record) ;
-            dump() ;
+            //dump() ;
         }
         internalCheck() ;
         return b ;
@@ -310,6 +338,10 @@ public class ExtHash implements Index
        // No idea.
        return false ;
     }
+    
+    //@Override
+    public void clear()
+    { throw new UnsupportedOperationException("RangeIndex("+Utils.classShortName(this.getClass())+").clear") ; }
 
     //@Override
     public long size()
@@ -334,10 +366,10 @@ public class ExtHash implements Index
     }
 
     //@Override
-    public void sync(boolean force)
+    public void sync()
     { 
-        hashBucketMgr.getBlockMgr().sync(force) ;
-        dictionaryFile.sync(force) ;
+        hashBucketMgr.getBlockMgr().sync() ;
+        dictionaryFile.sync() ;
     }
 
     //@Override
@@ -359,8 +391,7 @@ public class ExtHash implements Index
     // Reentrant part of "put"
     private boolean put(Record record, int hash)  
     {
-        if ( logging() ) 
-            log("put(%s,0x%08X)", record, hash) ;
+        if ( logging() ) log("put(%s,0x%08X)", record, hash) ;
         int dictIdx = trieKey(hash, bitLen) ;       // Dictionary index
         int blockId = dictionary.get(dictIdx) ;
         
@@ -368,35 +399,47 @@ public class ExtHash implements Index
         
         if ( ! bucket.isFull() )
         {
-            if ( Debugging )
-                System.out.printf("Insert [(0x%04X) %s]: %d\n", hash, record, bucket.getId()) ; 
+            if ( Debugging ) log("Insert [(0x%04X) %s]: %d", hash, record, bucket.getId()) ; 
             boolean b = bucket.put(record) ;
             hashBucketMgr.put(bucket) ;
             return b ;
         }
 
-        if ( Debugging )
-            System.out.printf("Bucket full: %d\n", bucket.getId()) ; 
+        //Is this and +1 the same?  Is the block splitable? 
         
         // Bucket full.
         if (  bitLen == bucket.getTrieBitLen() )
         {
-            if ( Debugging )
-                System.out.printf("Bucket can't be split\n") ; 
-            // Bucket not splitable..
-            // TODO Overflow buckets.
+//            // Log it anyway
+//            if ( ! logging() ) log("put(%s,0x%08X)", record, hash) ;
+
+            boolean oldLogging = Logging ;
+            boolean oldDebugging = Debugging ;
+            try {
+//                Logging = true ;
+//                Debugging = true ; 
+                
+                if ( Debugging ) 
+                { 
+                    log("Bucket full: %d", bucket.getId()) ; 
+                    log("Bucket can't be split - dictionary resize needed") ;
+                    //log(bucket) ;
+                    this.dump() ;
+                }
             
-            // Expand the dictionary.
-            int x = dictionarySize() ;
-            resizeDictionary() ;
-            if ( Debugging )
-                System.out.printf("Resize: %d -> %d\n", x, dictionarySize()) ; 
-            // Try again
-            return put(record, hash) ;
+                // Bucket not splitable..
+                // TODO Overflow buckets.
+                
+                // Expand the dictionary.
+                int x = dictionarySize() ;
+                resizeDictionary() ;
+                if ( Debugging ) log("Resize: %d -> %d", x, dictionarySize()) ; 
+                // Try again
+                return put(record, hash) ;
+            } finally { Logging = oldLogging ; Debugging = oldDebugging ;} 
         }
 
-        if ( Debugging )
-            System.out.printf("Split bucket: %d\n", bucket.getId()) ;
+        if ( Debugging ) log("Split bucket: %d", bucket.getId()) ;
         
         // bitLen >  bucket.getHashBitLen() : bucket can be split
         splitAndReorganise(bucket, dictIdx, blockId, hash) ;
@@ -413,7 +456,7 @@ public class ExtHash implements Index
         {
             log("splitAndReorganise: idx=%d, id=%d, bitLen=%d, bucket.hashLength=%d",
                 dictionaryIdx, bucketId, bitLen, bucket.getTrieBitLen()) ;
-            dump() ;
+            if ( false ) dump() ;
         }
 
         if ( Checking )
@@ -479,7 +522,7 @@ public class ExtHash implements Index
         if ( logging() )
         {
             log("Reorg complete") ;
-            dump() ;
+            if ( false ) dump() ;
         }
     }
     
@@ -582,8 +625,8 @@ public class ExtHash implements Index
     
     private void dump(IndentedWriter out)
     {
-        out.printf("Bitlen      = %d \n" , bitLen) ;
-        out.printf("Dictionary  = %d \n" , 1<<bitLen ) ;
+        out.printf("Bitlen      = %d\n" , bitLen) ;
+        out.printf("Dictionary  = %d\n" , 1<<bitLen ) ;
         out.incIndent(4) ;
         for ( int i = 0 ; i < (1<<bitLen) ; i++ )
         {
@@ -678,6 +721,7 @@ public class ExtHash implements Index
         //if ( ! logging() ) return ;
         log.debug(format(format, args)) ;
     }
+    
     private final void log(Object obj)
     {
         //if ( ! logging() ) return ;

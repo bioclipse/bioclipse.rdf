@@ -26,7 +26,7 @@ public class TDBMaker
     public final static DatasetGraphMakerTDB cachedFactory = new CachingTDBMaker(uncachedFactory) ;
 
     // Caching by location.
-    private static boolean CACHING = true ;
+    private final static boolean CACHING = true ;
 
     /** The default implementation factory for TDB datasets. 
      *  Caching of daatsets for sharing purposes.  
@@ -49,6 +49,13 @@ public class TDBMaker
     {
         if ( factory instanceof CachingTDBMaker )
             ((CachingTDBMaker)factory).flush();
+    }
+    
+    /** Sync all cached datasets */
+    public synchronized static void syncDatasetCache()
+    {
+        if ( factory instanceof CachingTDBMaker )
+            ((CachingTDBMaker)factory).sync();
     }
     
     /** Release a dataset from any caching */

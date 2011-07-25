@@ -6,13 +6,13 @@
 
 package com.hp.hpl.jena.tdb.index;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.sparql.core.Closeable;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
 
-import com.hp.hpl.jena.tdb.base.record.Record;
-import com.hp.hpl.jena.tdb.base.record.RecordFactory;
-import com.hp.hpl.jena.tdb.lib.Sync;
+import com.hp.hpl.jena.tdb.base.record.Record ;
+import com.hp.hpl.jena.tdb.base.record.RecordFactory ;
 
 public interface Index extends Iterable<Record>, Sync, Closeable
 {
@@ -37,15 +37,15 @@ public interface Index extends Iterable<Record>, Sync, Closeable
     /** Get the Record factory associated with this index */
     public RecordFactory getRecordFactory() ;
     
-    /** Syncrhonize with any persistent storage underlying the index */
-    public void sync(boolean force) ;
-    
     /** Close the index - can't not be used again through this object */
     public void close() ;
     
     /** Answer whether the index is empty or not.  May return false for unknown or meaningless
      * (e.g. transactional index)  */
     public boolean isEmpty() ;
+    
+    /** Clear the index */
+    public void clear() ;
     
     /** Perform checks on this index */
     public void check() ;

@@ -8,11 +8,11 @@ package com.hp.hpl.jena.tdb.nodetable;
 
 import java.util.Iterator ;
 
-import atlas.lib.Pair ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Pair ;
+import org.openjena.atlas.lib.Sync ;
 
 import com.hp.hpl.jena.graph.Node ;
-import com.hp.hpl.jena.sparql.core.Closeable ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
 
 /** Node table - conceptually a two way mapping of Node<->NodeId 
@@ -31,7 +31,7 @@ public interface NodeTable extends Sync, Closeable
     /** Look up node id and return the Node - return null if not found */
     public Node getNodeForNodeId(NodeId id) ;
     
-    /** Iterate over all nodes (not necessarily fast).  Doesa not icnldue inlined NodeIds */
+    /** Iterate over all nodes (not necessarily fast).  Does not include inlined NodeIds */
     public Iterator<Pair<NodeId, Node>> all() ;
 }
 

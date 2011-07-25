@@ -6,14 +6,14 @@
 
 package com.hp.hpl.jena.tdb.index.bplustree;
 
-import static atlas.lib.Lib.decodeIndex;
 import static com.hp.hpl.jena.tdb.index.bplustree.BPlusTreeParams.CheckingNode;
 import static java.lang.String.format;
+import static org.openjena.atlas.lib.Alg.decodeIndex ;
 
 import java.nio.ByteBuffer;
 
-import atlas.io.IndentedWriter;
 
+import org.openjena.atlas.io.IndentedWriter ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +24,8 @@ import com.hp.hpl.jena.tdb.base.buffer.RecordBuffer;
 import com.hp.hpl.jena.tdb.base.record.Record;
 
 /** B+Tree wrapper over a block of records in a RecordBufferPage.
- * This class adds not peristent state to a RecordBufferPage */
-final class BPTreeRecords extends BPTreePage
+ * This class adds no peristent state to a RecordBufferPage */
+public final class BPTreeRecords extends BPTreePage
 {
     // Could require all Page operations to the RecordBufferPage
     // Page is then an interface and BPTreeNode has the state 
@@ -43,7 +43,7 @@ final class BPTreeRecords extends BPTreePage
     RecordBufferPage getRecordBufferPage()
     { return rBuffPage ; }
     
-    RecordBuffer getRecordBuffer()
+    /*TEMP*/ public RecordBuffer getRecordBuffer()
     { return rBuff ; }
 
     int getLink()
@@ -53,6 +53,12 @@ final class BPTreeRecords extends BPTreePage
     boolean isFull()
     {
         return ( rBuff.size() >= rBuff.maxSize() ) ;
+    }
+
+    @Override
+    boolean hasAnyKeys()
+    {
+        return rBuff.size() > 0 ;
     }
 
     @Override

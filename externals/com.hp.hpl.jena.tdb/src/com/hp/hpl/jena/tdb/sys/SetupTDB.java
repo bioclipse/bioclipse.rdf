@@ -1,12 +1,13 @@
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd
  * All rights reserved.
+ * (c) Copyright 2010 IBM Corp. All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.sys ;
 
-import static com.hp.hpl.jena.tdb.TDB.logExec ;
 import static com.hp.hpl.jena.tdb.TDB.logInfo ;
 import static com.hp.hpl.jena.tdb.sys.SystemTDB.BlockReadCacheSize ;
 import static com.hp.hpl.jena.tdb.sys.SystemTDB.BlockWriteCacheSize ;
@@ -16,17 +17,20 @@ import static com.hp.hpl.jena.tdb.sys.SystemTDB.LenNodeHash ;
 import static com.hp.hpl.jena.tdb.sys.SystemTDB.Node2NodeIdCacheSize ;
 import static com.hp.hpl.jena.tdb.sys.SystemTDB.NodeId2NodeCacheSize ;
 import static com.hp.hpl.jena.tdb.sys.SystemTDB.SizeOfNodeId ;
-import static com.hp.hpl.jena.tdb.sys.SystemTDB.SyncTick ;
 
 import java.io.IOException ;
 import java.util.Properties ;
 
+import org.openjena.atlas.lib.ColumnMap ;
+import org.openjena.atlas.lib.FileOps ;
+import org.openjena.atlas.lib.PropertyUtils ;
+import org.openjena.atlas.lib.StrUtils ;
 import org.slf4j.Logger ;
-import atlas.lib.ColumnMap ;
-import atlas.lib.FileOps ;
-import atlas.lib.PropertyUtils ;
-import atlas.lib.StrUtils ;
 
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.core.DatasetPrefixStorage ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderLib ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
 import com.hp.hpl.jena.sparql.sse.SSEParseException ;
 import com.hp.hpl.jena.sparql.util.Utils ;
 import com.hp.hpl.jena.tdb.TDB ;
@@ -39,7 +43,6 @@ import com.hp.hpl.jena.tdb.base.file.Location ;
 import com.hp.hpl.jena.tdb.base.file.MetaFile ;
 import com.hp.hpl.jena.tdb.base.objectfile.ObjectFile ;
 import com.hp.hpl.jena.tdb.base.record.RecordFactory ;
-import com.hp.hpl.jena.tdb.graph.DatasetPrefixStorage ;
 import com.hp.hpl.jena.tdb.index.Index ;
 import com.hp.hpl.jena.tdb.index.IndexBuilder ;
 import com.hp.hpl.jena.tdb.index.RangeIndex ;
@@ -47,13 +50,12 @@ import com.hp.hpl.jena.tdb.index.TupleIndex ;
 import com.hp.hpl.jena.tdb.index.TupleIndexRecord ;
 import com.hp.hpl.jena.tdb.index.bplustree.BPlusTree ;
 import com.hp.hpl.jena.tdb.index.bplustree.BPlusTreeParams ;
+import com.hp.hpl.jena.tdb.mgt.TDBSystemInfoMBean ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
-import com.hp.hpl.jena.tdb.nodetable.NodeTableNative ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTableCache ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTableFactory ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTableInline ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderLib ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderTransformation ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTableNative ;
 import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
 import com.hp.hpl.jena.tdb.store.DatasetPrefixesTDB ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
@@ -84,8 +86,6 @@ public class SetupTDB
     
     // IndexBuilder for metadata files. 
     
-    // TODO Tests.
-    // TODO remove constructors (e.g. DatasetPrefixesTDB) that encapsulate the choices).  DI!
     // TODO Check everywhere else for non-DI constructors.
     
     // Old code:
@@ -96,16 +96,30 @@ public class SetupTDB
     static public final String NodeTableLayout = "1" ;
     
     
-    /**  The JVM-wide parameters (these can change without a chnage to on-disk structure) */ 
+    /**  The JVM-wide parameters (these can change without a change to on-disk structure) */ 
     public final static Properties globalConfig = new Properties() ;
+
     static {
         globalConfig.setProperty(Names.pNode2NodeIdCacheSize,  Integer.toString(Node2NodeIdCacheSize)) ;
         globalConfig.setProperty(Names.pNodeId2NodeCacheSize,  Integer.toString(NodeId2NodeCacheSize)) ;
         globalConfig.setProperty(Names.pBlockWriteCacheSize,   Integer.toString(BlockWriteCacheSize)) ;
         globalConfig.setProperty(Names.pBlockReadCacheSize,    Integer.toString(BlockReadCacheSize)) ;
-        globalConfig.setProperty(Names.pSyncTick,              Integer.toString(SyncTick)) ;
+//        globalConfig.setProperty(Names.pSyncTick,              Integer.toString(SyncTick)) ;
     }
-
+    
+    public final static TDBSystemInfoMBean systemInfo = new TDBSystemInfoMBean() {
+		public int getSyncTick() { return getIntProperty(Names.pSyncTick); }
+		public int getSegmentSize() { return SystemTDB.SegmentSize; }
+		public int getNodeId2NodeCacheSize() { return getIntProperty(Names.pNodeId2NodeCacheSize); }
+		public int getNode2NodeIdCacheSize() { return getIntProperty(Names.pNode2NodeIdCacheSize); }
+		public int getBlockWriteCacheSize() { return getIntProperty(Names.pBlockWriteCacheSize); }
+		public int getBlockSize() { return SystemTDB.BlockSize; }
+		public int getBlockReadCacheSize() { return getIntProperty(Names.pBlockReadCacheSize); }
+		
+		private int getIntProperty(String name) {
+			return Integer.parseInt(globalConfig.getProperty(name));
+		}
+	};
     // And here we make datasets ... 
     public static DatasetGraphTDB buildDataset(Location location)
     {
@@ -172,8 +186,8 @@ public class SetupTDB
         // Check and set defaults.
         // On return, can just read the metadata key/value. 
         
-        /* Semi-global
-         * TODO
+        /* Semi-global 
+         * TODO Configure caches.
          * tdb.cache.node2id.size=100000  # Smaller? Much smaller!
          * tdb.cache.id2node.size=100000
          * tdb.cache.blockwrite.size=2000
@@ -183,13 +197,16 @@ public class SetupTDB
         
         String propertiesFile = "tdb.properties" ; 
         MetaFile metafile = locationMetadata(location) ;
-        Properties config = globalConfig ;
+        // dupulicate
+        Properties config = new Properties(globalConfig) ;
+        boolean localProperties = false ;
         
         if ( location.exists(propertiesFile) )
         {
-            Properties here = new Properties(config) ;
-            try { PropertyUtils.loadFromFile(here, propertiesFile) ; }
-            catch (IOException ex) { throw new TDBException(ex) ; } 
+            // Load now to test for errors.
+            localProperties = true ;
+            try { PropertyUtils.loadFromFile(config, propertiesFile) ; }
+            catch (IOException ex) { throw new TDBException(ex) ; }
         }
         
         // Only support this so far.
@@ -220,28 +237,55 @@ public class SetupTDB
         
         log.debug("Object table: "+indexNode2Id+" - "+indexId2Node) ;
         
+        int n2idCacheSize = PropertyUtils.getPropertyAsInteger(config, Names.pNode2NodeIdCacheSize) ;
+        int id2nCacheSize = PropertyUtils.getPropertyAsInteger(config, Names.pNodeId2NodeCacheSize) ;
+        
         // Cache sizes should come from this.info.
         NodeTable nodeTable = makeNodeTable(location, 
-                                            indexNode2Id,
-                                            SystemTDB.Node2NodeIdCacheSize,
-                                            indexId2Node, SystemTDB.NodeId2NodeCacheSize) ;
+                                            indexNode2Id, n2idCacheSize,
+                                            indexId2Node, id2nCacheSize) ;
 
+        ConcurrencyPolicy policy = createConcurrencyPolicy() ;
+        
         TripleTable tripleTable = makeTripleTable(location, config, nodeTable, 
-                                                  Names.primaryIndexTriples, Names.tripleIndexes) ;
+                                                  Names.primaryIndexTriples, Names.tripleIndexes, policy) ;
         QuadTable quadTable = makeQuadTable(location, config, nodeTable,
-                                            Names.primaryIndexQuads, Names.quadIndexes) ;
+                                            Names.primaryIndexQuads, Names.quadIndexes, policy) ;
 
-        DatasetPrefixStorage prefixes = makePrefixes(location, config) ;
+        DatasetPrefixStorage prefixes = makePrefixes(location, config, policy) ;
 
         // ---- Create the DatasetGraph object
         DatasetGraphTDB dsg = new DatasetGraphTDB(tripleTable, quadTable, prefixes, chooseOptimizer(location), location, config) ;
 
         // Finalize
         metafile.flush() ;
+        
+        // Set TDB features.
+        if ( localProperties )
+        {
+            /*
+             * tdb.feature.????
+             */
+
+            String base = "tdb.feature." ;
+            String key= base+TDB.symUnionDefaultGraph.getSymbol() ;
+            
+            boolean unionDefaultGraph = PropertyUtils.getPropertyAsBoolean(config, key, false) ;
+            if ( unionDefaultGraph )
+                dsg.getContext().setTrue(TDB.symUnionDefaultGraph) ;
+            
+            // Settable on a per-dadaset basis.
+            //symUnionDefaultGraph
+            //symLogDuplicates
+            //symFileMode - later
+        }
+        
         return dsg ;
     }
 
-    public static TripleTable makeTripleTable(Location location, Properties config, NodeTable nodeTable, String dftPrimary, String[] dftIndexes)
+    protected static ConcurrencyPolicy createConcurrencyPolicy() { return new ConcurrencyPolicyMRSW() ; }
+    
+    public static TripleTable makeTripleTable(Location location, Properties config, NodeTable nodeTable, String dftPrimary, String[] dftIndexes, ConcurrencyPolicy policy)
     {
         MetaFile metafile = location.getMetaFile() ;
         String primary = metafile.getOrSetDefault("tdb.indexes.triples.primary", dftPrimary) ;
@@ -250,17 +294,17 @@ public class SetupTDB
         
         if ( indexes.length != 3 )
             SetupTDB.error(log, "Wrong number of triple table indexes: "+StrUtils.strjoin(",", indexes)) ;
-        log.debug("Triple table: "+primary+" :: "+StrUtils.join(",", indexes)) ;
+        log.debug("Triple table: "+primary+" :: "+StrUtils.strjoin(",", indexes)) ;
         
         TupleIndex tripleIndexes[] = makeTupleIndexes(location, config, primary, indexes, indexes) ;
         if ( tripleIndexes.length != indexes.length )
             SetupTDB.error(log, "Wrong number of triple table tuples indexes: "+tripleIndexes.length) ;
-        TripleTable tripleTable = new TripleTable(tripleIndexes, nodeTable) ;
+        TripleTable tripleTable = new TripleTable(tripleIndexes, nodeTable, policy) ;
         metafile.flush() ;
         return tripleTable ;
     }
     
-    public static QuadTable makeQuadTable(Location location, Properties config, NodeTable nodeTable, String dftPrimary, String[] dftIndexes)
+    public static QuadTable makeQuadTable(Location location, Properties config, NodeTable nodeTable, String dftPrimary, String[] dftIndexes, ConcurrencyPolicy policy)
     {
         MetaFile metafile = location.getMetaFile() ; 
         String primary = metafile.getOrSetDefault("tdb.indexes.quads.primary", dftPrimary) ;
@@ -269,18 +313,18 @@ public class SetupTDB
 
         if ( indexes.length != 6 )
             SetupTDB.error(log, "Wrong number of quad table indexes: "+StrUtils.strjoin(",", indexes)) ;
-        log.debug("Quad table: "+primary+" :: "+StrUtils.join(",", indexes)) ;
+        log.debug("Quad table: "+primary+" :: "+StrUtils.strjoin(",", indexes)) ;
         
         TupleIndex quadIndexes[] = makeTupleIndexes(location, config, primary, indexes, indexes) ;
         if ( quadIndexes.length != indexes.length )
-            SetupTDB.error(log, "Wrong number of triple table tuples indexes: "+quadIndexes.length) ;
-        QuadTable quadTable = new QuadTable(quadIndexes, nodeTable) ;
+            SetupTDB.error(log, "Wrong number of quad table tuples indexes: "+quadIndexes.length) ;
+        QuadTable quadTable = new QuadTable(quadIndexes, nodeTable, policy) ;
         metafile.flush() ;
         return quadTable ;
     }
 
 
-    public static DatasetPrefixStorage makePrefixes(Location location, Properties config)
+    public static DatasetPrefixStorage makePrefixes(Location location, Properties config, ConcurrencyPolicy policy)
     {
         /*
          * tdb.prefixes.index.file=prefixIdx
@@ -326,7 +370,7 @@ public class SetupTDB
         // No cache - the prefix mapping is a cache
         NodeTable prefixNodes = makeNodeTable(location, pnNode2Id, -1, pnId2Node, -1)  ;
         
-        DatasetPrefixesTDB prefixes = new DatasetPrefixesTDB(prefixIndexes, prefixNodes) ; 
+        DatasetPrefixesTDB prefixes = new DatasetPrefixesTDB(prefixIndexes, prefixNodes, policy) ; 
         
         log.debug("Prefixes: "+x) ;
         
@@ -464,9 +508,8 @@ public class SetupTDB
         return new RecordFactory(keyLen, valLen) ;
     }
     
-    public static NodeTable makeNodeTable(Location location,
-                                          String indexNode2Id, int nodeToIdCacheSize,
-                                          String indexId2Node, int idToNodeCacheSize)
+    /** Make a NodeTable without cache and inline wrappers */ 
+    public static NodeTable makeNodeTableBase(Location location, String indexNode2Id, String indexId2Node)
     {
         if (location.isMem()) 
             return NodeTableFactory.createMem(IndexBuilder.mem()) ;
@@ -509,10 +552,17 @@ public class SetupTDB
         
         // -- Make the node table using the components established above.
         NodeTable nodeTable = new NodeTableNative(nodeToId, stringFile) ;
-
+        return nodeTable ;
+    }
+    
+    /** Make a NodeTable with cache and inline wrappers */ 
+    public static NodeTable makeNodeTable(Location location,
+                                          String indexNode2Id, int nodeToIdCacheSize,
+                                          String indexId2Node, int idToNodeCacheSize)
+    {
+        NodeTable nodeTable = makeNodeTableBase(location, indexNode2Id, indexId2Node) ;
         nodeTable = NodeTableCache.create(nodeTable, nodeToIdCacheSize, idToNodeCacheSize) ; 
         nodeTable = NodeTableInline.create(nodeTable) ;
-
         return nodeTable ;
     }
 
@@ -604,10 +654,10 @@ public class SetupTDB
         if ( layout.equals("v1") )
         {
             metafile.ensurePropertySet("tdb.indexes.triples.primary", Names.primaryIndexTriples) ;
-            metafile.ensurePropertySet("tdb.indexes.triples", StrUtils.join(",", Names.tripleIndexes)) ;
+            metafile.ensurePropertySet("tdb.indexes.triples", StrUtils.strjoin(",", Names.tripleIndexes)) ;
 
             metafile.ensurePropertySet("tdb.indexes.quads.primary", Names.primaryIndexQuads) ;
-            metafile.ensurePropertySet("tdb.indexes.quads", StrUtils.join(",", Names.quadIndexes)) ;
+            metafile.ensurePropertySet("tdb.indexes.quads", StrUtils.strjoin(",", Names.quadIndexes)) ;
             
             metafile.ensurePropertySet("tdb.nodetable.mapping.node2id", Names.indexNode2Id) ;
             metafile.ensurePropertySet("tdb.nodetable.mapping.id2node", Names.indexId2Node) ;
@@ -665,6 +715,12 @@ public class SetupTDB
         return BPlusTree.attach(params, blkMgrNodes, blkMgrRecords) ;
     }
 
+    /** Set the global flag that control the "No BGP optimizer" warning.
+     * Set to false to silence the warning
+     */
+    public static void setOptimizerWarningFlag(boolean b) { warnAboutOptimizer = b ; }
+    private static boolean warnAboutOptimizer = true ;
+
     public static ReorderTransformation chooseOptimizer(Location location)
     {
         if ( location == null )
@@ -675,31 +731,31 @@ public class SetupTDB
         {
             try {
                 reorder = ReorderLib.weighted(location.getPath(Names.optStats)) ;
-                logInfo.info("Statistics-based BGP optimizer") ;  
+                logInfo.debug("Statistics-based BGP optimizer") ;  
             } catch (SSEParseException ex) { 
                 log.warn("Error in stats file: "+ex.getMessage()) ;
                 reorder = null ;
             }
         }
         
-        if ( reorder == null && location.exists(Names.optDefault) )
+        if ( reorder == null && location.exists(Names.optFixed) )
         {
             // Not as good but better than nothing.
             reorder = ReorderLib.fixed() ;
-            logInfo.info("Fixed pattern BGP optimizer") ;  
+            logInfo.debug("Fixed pattern BGP optimizer") ;  
         }
         
         if ( location.exists(Names.optNone) )
         {
             reorder = ReorderLib.identity() ;
-            logInfo.info("Optimizer explicitly turned off") ;
+            logInfo.debug("Optimizer explicitly turned off") ;
         }
     
         if ( reorder == null )
             reorder = SystemTDB.defaultOptimizer ;
         
-        if ( reorder == null )
-            logExec.warn("No BGP optimizer") ;
+        if ( reorder == null && warnAboutOptimizer )
+            ARQ.getExecLogger().warn("No BGP optimizer") ;
         
         return reorder ; 
     }
@@ -720,6 +776,8 @@ public class SetupTDB
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP All rights
  * reserved.
+ * (c) Copyright 2010 Talis Systems Ltd
+ * (c) Copyright 2010 IBM Corp. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

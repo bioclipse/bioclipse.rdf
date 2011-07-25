@@ -6,44 +6,38 @@
 
 package com.hp.hpl.jena.tdb.index.bplustree;
 
-import static com.hp.hpl.jena.tdb.base.block.BlockType.BPTREE_BRANCH;
-import static com.hp.hpl.jena.tdb.base.block.BlockType.BPTREE_LEAF;
-//import static com.hp.hpl.jena.tdb.base.block.BlockType.BTREE_BRANCH;
-import static com.hp.hpl.jena.tdb.base.block.BlockType.RECORD_BLOCK;
+import static com.hp.hpl.jena.tdb.base.block.BlockType.BPTREE_BRANCH ;
+import static com.hp.hpl.jena.tdb.base.block.BlockType.BPTREE_LEAF ;
+import static com.hp.hpl.jena.tdb.base.block.BlockType.RECORD_BLOCK ;
 
-import java.nio.ByteBuffer;
+import java.nio.ByteBuffer ;
 
-import com.hp.hpl.jena.tdb.base.block.BlockConverter;
-import com.hp.hpl.jena.tdb.base.block.BlockMgr;
-import com.hp.hpl.jena.tdb.base.block.BlockType;
-import com.hp.hpl.jena.tdb.base.buffer.PtrBuffer;
-import com.hp.hpl.jena.tdb.base.buffer.RecordBuffer;
-import com.hp.hpl.jena.tdb.index.btree.BTreeException;
+import com.hp.hpl.jena.tdb.base.block.BlockConverter ;
+import com.hp.hpl.jena.tdb.base.block.BlockMgr ;
+import com.hp.hpl.jena.tdb.base.block.BlockType ;
+import com.hp.hpl.jena.tdb.base.buffer.PtrBuffer ;
+import com.hp.hpl.jena.tdb.base.buffer.RecordBuffer ;
 
 /** BPlusTreePageMgr = BPlusTreeNode manager */
-public final class BPTreeNodeMgr
+public final class BPTreeNodeMgr extends BPTreePageMgr
 {
- // Only "public" for external very low level tools in development to access this class.
- // Assume package access.
+    // Only "public" for external very low level tools in development to access this class.
+    // Assume package access.
 
-    private BPlusTree bpTree ;
     private BlockMgr blockMgr ;
     private Block2BPTreeNode converter ;
 
     public BPTreeNodeMgr(BPlusTree bpTree, BlockMgr blockMgr)
     {
-        this.bpTree = bpTree ;
+        super(bpTree) ;
         this.blockMgr = blockMgr ;
         this.converter = new Block2BPTreeNode() ;
     }
    
     public BlockMgr getBlockMgr() { return blockMgr ; } 
     
-    /** Allocate an uninitialized slot.  Fill with a .put later */ 
-    public int allocateId()           { return blockMgr.allocateId() ; }
-    
     /** Allocate root node space. The root is a node with a Records block.*/ 
-    public BPTreeNode createRoot()
+    public BPTreeNode createEmptyBPT()
     { 
         // Create an empty records block.
         int recId = bpTree.getRecordsMgr().allocateId() ;
@@ -64,15 +58,6 @@ public final class BPTreeNodeMgr
         return n ;
     }
     
-//    /** Allocate space for a leaf node. */
-//    public BPTreeLeaf createLeaf(int parent)
-//    {
-//        int id = btree.getRecordPageMgr().allocateId() ;
-//        RecordBufferPage page = btree.getRecordPageMgr().create(id) ;
-//        BPTreeLeaf leaf = new BPTreeLeaf(btree, page) ;
-//        return leaf ;
-//    }
-    
     /** Allocate space for a fresh node. */ 
     public BPTreeNode createNode(int parent)
     { 
@@ -86,7 +71,7 @@ public final class BPTreeNodeMgr
         return n ;
     }
 
-    /** Fetch a block for the root. s*/
+    /** Fetch a block for the root. */
     public BPTreeNode getRoot(int id)
     {
         return get(id, BPlusTreeParams.RootParent) ;
@@ -123,20 +108,16 @@ public final class BPTreeNodeMgr
     }
     
     /** Signal the start of an update operation */
+    public void startRead()         { blockMgr.startRead() ; }
+
+    /** Signal the completeion of an update operation */
+    public void finishRead()        { blockMgr.finishRead() ; }
+
+    /** Signal the start of an update operation */
     public void startUpdate()       { blockMgr.startUpdate() ; }
     
     /** Signal the completion of an update operation */
     public void finishUpdate()      { blockMgr.finishUpdate() ; }
-
-    /** Signal the start of an update operation */
-    public void startRead()         { blockMgr.startRead() ; }
-    
-    /** Signal the completeion of an update operation */
-    public void finishRead()        { blockMgr.finishRead() ; }
-    
-    // ---- On-disk support
-    
-    // Using a BlockConverter interally.
     
     private class Block2BPTreeNode implements BlockConverter.Converter<BPTreeNode>
     {
@@ -155,8 +136,8 @@ public final class BPTreeNodeMgr
                 BlockType type = getType(x) ;
                 
                 if ( type != BPTREE_BRANCH && type != BPTREE_LEAF )
-                    throw new BTreeException("Wrong block type: "+type) ; 
-                int count = decCount(x) ;
+                    throw new BPTreeException("Wrong block type: "+type) ; 
+                int count = decodeCount(x) ;
                 return overlay(bpTree, byteBuffer, (type==BPTREE_LEAF), count) ;
             }
         }
@@ -168,7 +149,7 @@ public final class BPTreeNodeMgr
             // Just the count needs to be fixed up. 
             ByteBuffer bb = node.getBackingByteBuffer() ;
             BlockType bType = (node.isLeaf ? BPTREE_LEAF : BPTREE_BRANCH ) ;
-            int c = encCount(bType, node.getCount()) ;
+            int c = encodeCount(bType, node.getCount()) ;
             bb.putInt(0, c) ;
             return bb ;
         }
@@ -185,12 +166,12 @@ public final class BPTreeNodeMgr
         return BlockType.extract( x>>>24 ) ;
     }
     
-    private static final int encCount(BlockType type, int i)
+    private static final int encodeCount(BlockType type, int i)
     {
         return (type.id()<<24) | (i&0x00FFFFFF) ;
     }
     
-    private static final int decCount(int i)
+    private static final int decodeCount(int i)
     { 
         return i & 0x00FFFFFF ;
     }
@@ -222,7 +203,15 @@ public final class BPTreeNodeMgr
         BPlusTreeParams params = bTree.getParams() ;
 
         int ptrBuffLen = params.MaxPtr * params.getPtrLength() ;
+        // Only store the key part of records in a B+Tree block
+        // OLD - Node table has real value part - what's going on? 
+        
+        // [Issue:FREC]
+        // Allocate space for record, key and value, despite slight over allocation.
         int recBuffLen = params.MaxRec * params.getRecordLength() ;
+        
+        // Should be: key space only.
+        // int recBuffLen = params.MaxRec * params.getKeyLength() ;
 
         n.setId(-1) ;
         n.parent = -2 ;
@@ -241,7 +230,7 @@ public final class BPTreeNodeMgr
         if ( n.getCount() < 0 )
         {
             numPtrs = 0 ;
-            n.setCount(decCount(n.getCount())) ; 
+            n.setCount(decodeCount(n.getCount())) ; 
         }
         else
             numPtrs = n.getCount()+1 ;

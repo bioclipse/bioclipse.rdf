@@ -6,23 +6,20 @@
 
 package com.hp.hpl.jena.tdb.nodetable;
 
-import java.nio.ByteBuffer;
+import java.nio.ByteBuffer ;
 
-import atlas.io.PeekReader;
-import atlas.lib.Bytes;
-import atlas.lib.Pool;
-import atlas.lib.PoolSync;
-import atlas.lib.StrUtils;
+import org.openjena.atlas.lib.Bytes ;
+import org.openjena.atlas.lib.StrUtils ;
+import org.openjena.riot.tokens.Tokenizer ;
+import org.openjena.riot.tokens.TokenizerFactory ;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.rdf.model.AnonId ;
-import com.hp.hpl.jena.riot.tokens.Tokenizer;
-import com.hp.hpl.jena.riot.tokens.TokenizerText;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.tdb.TDBException;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.tdb.TDBException ;
 import com.hp.hpl.jena.tdb.lib.NodeFmtLib ;
 
-/** Simple encoder/decoder for nodes that uses the SSE string encoding. */
+/** Simple encoder/decoder for nodes that uses Turtle term string encoding. */
 
 public class NodecSSE implements Nodec
 {
@@ -31,33 +28,20 @@ public class NodecSSE implements Nodec
     final private static char MarkerChar = '_' ;
     final private static char[] invalidIRIChars = { MarkerChar , ' ' } ; 
     
-    static int poolBufferSize = 1000 ; 
-    static int poolSize = 2 ;
-    static final private Pool<ByteBuffer> buffers = new PoolSync<ByteBuffer>() ;
-    static {
-        for ( int i = 0 ; i < poolSize ; i++ )
-            buffers.put(ByteBuffer.allocate(poolBufferSize)) ;
-    }
-    
     public NodecSSE() {}
     
-    //@Override
-    public ByteBuffer alloc(Node node)
+    public int maxSize(Node node)
     {
-        // No pool for the moment.
-        return ByteBuffer.allocate(maxLength(node)) ;
+        return maxLength(node) ;
     }
-    
-    public void release(ByteBuffer bb)
-    { }
-    
+
     //@Override
     public int encode(Node node, ByteBuffer bb, PrefixMapping pmap)
     {
         if ( node.isURI() ) 
         {
             // Pesky spaces etc
-            String x = StrUtils.encode(node.getURI(), MarkerChar, invalidIRIChars) ;
+            String x = StrUtils.encodeHex(node.getURI(), MarkerChar, invalidIRIChars) ;
             if ( x != node.getURI() )
                 node = Node.createURI(x) ; 
         }
@@ -93,15 +77,17 @@ public class NodecSSE implements Nodec
 
         if ( str.startsWith("<") )
         {
+            // Do directly.
+            // (is it quicker?)
             str = str.substring(1,str.length()-1) ;
-            str = StrUtils.decode(str, MarkerChar) ;
+            str = StrUtils.unescapeString(str) ;
+            str = StrUtils.decodeHex(str, MarkerChar) ;
             return Node.createURI(str) ;
         }
         // -- Old - expensive.
-        // Node n = SSE.parseNode(str) ;
+        // Node n = NodeFactory.parseNode(str) ;
         
-        PeekReader r = PeekReader.readString(str) ;
-        Tokenizer tokenizer = new TokenizerText(r) ;
+        Tokenizer tokenizer = TokenizerFactory.makeTokenizerString(str) ;
         Node n = tokenizer.next().asNode() ;
         if ( n == null )
             throw new TDBException("Not a node: "+str) ;

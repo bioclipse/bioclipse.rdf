@@ -10,11 +10,11 @@ import java.util.HashMap ;
 import java.util.Iterator ;
 import java.util.Map ;
 
-import atlas.logging.Log ;
+import org.openjena.atlas.logging.Log ;
+
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.sparql.core.Var ;
-import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 import com.hp.hpl.jena.sparql.engine.binding.BindingBase ;
 import com.hp.hpl.jena.tdb.lib.NodeFmtLib ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
@@ -31,9 +31,9 @@ public class BindingTDB extends BindingBase
     // Whether the cache is worthwhile is unclear - the NodeTable keeps a cache. 
     private final Map<Var,Node> cache = ( caching ? new HashMap<Var, Node>() : null ) ;
 
-    public BindingTDB(Binding parent, BindingNodeId idBinding, NodeTable nodeTable)
+    public BindingTDB(BindingNodeId idBinding, NodeTable nodeTable)
     {
-        super(parent) ;
+        super(idBinding.getParentBinding()) ;
         this.idBinding = idBinding ;
         this.nodeTable = nodeTable ;
     }

@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,7 +9,8 @@ package com.hp.hpl.jena.tdb.nodetable;
 
 import java.util.Iterator ;
 
-import atlas.lib.Pair ;
+import org.openjena.atlas.lib.Pair ;
+
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
@@ -41,16 +43,15 @@ public class NodeTableWrapper implements NodeTable
     {
         return nodeTable.getNodeForNodeId(id) ;
     }
-
+    
+    //@Override
     public Iterator<Pair<NodeId, Node>> all()
     {
         return nodeTable.all();
     }
 
-
     //@Override
-    public void sync(boolean force)
-    { nodeTable.sync(force) ; }
+    public void sync() { nodeTable.sync() ; } 
 
     //@Override
     public void close()
@@ -60,6 +61,7 @@ public class NodeTableWrapper implements NodeTable
 
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

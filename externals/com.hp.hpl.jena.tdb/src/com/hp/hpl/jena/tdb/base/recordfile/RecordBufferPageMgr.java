@@ -17,8 +17,6 @@ import com.hp.hpl.jena.tdb.base.record.RecordFactory;
 
 /** Manager for a block that is all records.  
  *  This must be compatible with B+Tree records nodes and with hash buckets. 
- * @author Andy Seaborne
- * @version $Id$
  */
 
 final
@@ -27,7 +25,7 @@ public class RecordBufferPageMgr extends BlockConverter<RecordBufferPage>
     public RecordBufferPageMgr(RecordFactory factory, BlockMgr blockMgr)
     {
         super(null, blockMgr) ;
-        Block2RecordBufferPage conv = new Block2RecordBufferPage(factory, null) ;
+        Block2RecordBufferPage conv = new Block2RecordBufferPage(factory, this) ;
         super.setConverter(conv) ;
     }
 

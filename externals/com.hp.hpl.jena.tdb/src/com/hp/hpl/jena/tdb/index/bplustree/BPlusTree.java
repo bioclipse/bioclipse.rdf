@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,17 +9,15 @@ package com.hp.hpl.jena.tdb.index.bplustree;
 
 import static com.hp.hpl.jena.tdb.index.bplustree.BPlusTreeParams.CheckingNode;
 import static com.hp.hpl.jena.tdb.index.bplustree.BPlusTreeParams.CheckingTree;
-import static java.lang.String.format;
-
 
 import java.util.Iterator;
 
-import atlas.io.IndentedWriter;
-import atlas.iterator.Iter;
-
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.iterator.Iter ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hp.hpl.jena.sparql.util.Utils ;
 import com.hp.hpl.jena.tdb.base.block.BlockMgr;
 import com.hp.hpl.jena.tdb.base.block.BlockMgrFactory;
 import com.hp.hpl.jena.tdb.base.record.Record;
@@ -26,6 +25,7 @@ import com.hp.hpl.jena.tdb.base.record.RecordFactory;
 import com.hp.hpl.jena.tdb.base.recordfile.RecordBufferPage;
 import com.hp.hpl.jena.tdb.base.recordfile.RecordBufferPageMgr;
 import com.hp.hpl.jena.tdb.index.RangeIndex;
+import com.hp.hpl.jena.tdb.sys.Session ;
 
 /** B-Tree converted to B+Tree
  * 
@@ -58,11 +58,9 @@ import com.hp.hpl.jena.tdb.index.RangeIndex;
  * Variations:
  * In this impl, splitRoot leaves the root node in place.
  * The root is always the same block.
- *  
- *  @author	Andy Seaborne
  */
 
-public class BPlusTree implements Iterable<Record>, RangeIndex
+public class BPlusTree implements Iterable<Record>, RangeIndex, Session
 {
     /*
      * Insertion:
@@ -111,6 +109,12 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
      * B#Tree: A B+Tree where the operations try to swap nodes between immediate
      * sibling nodes instead of immediately splitting (like delete, only on insert).
      */ 
+    
+    /* TODO
+     * static factories:
+     *   Simplify (or separate factory), return a RangeIndex  
+     *   If BPlusTreeLogging, the wrap in a logging RangeIndexWrapper
+     */
     
     private static Logger log = LoggerFactory.getLogger(BPlusTree.class) ;
     
@@ -181,26 +185,31 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
     /** Set up according to the attached block storage for the B+Tree */
     void attach()
     {
+        // This fixes the root to being block 0
         if ( nodeManager.valid(0) )
         {
+            // Signal both?
+            nodeManager.startRead() ;       // Just the nodeManager
             // Existing BTree
             root = nodeManager.getRoot(rootIdx) ;
-            
             rootIdx = root.getId() ;
             // Build root node.
             // Per session count only.
             sessionCounter = 0 ;
+            nodeManager.finishRead() ;
         }
         else
         {
+            startUpdateBlkMgr() ;
             // Fresh BPlusTree
-            root = nodeManager.createRoot() ;
+            root = nodeManager.createEmptyBPT() ;
             rootIdx = root.getId() ;
             if ( rootIdx != 0 )
                 throw new InternalError() ;
             sessionCounter = 0 ;
             if ( CheckingNode )
                 root.checkNodeDeep() ;
+            finishUpdateBlkMgr() ;
         }
     }
 
@@ -219,27 +228,59 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
     
     public Record find(Record record)
     {
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
         Record v = root.search(record) ;
-        if ( logging() )
-            log.debug(format("find(%s) ==> %s", record, v)) ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;
         return v ;
     }
     
+    // Operations to bracket access to the root node.
+    
+    private BPTreeNode getRoot()
+    {
+        // Cache it?
+        // Across staert/Update
+        //BPTreeNode root2 = nodeManager.getRoot(rootIdx) ;
+        return root ;
+    }
+    
+    private void releaseRoot(BPTreeNode root)
+    {
+        //nodeManager.releaseRoot(rootIdx) ;
+        if ( root != this.root )
+            log.warn("Root is not root!") ;
+    }
+
     public boolean contains(Record record)
     {
-        if ( logging() )
-            log.debug(format("contains(%s)", record)) ;
-        return root.search(record) != null ;
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        Record r = root.search(record) ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;
+        return r != null ;
     }
 
     public Record minKey()
     {
-        return root.minRecord();
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        Record r = root.minRecord();
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;
+        return r ;
     }
 
     public Record maxKey()
     {
-        return root.maxRecord() ;
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        Record r = root.maxRecord() ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;
+        return r ;
     }
 
     //@Override
@@ -248,17 +289,17 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
         return addAndReturnOld(record) == null ;
     }
     
-    /** Add a record into the BTree */
+    /** Add a record into the B+Tree */
     public Record addAndReturnOld(Record record)
     {
-        if ( logging() )
-            log.debug(format("add(%s)", record)) ;
-        nodeManager.startUpdate() ;
+        startUpdateBlkMgr() ;
+        BPTreeNode root = getRoot() ;
         Record r = root.insert(record) ;
         if ( r == null )
             sessionCounter++ ;
         if ( CheckingTree ) root.checkNodeDeep() ;
-        nodeManager.finishUpdate() ;
+        releaseRoot(root) ;
+        finishUpdateBlkMgr() ;
         return r ;
     }
     
@@ -267,40 +308,101 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
     
     public Record deleteAndReturnOld(Record record)
     {
-        if ( logging() )
-            log.debug(format("delete(%s)", record)) ;
-        nodeManager.startUpdate() ;
+        startUpdateBlkMgr() ;
+        BPTreeNode root = getRoot() ;
         Record r =  root.delete(record) ;
         if ( r != null )
             sessionCounter -- ;
         if ( CheckingTree ) root.checkNodeDeep() ;
-        nodeManager.finishUpdate() ;
+        releaseRoot(root) ;
+        finishUpdateBlkMgr() ;
         return r ;
     }
 
     //@Override
     public Iterator<Record> iterator()
     {
-        return root.iterator() ;
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        Iterator<Record> iter = root.iterator() ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;    // WRONG!
+        return iter ;
     }
     
     public Iterator<Record> iterator(Record fromRec, Record toRec)
     {
-        return root.iterator(fromRec, toRec) ;
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        Iterator<Record> iter = root.iterator(fromRec, toRec) ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;    // WRONG!
+        return iter ;
     }
     
     //@Override
-    public boolean isEmpty()
+    public void startRead()
+    { }
+
+    //@Override
+    public void finishRead()
+    { }
+
+    //@Override
+    public void startUpdate()
+    { }
+    
+    //@Override
+    public void finishUpdate()
+    { }
+
+    // Internal calls.
+    private void startReadBlkMgr()
     {
-        return nodeManager.getBlockMgr().isEmpty() ;
+        nodeManager.startRead() ;
+        recordsMgr.startRead() ;
+    }
+
+    private void finishReadBlkMgr()
+    {
+        nodeManager.finishRead() ;
+        recordsMgr.finishRead() ;
+    }
+
+    private void startUpdateBlkMgr()
+    {
+        nodeManager.startUpdate() ;
+        recordsMgr.startUpdate() ;
     }
     
-    public void sync(boolean force)
+    private void finishUpdateBlkMgr()
     {
+        nodeManager.finishUpdate() ;
+        recordsMgr.finishUpdate() ;
+    }
+
+    //@Override
+    public boolean isEmpty()
+    {
+        startReadBlkMgr() ;
+        BPTreeNode root = getRoot() ;
+        boolean b = ! root.hasAnyKeys() ;
+        releaseRoot(root) ;
+        finishReadBlkMgr() ;
+        return b ;
+    }
+    
+    //@Override
+    public void clear()
+    { throw new UnsupportedOperationException("RangeIndex("+Utils.classShortName(this.getClass())+").clear") ; }
+    
+    //@Override
+    public void sync() 
+    { 
         if ( nodeManager.getBlockMgr() != null )
-            nodeManager.getBlockMgr().sync(force) ;
+            nodeManager.getBlockMgr().sync() ;
         if ( recordsMgr.getBlockMgr() != null )
-            recordsMgr.getBlockMgr().sync(force) ;
+            recordsMgr.getBlockMgr().sync() ;
     }
     
     public void close()
@@ -345,16 +447,12 @@ public class BPlusTree implements Iterable<Record>, RangeIndex
     {
         root.dump(out) ;
     }
-
-    private static final boolean logging()
-    {
-        return BPlusTreeParams.logging(log) ;
-    }
 }
 
 /*
- * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP All rights
- * reserved.
+ * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
+ * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

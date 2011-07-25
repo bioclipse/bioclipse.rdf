@@ -6,21 +6,19 @@
 
 package com.hp.hpl.jena.tdb.store;
 
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
+import java.math.BigDecimal ;
+import java.nio.ByteBuffer ;
 
-import atlas.lib.BitsLong;
-import atlas.lib.Bytes;
+import org.openjena.atlas.lib.BitsLong ;
+import org.openjena.atlas.lib.Bytes ;
+import org.openjena.atlas.logging.Log ;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.util.ALog;
-
-import com.hp.hpl.jena.tdb.TDBException;
-import com.hp.hpl.jena.tdb.sys.SystemTDB;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.impl.LiteralLabel ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.tdb.TDBException ;
+import com.hp.hpl.jena.tdb.sys.SystemTDB ;
 
 final
 public class NodeId
@@ -50,13 +48,16 @@ public class NodeId
     
     public static NodeId create(long value)
     {
-        // All creatioin of NodeIds must go through this.
+        // All creation of NodeIds must go through this.
         if ( value == NodeDoesNotExist.value )
             return NodeDoesNotExist ;
         if ( value == NodeIdAny.value )
             return NodeIdAny ;
         return new NodeId(value) ;
     }
+    
+    public static NodeId create(byte[] b)       { return create(b, 0) ; } 
+    public static NodeId create(ByteBuffer b)   { return create(b, 0) ; } 
     
     // Chance for a cache? (Small Java objects are really not that expensive these days.)
     public static NodeId create(byte[] b, int idx)
@@ -70,7 +71,6 @@ public class NodeId
         long value = b.getLong(idx) ;
         return create(value) ;
     }
-    
     public NodeId(long v) { value = v ;}
     
     public void toByteBuffer(ByteBuffer b, int idx) { b.putLong(idx, value) ; }
@@ -122,8 +122,13 @@ public class NodeId
      * 8 bits of type
      * 56 bits of value
      * 
+     * (potential change
+     *   1 bit: 0 => reference, 1 => inline
+     *   7 bits of inline type.
+     *   56 bits fo value)  
+     *  
      *  Type 0 means the node is in the object table.
-     *  Types 1-4 store the value of the node in the 56 bits remaining.
+     *  Types 1+ store the value of the node in the 56 bits remaining.
      *  
      *  If a value would not fit, it will be stored externally so there is no
      *  guarantee that all integers, say, are store inline. 
@@ -136,8 +141,9 @@ public class NodeId
      *  Boolean format:
      */
     
-    
     // Type codes.
+    // Better would be high bit 1 => encoded value.
+    // enums.
     public static final int NONE               = 0 ;
     public static final int INTEGER            = 1 ;
     public static final int DECIMAL            = 2 ;
@@ -152,7 +158,7 @@ public class NodeId
     {
         if ( node == null )
         {
-            ALog.warn(NodeId.class, "Null node: "+node) ;
+            Log.warn(NodeId.class, "Null node: "+node) ;
             return null ;
         }
         
@@ -171,9 +177,14 @@ public class NodeId
             if ( ! XSDDatatype.XSDdecimal.isValidLiteral(lit) ) 
                 return null ;
             
-            BigDecimal decimal = new BigDecimal(lit.getLexicalForm()) ;
+            // Not lit.getValue() because that may be a narrower type e.g. Integer.
+            // .trim is how Jena does it but it rather savage. spc, \n \r \t.
+            // But at this point we know it's a valid literal so the excessive
+            // chopping by .trim is safe.
+            BigDecimal decimal = new BigDecimal(lit.getLexicalForm().trim()) ;
             // Does range checking.
             DecimalNode dn = DecimalNode.valueOf(decimal) ;
+            // null is "does not fit"
             if ( dn != null )
                 // setType
                 return new NodeId(dn.pack()) ;
@@ -196,6 +207,8 @@ public class NodeId
         
         if ( XSDDatatype.XSDdateTime.isValidLiteral(lit) ) 
         {
+            // Could use the Jena/XSDDateTime object here rather than reparse the lexical form.
+            // But this works and it's close to a release ... 
             long v = DateTimeNode.packDateTime(lit.getLexicalForm()) ;
             if ( v == -1 )
                 return null ; 
@@ -229,15 +242,17 @@ public class NodeId
     /** Decode an inline nodeID, return null if not an inline node */
     public static Node extract(NodeId nodeId)
     {
-        //if ( ! enableInlineLiterals ) return null ; 
+        if ( nodeId == NodeId.NodeDoesNotExist )
+            return null ;
         
         long v = nodeId.value ;
         int type = nodeId.type() ;
 
         switch (type)
         {
-            case NONE:
-                return null ;
+            case NONE:      return null ;
+            case SPECIAL:   return null ;
+                
             case INTEGER:
             {
                 long val = IntegerNode.unpack(v) ;

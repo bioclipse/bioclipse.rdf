@@ -1,38 +1,41 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.solver;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.algebra.TransformCopy;
-import com.hp.hpl.jena.sparql.algebra.Transformer;
-import com.hp.hpl.jena.sparql.algebra.op.OpGraph;
-import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.core.Substitute;
-import com.hp.hpl.jena.sparql.engine.Plan;
-import com.hp.hpl.jena.sparql.engine.QueryEngineFactory;
-import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.main.QueryEngineMain;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.tdb.TDB;
-import com.hp.hpl.jena.tdb.store.DatasetGraphTDB;
-import com.hp.hpl.jena.tdb.store.GraphNamedTDB;
+import java.util.Set ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.engine.Plan ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineFactory ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.main.QueryEngineMain ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.tdb.TDB ;
+import com.hp.hpl.jena.tdb.migrate.A2 ;
+import com.hp.hpl.jena.tdb.migrate.DynamicDatasets ;
+import com.hp.hpl.jena.tdb.migrate.NodeUtils2 ;
+import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
+import com.hp.hpl.jena.tdb.store.GraphNamedTDB ;
+import com.hp.hpl.jena.tdb.sys.SystemTDB ;
 
 // This exists to intercept the query execution setup.
 //  e.g choose the transformation optimizations
 // then to make the quad form.
-// TDB also uses a custom OpExecutor to intercept certain Op evaluations
+// TDB also uses a custom OpExecutor to intercept certain part 
+// of the Op evaluations
 
 public class QueryEngineTDB extends QueryEngineMain
 {
@@ -44,25 +47,91 @@ public class QueryEngineTDB extends QueryEngineMain
     private Binding initialInput ;
 
     // ---- Object
-    private QueryEngineTDB(Op op, DatasetGraphTDB dataset, Binding input, Context context)
-    { super(op, dataset, input, context) ; this.initialInput = input ; }
-
+    protected QueryEngineTDB(Op op, DatasetGraphTDB dataset, Binding input, Context context)
+    {
+        super(op, dataset, input, context) ;
+        this.initialInput = input ;
+    }
     
-    private QueryEngineTDB(Query query, DatasetGraphTDB dataset, Binding input, Context context)
+    /*
+     * rewrite does not work for paths (:p*) because the path evaluator uses the active graph. 
+     * Need to alter the active graph in the QueryExecutionContext which is set in
+     * QueryEngineMain.
+     * Possibility: pass up the presferred active graph (defaulting to the default graph).
+     * TEMPORARY FIX: rewrite the dataset to be a general one with the right graphs in it.  
+     */
+    private static final boolean DynamicDatasetByRewrite = false ;
+    private boolean doingDynamicDatasetBySpecialDataset = false ;
+    
+    protected QueryEngineTDB(Query query, DatasetGraphTDB dataset, Binding input, Context context)
     { 
         super(query, dataset, input, context) ; 
+        // [[DynDS]]
+        // Dynamic dataset done as a special dataset
+        if ( ! DynamicDatasetByRewrite && query.hasDatasetDescription() )
+        {
+            //UGLY
+            
+            // MIGRATION.
+            // 1 - All this to ARQ.
+            //     Context slot for real default graph and union graph.
+            //     or DatasetGraph.getUnionGraph(), DatasetGraph.getRealDftGraph(),   
+            // 2 - Modify OpExecutor.execute(OpGraph) to skip Quad.unionGraph, Quad.defaultGraphIRI
+            
+            doingDynamicDatasetBySpecialDataset = true ;
+            DatasetGraph dsg = super.dataset; 
+            // Before dynamic dataset processing.
+            //Graph realDftGraph = dsg.getDefaultGraph() ;
+            dsg = DynamicDatasets.dynamicDataset(query, dsg, super.context.isTrue(TDB.symUnionDefaultGraph) ) ;  // Flag for default union graph?
+            
+////            // Create a union graph.
+////            List<Node> namedGraphs = Iter.toList(dsg.listGraphNodes()) ;
+////            Graph unionGraph = new GraphUnionRead(dsg, namedGraphs) ;
+////            if ( super.context.isTrue(TDB.symUnionDefaultGraph) && ( query.getGraphURIs() == null || query.getGraphURIs().size() == 0 ) )
+////                dsg.setDefaultGraph(unionGraph) ;
+//
+//            // What about <urn:x-arq:DefaultGraph> and <urn:x-arq:UnionGraph>?
+//            // really, really create those names?
+//            // --> shows in listGraphs.
+////            dsg.addGraph(Quad.unionGraph, unionGraph) ;
+////            dsg.addGraph(Quad.defaultGraphIRI, realDftGraph) ;
+//
+//            //EXPERIMENT
+//            dsg = new DynamicDatasets.DynamicDatasetGraph(dsg) ;
+//            // ----
+            super.dataset = dsg ;
+        }
         this.initialInput = input ; 
     }
     
     // Choose the algebra-level optimizations to invoke. 
     @Override
     protected Op modifyOp(Op op)
-    { 
+    {
         op = Substitute.substitute(op, initialInput) ;
-        //Explain.explain("ALGEBRA", op, context) ;
+        // Optimize (high-level)
         op = super.modifyOp(op) ;
-        op = Algebra.toQuadForm(op) ;
-        Explain.explain("ALGEBRA", op, context) ;
+
+        // Quadification
+        if ( ! doingDynamicDatasetBySpecialDataset )
+            // [[DynDS]]
+            // We flipped to general execution-leave alone.
+            op = Algebra.toQuadForm(op) ;
+
+        // Could apply dynamic dataset transform before everything else
+        // but default merged graphs works on quads. 
+
+//        // [[DynDS]]
+//        if ( doingDynamicDatasetBySpecialDataset )
+//        {
+//            // No action. Already done.
+//        }
+//        else if ( DynamicDatasetByRewrite )
+//            // Do by rewrite - note issues about paths
+//            op = dynamicDatasetOp(op, context) ;
+        
+        // Record it.
+        setOp(op) ;
         return op ;
     }
 
@@ -73,15 +142,14 @@ public class QueryEngineTDB extends QueryEngineMain
         // Op is quad'ed by now but there still may be some (graph ....) forms e.g. paths
         
         // Fix DatasetGraph for global union.
-        if ( context.isTrue(TDB.symUnionDefaultGraph) ) 
+        if ( context.isTrue(TDB.symUnionDefaultGraph) && ! doingDynamicDatasetBySpecialDataset ) 
         {
+            // doingDynamicDatasetBySpecialDataset => done earlier.
+            op = A2.unionDefaultGraphQuads(op) ;
             // Rewrite so that any explicitly named "default graph" is union graph.
-            Transform t = new TransformGraphRename(Quad.defaultGraphNodeGenerated, Quad.unionGraph)  ;
-            op = Transformer.transform(t, op) ;
-
             // And set the default graph to be the union graph as well.
             DatasetGraphTDB ds = ((DatasetGraphTDB)dsg).duplicate() ;
-            ds.setDefaultGraph(new GraphNamedTDB(ds, Quad.unionGraph)) ;
+            ds.setEffectiveDefaultGraph(new GraphNamedTDB(ds, Quad.unionGraph)) ;
             dsg = ds ;
         }
         return super.eval(op, dsg, input, context) ;
@@ -90,59 +158,19 @@ public class QueryEngineTDB extends QueryEngineMain
     // Execution time (needs wiring to ARQ).
     public long getMillis() { return -1 ; }
     
-    static Transform graphNameChange = null ;
-    
-    // ---- Rewrite that looks for a fixed node as the graph name 
-    // (in (graph) and (quad)) and changes it to another one.
-    static class TransformGraphRename extends TransformCopy
-    { 
-        private Node oldGraphName ;
-        private Node newGraphName ;
-
-        public TransformGraphRename(Node oldGraphName, Node newGraphName)
-        {
-            this.oldGraphName = oldGraphName ;
-            this.newGraphName = newGraphName ;
-        }
-
-        // Does not affect variables.
-        @Override
-        public Op transform(OpGraph opGraph, Op x)
-        { 
-            if ( opGraph.getNode().equals(oldGraphName) )
-                opGraph = new OpGraph(newGraphName, x) ;
-            return super.transform(opGraph, x) ;
-        }
-
-        @Override
-        public Op transform(OpQuadPattern opQuadPattern)
-        {
-            if ( opQuadPattern.getGraphNode().equals(oldGraphName) )
-                opQuadPattern = new OpQuadPattern(newGraphName, opQuadPattern.getBasicPattern()) ;
-            return super.transform(opQuadPattern) ;
-        }
-    } ;
-    
-    
-    
     // ---- Factory
-    private static QueryEngineFactory factory = new QueryEngineFactory()
+    private static QueryEngineFactory factory = new QueryEngineFactoryTDB() ;
+        
+    private static class QueryEngineFactoryTDB implements QueryEngineFactory
     {
         public boolean accept(Query query, DatasetGraph dataset, Context context) 
         { return (dataset instanceof DatasetGraphTDB) ; }
 
-        public Plan create(Query query, DatasetGraph dataset, Binding input, Context context)
+        public Plan create(Query query, DatasetGraph ds, Binding input, Context context)
         {
-            if ( query.hasDatasetDescription() )
-            {
-                // Has a description - don't use the dataset, use the description via an all-purpose query engine.
-                QueryEngineMain engine = new QueryEngineMain(query, dataset, input, context) ;
-                return engine.getPlan() ;
-            }
-            
-            Explain.explain("QUERY", query, context) ;
-            
-            QueryEngineTDB engine = new QueryEngineTDB(query, (DatasetGraphTDB)dataset, input, context) ;
+            DatasetGraphTDB dataset = (DatasetGraphTDB)ds ;
+            dynamicDatasetQE(query, context) ;
+            QueryEngineTDB engine = new QueryEngineTDB(query, dataset, input, context) ;
             return engine.getPlan() ;
         }
         
@@ -151,15 +179,56 @@ public class QueryEngineTDB extends QueryEngineMain
 
         public Plan create(Op op, DatasetGraph dataset, Binding binding, Context context)
         {
-            //Explain.explain("QUERY", query, context) ;
             QueryEngineTDB engine = new QueryEngineTDB(op, (DatasetGraphTDB)dataset, binding, context) ;
             return engine.getPlan() ;
         }
     } ;
+    
+    // Write the DatasetDescription into the context.
+    private static void dynamicDatasetQE(Query query,  Context context)
+    {
+        if ( query.hasDatasetDescription() )
+        {
+            Set<Node> defaultGraphs = NodeUtils2.convertToNodes(query.getGraphURIs()) ; 
+            Set<Node> namedGraphs = NodeUtils2.convertToNodes(query.getNamedGraphURIs()) ;
+            
+            context.set(SystemTDB.symDatasetDefaultGraphs, defaultGraphs) ;
+            context.set(SystemTDB.symDatasetNamedGraphs, namedGraphs) ;
+        }
+    }
+    
+//    // By rewrite, not using a general purpose dataset with the right graphs in.
+//    private static Op dynamicDatasetOp(Op op,  Context context)
+//    {
+//        Transform transform = null ;
+//    
+//        try {
+//            @SuppressWarnings("unchecked")
+//            Set<Node> defaultGraphs = (Set<Node>)(context.get(SystemTDB.symDatasetDefaultGraphs)) ;
+//            @SuppressWarnings("unchecked")
+//            Set<Node> namedGraphs = (Set<Node>)(context.get(SystemTDB.symDatasetNamedGraphs)) ;
+//            if ( defaultGraphs != null || namedGraphs != null )
+//                transform = new TransformDynamicDataset(defaultGraphs, 
+//                                                        namedGraphs, 
+//                                                        context.isTrue(TDB.symUnionDefaultGraph)) ;
+//        } catch (ClassCastException ex)
+//        {
+//            Log.warn(QueryEngineTDB.class, "Bad dynamic dataset description (ClassCastException)", ex) ;
+//            transform = null ;
+//            return op ;
+//        }
+//
+//        // Apply dynamic dataset modifications.
+//        if ( transform != null )
+//            op = Transformer.transform(transform, op) ;
+//        return op ;
+//    }        
+//    
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

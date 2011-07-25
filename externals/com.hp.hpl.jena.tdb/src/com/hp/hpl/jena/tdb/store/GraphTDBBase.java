@@ -1,36 +1,41 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.store;
 
+import static com.hp.hpl.jena.sparql.core.Quad.isUnionGraph ;
 
-import static com.hp.hpl.jena.sparql.core.Quad.isQuadUnionGraph;
+import java.util.Iterator ;
 
-import java.util.Iterator;
+import org.openjena.atlas.iterator.Iter ;
+import org.slf4j.Logger ;
 
-import org.slf4j.Logger;
-
-import atlas.iterator.Iter;
-
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.NiceIterator;
-
-import com.hp.hpl.jena.graph.*;
-import com.hp.hpl.jena.graph.query.QueryHandler;
-
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.sparql.core.Quad;
-
-import com.hp.hpl.jena.tdb.TDB;
-import com.hp.hpl.jena.tdb.base.file.Location;
-import com.hp.hpl.jena.tdb.graph.*;
+import com.hp.hpl.jena.graph.BulkUpdateHandler ;
+import com.hp.hpl.jena.graph.Capabilities ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Reifier ;
+import com.hp.hpl.jena.graph.TransactionHandler ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.graph.TripleMatch ;
+import com.hp.hpl.jena.graph.query.QueryHandler ;
+import com.hp.hpl.jena.shared.Lock ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.Reifier2 ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
+import com.hp.hpl.jena.sparql.graph.GraphBase2 ;
+import com.hp.hpl.jena.tdb.TDB ;
+import com.hp.hpl.jena.tdb.base.file.Location ;
+import com.hp.hpl.jena.tdb.graph.BulkUpdateHandlerTDB ;
+import com.hp.hpl.jena.tdb.graph.QueryHandlerTDB ;
+import com.hp.hpl.jena.tdb.graph.TransactionHandlerTDB ;
 import com.hp.hpl.jena.tdb.lib.NodeFmtLib ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderTransformation;
-import com.hp.hpl.jena.tdb.sys.Names;
-import com.hp.hpl.jena.tdb.sys.SystemTDB;
+import com.hp.hpl.jena.tdb.sys.SystemTDB ;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator ;
+import com.hp.hpl.jena.util.iterator.WrappedIterator ;
 
 /** General operations for TDB graphs (free-standing graph, default graph and named graphs) */
 public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
@@ -40,17 +45,12 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
     private final BulkUpdateHandler bulkUpdateHandler = new BulkUpdateHandlerTDB(this) ;
     protected final DatasetGraphTDB dataset ;
     protected final Node graphNode ;
-    protected final int syncPoint ;
 
     public GraphTDBBase(DatasetGraphTDB dataset, Node graphName)
     { 
         super() ;
         this.dataset = dataset ; 
         this.graphNode = graphName ;
-        syncPoint = dataset.getConfigValueAsInt(Names.pSyncTick, SystemTDB.SyncTick) ;
-        if ( syncPoint > 0 )
-            this.getEventManager().register(new GraphSyncListener(this, syncPoint)) ;
-        this.getEventManager().register(new UpdateListener(this)) ;
     }
     
     /** Reorder processor - may be null, for "none" */
@@ -69,8 +69,36 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
     //@Override
     public Lock getLock()                                       { return dataset.getLock() ; }
     
+    // Intercept performAdd/preformDelete and bracket in start/finish markers   
+    
+    @Override
+    public final void performAdd(Triple triple)
+    { 
+        // Should we do try{}finally{}?
+        // Here, no, if there is an exeception, the database is bad. 
+        startUpdate() ;
+        _performAdd(triple) ;
+        finishUpdate() ;
+    }
+
+    @Override
+    public final void performDelete(Triple triple)
+    {
+        startUpdate() ;
+        _performDelete(triple) ;
+        finishUpdate() ;
+    }
+    
+    protected abstract boolean _performAdd( Triple triple ) ;
+    
+    protected abstract boolean _performDelete( Triple triple ) ;
+    
     //@Override
-    public abstract void sync(boolean force) ;
+    public abstract void sync() ;
+    
+    @Override
+    // make submodels think about this.
+    public abstract String toString() ;
     
     protected void duplicate(Triple t)
     {
@@ -87,17 +115,17 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
         Iterator<Triple> iter = tripleTable.find(m.getMatchSubject(), m.getMatchPredicate(), m.getMatchObject()) ;
         if ( iter == null )
             return com.hp.hpl.jena.util.iterator.NullIterator.instance() ;
-        
+
+        // Look now!
         boolean b = iter.hasNext() ;
-        
-        return new MapperIteratorTriples(iter) ;
+        return WrappedIterator.createNoRemove(iter) ;
     }
     
     protected static ExtendedIterator<Triple> graphBaseFindWorker(DatasetGraphTDB dataset, Node graphNode, TripleMatch m)
     {
         Node gn = graphNode ;
         // Explicitly named union graph. 
-        if ( isQuadUnionGraph(gn) )
+        if ( isUnionGraph(gn) )
             gn = Node.ANY ;
 
         Iterator<Quad> iter = dataset.getQuadTable().find(gn, m.getMatchSubject(), m.getMatchPredicate(), m.getMatchObject()) ;
@@ -108,7 +136,7 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
         
         if ( gn == Node.ANY )
             iterTriples = Iter.distinct(iterTriples) ;
-        return new MapperIteratorTriples(iterTriples) ;
+        return WrappedIterator.createNoRemove(iterTriples) ;
     }
     
     @Override
@@ -121,22 +149,24 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
     
     /** Iterator over something that, when counted, is the graph size. */
     protected abstract Iterator<?> countThis() ;
+    
+    
+
+    //@Override
+    public void startRead()             { dataset.startRead() ; }
+    //@Override
+    public void finishRead()            { dataset.finishRead() ; }
+
+    //@Override
+    public final void startUpdate()     { dataset.startUpdate() ; }
+    //@Override
+    public final void finishUpdate()    { dataset.finishUpdate() ; }
 
     @Override
     protected final int graphBaseSize()
     {
         Iterator<?> iter = countThis() ;
         return (int)Iter.count(iter) ;
-    }
-    
-    // Convert from Iterator<Triple> to ExtendedIterator
-    static class MapperIteratorTriples extends NiceIterator<Triple>
-    {
-        private final Iterator<Triple> iter ;
-        MapperIteratorTriples(Iterator<Triple> iter) { this.iter = iter ; }
-        @Override public boolean hasNext() { return iter.hasNext() ; } 
-        @Override public Triple next() { return iter.next(); }
-        @Override public void remove() { iter.remove(); }
     }
     
     // Convert from Iterator<Quad> to Iterator<Triple>
@@ -155,7 +185,7 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
             Quad q = iter.next();
             if ( graphNode != null && ! q.getGraph().equals(graphNode))
                 throw new InternalError("ProjectQuadsToTriples: Quads from unexpected graph") ;
-            return q.getTriple() ;
+            return q.asTriple() ;
         }
         //@Override
         public void remove() { iter.remove(); }
@@ -198,6 +228,7 @@ public abstract class GraphTDBBase extends GraphBase2 implements GraphTDB
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

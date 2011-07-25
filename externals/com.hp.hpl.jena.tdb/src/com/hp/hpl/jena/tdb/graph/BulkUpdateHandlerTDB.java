@@ -8,14 +8,15 @@ package com.hp.hpl.jena.tdb.graph;
 
 import java.util.Iterator;
 
-import atlas.lib.Tuple;
+import org.openjena.atlas.lib.Tuple ;
+
 
 
 import com.hp.hpl.jena.graph.BulkUpdateHandler;
 import com.hp.hpl.jena.graph.GraphEvents;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.SimpleBulkUpdateHandler;
-import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
 import com.hp.hpl.jena.tdb.store.GraphTDBBase;
 import com.hp.hpl.jena.tdb.store.NodeId;
 
@@ -94,6 +95,8 @@ public class BulkUpdateHandlerTDB extends SimpleBulkUpdateHandler implements Bul
     
     private void removeWorker(Node s, Node p, Node o)
     {
+        graphTDB.startUpdate() ;
+        
         // Delete in batches.
         // That way, there is no active iterator when a delete 
         // from the indexes happens.
@@ -137,6 +140,9 @@ public class BulkUpdateHandlerTDB extends SimpleBulkUpdateHandler implements Bul
             if ( len < sliceSize )
                 break ;
         }
+        
+        graphTDB.finishUpdate() ;
+
     }
 }
 

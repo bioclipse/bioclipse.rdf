@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -114,22 +115,24 @@ public class BlockMgrDirect extends BlockMgrFile
 
     static long count = 0 ;
     //@Override
-    public void sync(boolean force)
+    public void sync()
     {
         count++ ;
+        force() ;
         if ( getLog().isDebugEnabled() )
             getLog().debug("Sync/BlockMgrDirect "+label+" -- "+count) ;
-        if ( force )
-            force() ;
     }
 
     @Override
     protected void _close()
-    {}
+    {
+        super.force() ;
+    }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

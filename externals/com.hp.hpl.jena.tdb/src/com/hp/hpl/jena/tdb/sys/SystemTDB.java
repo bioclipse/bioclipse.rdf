@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -11,19 +12,20 @@ import java.io.IOException ;
 import java.nio.ByteOrder ;
 import java.util.Properties ;
 
+import org.openjena.atlas.lib.PropertyUtils ;
+import org.openjena.atlas.logging.Log ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-import atlas.lib.PropertyUtils ;
-import atlas.logging.Log ;
 
 import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderLib ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
 import com.hp.hpl.jena.sparql.util.Symbol ;
 import com.hp.hpl.jena.tdb.TDB ;
 import com.hp.hpl.jena.tdb.TDBException ;
 import com.hp.hpl.jena.tdb.base.block.FileMode ;
 import com.hp.hpl.jena.tdb.base.record.RecordFactory ;
 import com.hp.hpl.jena.tdb.index.IndexType ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderTransformation ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
 
 public class SystemTDB
@@ -59,8 +61,6 @@ public class SystemTDB
      * In TDB 0.7.X and before this was 8 bytes (64/8).
      * In TDB 0.8.0 and above it is 16 bytes (128/8).
      * These two systems are not compatible.
-     * 
-     * @see{com.hp.hpl.jena.tdb.TDB.VERSION}
      */
     //public static final int LenNodeHash             = SizeOfLong ; // TDB <= 0.7.X
     public static final int LenNodeHash             = 128/8 ; // TDB >= 0.8.0
@@ -72,6 +72,12 @@ public class SystemTDB
     public final static RecordFactory indexRecordQuadFactory = new RecordFactory(LenIndexQuadRecord, 0) ;
     public final static RecordFactory nodeRecordFactory = new RecordFactory(LenNodeHash, SizeOfNodeId) ;
 
+    // Test show no visable effect.
+//    /** Unit of flushing the data when loading - data phase.  -1 means off, sync at end of load only.  */
+//    public final static long LoadFlushTickPrimary   = -1 ; // 10*1000*1000 ;
+//    /** Unit of flushing the data when loading - index phase  -1 means off, sync at end of load only.  */
+//    public final static long LoadFlushTickSecondary = -1 ; // 10*1000*1000 ;
+
     /** Root of TDB-defined parameter names */
     public static final String symbolNamespace      = "http://jena.hpl.hp.com/TDB#" ;
 
@@ -81,8 +87,6 @@ public class SystemTDB
     /** Root of any TDB-defined Java system properties */   
     public static final String tdbPropertyRoot      = "com.hp.hpl.jena.tdb" ;
 
-    // TODO Make these settable via the properties file.
-    
     /** Log duplicates during loading */
     public static final Symbol symLogDuplicates     = allocSymbol("logDuplicates") ;
 
@@ -95,11 +99,15 @@ public class SystemTDB
     /** Experimental : triple and quad filtering at scan level */
     public static final Symbol symTupleFilter       = allocSymbol("tupleFilter") ;
 
+    /** Experimental : graphs forming the default graph (List&lt;String&gt;) */
+    public static final Symbol symDatasetDefaultGraphs     = allocSymbol("datasetDefaultGraphs") ;
     
+    /** Experimental : graphs forming the named graphs (List&lt;String&gt;) */
+    public static final Symbol symDatasetNamedGraphs       = allocSymbol("datasetNamedGraphs") ;
+
     private static final String propertyFileKey1    = tdbPropertyRoot+".settings" ;
     private static final String propertyFileKey2    = tdbSymbolPrefix+":settings" ;
 
-    // XXX Change
     private static String propertyFileName = null ;
     static {
         propertyFileName = System.getProperty(propertyFileKey1) ;
@@ -117,7 +125,10 @@ public class SystemTDB
 
     /** Size, in bytes, of a block for testing */
     public static final int BlockSizeTest           = 1024 ; // intValue("BlockSizeTest", 1024) ;
-    
+
+    /** Size, in bytes, of a block for testing */
+    public static final int BlockSizeTestMem         = 500 ;
+
 //    /** Size, in bytes, of a memory block */
 //    public static final int BlockSizeMem            = 32*8 ; //intValue("BlockSizeMem", 32*8 ) ;
 
@@ -132,6 +143,8 @@ public class SystemTDB
     public static final int SegmentSize             = 8*1024*1024 ; // intValue("SegmentSize", 8*1024*1024) ;
     
     // ---- Cache sizes (within the JVM)
+    
+    public static final int ObjectFileWriteCacheSize = 8*1024 ;
     
     /** Size of Node to NodeId cache.
      *  Used to map from Node to NodeId spaces.
@@ -153,15 +166,26 @@ public class SystemTDB
     
     // ---- Misc
     
-    /** Number of adds/deletes between calls to sync (-ve to disable) */
-    public static final int SyncTick                = intValue("SyncTick", 100*1000) ;
+//    /** Number of adds/deletes between calls to sync (-ve to disable) */
+//    public static final int SyncTick                = intValue("SyncTick", -1) ;
 
-    // Choice is made in GraphTDBFactory
-    public static ReorderTransformation defaultOptimizer = null ; //ReorderLib.fixed() ;
+    // SystemTDB.chooseOptimizer
+    public static ReorderTransformation defaultOptimizer = ReorderLib.fixed() ;
 
     public static final ByteOrder NetworkOrder      = ByteOrder.BIG_ENDIAN ;
-    
+
+//    public static void setNullOut(boolean nullOut)
+//    { SystemTDB.NullOut = nullOut ; }
+//
+//    /** Are we nulling out unused space in bytebuffers (records, points etc) */ 
+//    public static boolean getNullOut()
+//    { return SystemTDB.NullOut ; }
+
+    /** null out (wuth the FillByte) freed up space in buffers */
     public static boolean NullOut = false ;
+    
+    /** FillByte value for NullOut */
+    public static final byte FillByte = (byte)0xFF ;
 
     public static boolean Checking = false ;       // This isn't used enough!
 
@@ -224,7 +248,7 @@ public class SystemTDB
         try
         {
             TDB.logInfo.info("Using properties from '"+propertyFileName+"'") ;
-            PropertyUtils.loadFromFile(properties, propertyFileName) ;
+            PropertyUtils.loadFromFile(p, propertyFileName) ;
         } catch (FileNotFoundException ex)
         { 
             log.debug("No system properties file ("+propertyFileName+")") ;
@@ -262,6 +286,28 @@ public class SystemTDB
         boolean b = s.contains("64") ;
         TDB.logInfo.debug("System architecture: (from java.vm.info) "+(b?"64 bit":"32 bit")) ;
         return b ;
+    }
+    
+    // Not in use yet.
+    private static void determineJVMSize()
+    {
+        Runtime runtime = Runtime.getRuntime() ;
+        
+        long totalMemory = runtime.totalMemory() ;
+        long maxMemory = runtime.maxMemory() ;
+        int cpus = runtime.availableProcessors() ;
+        
+        runtime.addShutdownHook(new Thread(new SyncCacheRunnable())) ;
+    }
+    
+    static class SyncCacheRunnable implements Runnable
+    {
+        public void run()
+        {
+            try {
+                TDBMaker.syncDatasetCache() ;
+            } catch (Exception ex) {} 
+        }
     }
     
     // ---- File mode
@@ -349,6 +395,7 @@ public class SystemTDB
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

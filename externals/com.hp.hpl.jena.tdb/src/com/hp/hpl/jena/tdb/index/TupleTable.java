@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,19 +9,16 @@ package com.hp.hpl.jena.tdb.index;
 
 import static java.lang.String.format ;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import atlas.lib.Tuple;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.atlas.lib.Tuple ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.sparql.core.Closeable;
-
-import com.hp.hpl.jena.tdb.TDBException;
-import com.hp.hpl.jena.tdb.base.record.RecordFactory;
-import com.hp.hpl.jena.tdb.lib.Sync;
-import com.hp.hpl.jena.tdb.store.NodeId;
+import com.hp.hpl.jena.tdb.TDBException ;
+import com.hp.hpl.jena.tdb.store.NodeId ;
 
 /** A TupleTable is a set of TupleIndexes.  The first TupleIndex is the "primary" index and must exist */
 public class TupleTable implements Sync, Closeable
@@ -28,16 +26,12 @@ public class TupleTable implements Sync, Closeable
     private static Logger log = LoggerFactory.getLogger(TupleTable.class) ;
     
     private final TupleIndex[] indexes ;
-    //private final Location location ;
-
-    private int tupleLen ;
-    private RecordFactory factory ;
+    private final int tupleLen ;
     
     public TupleTable(int tupleLen, TupleIndex[] indexes)
     {
         this.tupleLen = tupleLen ;
         this.indexes = indexes ;
-        //this.location = location ;
         if ( indexes[0] == null )
             throw new TDBException("TupleTable: no primary index") ;
         for ( TupleIndex index : indexes )
@@ -70,7 +64,7 @@ public class TupleTable implements Sync, Closeable
         return true ;
     }
 
-    private void duplicate(Tuple<NodeId> t)
+    protected void duplicate(Tuple<NodeId> t)
     { }
 
     /** Delete a tuple - return true if it was deleted, false if it didn't exist */
@@ -167,16 +161,25 @@ public class TupleTable implements Sync, Closeable
 //    }
     
     //@Override
-    public void sync(boolean force)
+    public void sync()
     {
         for ( TupleIndex idx : indexes )
         {
             if ( idx != null )
-                idx.sync(force) ;
+                idx.sync() ;
         }
     }
 
     public boolean isEmpty()        { return indexes[0].isEmpty() ; }
+    
+    public void clear()
+    {
+        for ( TupleIndex idx : indexes )
+        {
+            if ( idx != null )
+                idx.clear() ;
+        }
+    }
     
     public long size()
     {
@@ -198,7 +201,6 @@ public class TupleTable implements Sync, Closeable
         if ( index != null && index.getTupleLength() != tupleLen )
             throw new TDBException("Incompatible index: "+index.getLabel()) ;
         indexes[i] = index ;
-        
     }
 
     /** Number of indexes on this tuple table */
@@ -207,6 +209,7 @@ public class TupleTable implements Sync, Closeable
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

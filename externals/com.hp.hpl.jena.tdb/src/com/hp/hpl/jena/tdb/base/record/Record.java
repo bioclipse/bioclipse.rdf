@@ -10,15 +10,15 @@ import static java.lang.String.format;
 
 import java.util.Arrays;
 
-import atlas.lib.Bytes;
+import org.openjena.atlas.lib.Bytes ;
+
 
 import com.hp.hpl.jena.tdb.sys.SystemTDB;
 
 /** A record is pair of key and value.  It may be all key, in which case value is null. 
- * @author Andy Seaborne
- * @version $Id$
  */
 
+final
 public class Record //implements Comparable<Record>
 {
     /*
@@ -93,41 +93,49 @@ public class Record //implements Comparable<Record>
         return str(key)+":"+str(value) ;
     }
     
+    /** Is the key of record1 == key of record2 */
     public static boolean keyEQ(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x == 0 ;
     }
 
+    /** Is the key of record1 != key of record2 */
     public static boolean keyNE(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x != 0 ;
     }
+
+    /** Is the key of record1 < key of record2 */
     public static boolean keyLT(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x < 0 ;
     }
 
+    /** Is the key of record1 <= key of record2 */
     public static boolean keyLE(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x <= 0 ;
     }
     
+    /** Is the key of record1 >= key of record2 */
     public static boolean keyGE(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x >= 0 ;
     }
     
+    /** Is the key of record1 > key of record2 */
     public static boolean keyGT(Record record1, Record record2)
     {
         int x = compareByKey(record1, record2) ;
         return x > 0 ;
     }
     
+    /** Is (key, value) of record1 equal to (key,value) of record2 */
     public static boolean equals(Record record1, Record record2)
     {
         int x = compareByKeyValue(record1, record2) ;

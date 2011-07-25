@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -9,18 +10,20 @@ package com.hp.hpl.jena.tdb.store;
 
 import java.util.Iterator ;
 
-import atlas.iterator.NullIterator ;
-import atlas.iterator.Transform ;
-import atlas.lib.Tuple ;
+import org.openjena.atlas.iterator.NullIterator ;
+import org.openjena.atlas.iterator.Transform ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.atlas.lib.Tuple ;
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.graph.Triple ;
-import com.hp.hpl.jena.sparql.core.Closeable ;
 import com.hp.hpl.jena.tdb.index.TupleIndex ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
 import com.hp.hpl.jena.tdb.lib.TupleLib ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTableConcrete ;
+import com.hp.hpl.jena.tdb.sys.ConcurrencyPolicy ;
 
 
 /** TripleTable - a collection of TupleIndexes for 3-tuples
@@ -34,14 +37,20 @@ public class TripleTable implements Sync, Closeable
 {
     final NodeTupleTable table ;
     
-    public TripleTable(TupleIndex[] indexes, NodeTable nodeTable)
+    public TripleTable(TupleIndex[] indexes, NodeTable nodeTable, ConcurrencyPolicy policy)
     {
-        table = new NodeTupleTable(3, indexes, nodeTable) ;
+        table = new NodeTupleTableConcrete(3, indexes, nodeTable, policy) ;
+        
     }
     
     public boolean add( Triple triple ) 
     { 
-        return table.addRow(triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
+        return add(triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
+    }
+
+    public boolean add(Node s, Node p, Node o) 
+    { 
+        return table.addRow(s, p, o) ;
     }
     
     /** Delete a triple  - return true if it was deleted, false if it didn't exist */
@@ -50,6 +59,12 @@ public class TripleTable implements Sync, Closeable
         return table.deleteRow(triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
     }
     
+    /** Delete a triple  - return true if it was deleted, false if it didn't exist */
+    public boolean delete(Node s, Node p, Node o) 
+    { 
+        return table.deleteRow(s, p, o) ;
+    }
+
     /** Find matching triples */
     public Iterator<Triple> find(Node s, Node p, Node o)
     {
@@ -70,46 +85,30 @@ public class TripleTable implements Sync, Closeable
     public NodeTupleTable getNodeTupleTable() { return table ; }
 
     //@Override
-    public void sync(boolean force)
-    { table.sync(force) ; }
+    public void sync()
+    { table.sync() ; }
 
     //@Override
     public void close()
     { table.close() ; }
     
-//    /** Find by node. */
-//    public Iterator<Triple> find(Node s, Node p, Node o)
-//    {
-//        NodeId subj = idForNode(s) ;
-//        if ( subj == NodeId.NodeDoesNotExist )
-//            return new NullIterator<Triple>() ;
-//        
-//        NodeId pred = idForNode(p) ;
-//        if ( pred == NodeId.NodeDoesNotExist )
-//            return new NullIterator<Triple>() ;
-//        
-//        NodeId obj = idForNode(o) ;
-//        if ( obj == NodeId.NodeDoesNotExist )
-//            return new NullIterator<Triple>() ;
-//
-//        Iterator<Tuple<NodeId>> _iter = find(subj, pred, obj) ;
-//        Iterator<Triple> iter = TupleLib.convertToTriples(nodeTable, _iter) ;
-//        return iter ;
-//    }
-//    
-//    
-//    /** Find by NodeId. */
-//    public Iterator<Tuple<NodeId>> find(NodeId subj, NodeId pred, NodeId obj)
-//    {
-//        Tuple<NodeId> tuple = Tuple.create(subj, pred, obj) ;
-//        Iterator<Tuple<NodeId>> iter = tupleTable.find(tuple) ;
-//        return iter ;
-//    }
+    public boolean isEmpty()        { return table.isEmpty() ; }
+    
+    /** Clear - does not clear the associated node tuple table */
+    public void clearTriples()
+    { table.clear() ; }
 
+//    /** Clear - including the associated node tuple table */
+//    public void clear()
+//    { 
+//        table.getTupleTable().clear() ;
+//        table.getNodeTable().clear() ;
+//    }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

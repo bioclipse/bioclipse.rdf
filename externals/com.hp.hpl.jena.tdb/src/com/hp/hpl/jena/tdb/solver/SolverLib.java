@@ -1,38 +1,43 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.solver;
 
-import static com.hp.hpl.jena.tdb.lib.Lib.printAbbrev;
+import static com.hp.hpl.jena.tdb.lib.Lib2.printAbbrev ;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collection ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Set ;
 
-import atlas.iterator.Filter ;
-import atlas.iterator.Iter;
-import atlas.iterator.Transform;
-import atlas.lib.Tuple;
+import org.openjena.atlas.iterator.Filter ;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.Transform ;
+import org.openjena.atlas.lib.Tuple ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.tdb.TDBException;
-import com.hp.hpl.jena.tdb.nodetable.NodeTable;
-import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable;
-import com.hp.hpl.jena.tdb.store.DatasetGraphTDB;
-import com.hp.hpl.jena.tdb.store.GraphTDB;
-import com.hp.hpl.jena.tdb.store.NodeId;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import com.hp.hpl.jena.tdb.TDBException ;
+import com.hp.hpl.jena.tdb.lib.NodeLib ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
+import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
+import com.hp.hpl.jena.tdb.store.GraphTDB ;
+import com.hp.hpl.jena.tdb.store.NodeId ;
 
 /** Utilities used within the TDB BGP solver : local TDB store */
 public class SolverLib
@@ -81,16 +86,14 @@ public class SolverLib
 
     
     // The worker.  Callers choose the NodeTupleTable.  
-    //     graphNode maybe Node.ANY, meaning we should make triples unique.
-    //     graphNode maybe null, meaning we should make triples unique.
+    //     graphNode may be Node.ANY, meaning we should make triples unique.
+    //     graphNode may be null, meaning we should make triples unique.
 
     private static QueryIterator execute(NodeTupleTable nodeTupleTable, Node graphNode, BasicPattern pattern, 
                                          QueryIterator input, Filter<Tuple<NodeId>> filter,
                                          ExecutionContext execCxt)
     {
         List<Triple> triples = pattern.getList() ;
-        
-        Iterator<Binding> iter = input ;
         boolean anyGraph = (graphNode==null ? false : (Node.ANY.equals(graphNode))) ;
         
         int tupleLen = nodeTupleTable.getTupleTable().getTupleLen() ;
@@ -102,8 +105,10 @@ public class SolverLib
                 throw new TDBException("SolverLib: Graph node specified but tuples are of length "+tupleLen) ;
         }
         
+        // Convert from a QueryIterator (Bindings of Var/Node) to BindingNodeId
         NodeTable nodeTable = nodeTupleTable.getNodeTable() ;
-        Iterator<BindingNodeId> chain = Iter.map(iter, SolverLib.convFromBinding(nodeTable)) ;
+        
+        Iterator<BindingNodeId> chain = Iter.map(input, SolverLib.convFromBinding(nodeTable)) ;
         
         for ( Triple triple : triples )
         {
@@ -121,12 +126,17 @@ public class SolverLib
         if ( false )
         {
             if ( chain.hasNext())
-                chain = Iter.print(chain) ;
+                chain = Iter.debug(chain) ;
             else
                 System.out.println("No results") ;
         }
         
+        // XXX
+        
+        // Need to make sure the bindings here point to parent.
         Iterator<Binding> iterBinding = converter.convert(nodeTable, chain) ;
+        
+        // "input" = wil be closed by QueryIterTDB but is otherwise unused.
         return new QueryIterTDB(iterBinding, input, execCxt) ;
     }
     
@@ -136,7 +146,7 @@ public class SolverLib
                                                  Iterator<BindingNodeId> chain, Filter<Tuple<NodeId>> filter,
                                                  ExecutionContext execCxt)
     {
-        return new StageMatchTriple(nodeTupleTable, chain, tuple, anyGraph, filter, execCxt) ;
+        return new StageMatchTuple(nodeTupleTable, chain, tuple, anyGraph, filter, execCxt) ;
     }
     
     // Transform : BindingNodeId ==> Binding
@@ -147,26 +157,31 @@ public class SolverLib
             //@Override
             public Binding convert(BindingNodeId bindingNodeIds)
             {
-                if ( true )
-                    return new BindingTDB(null, bindingNodeIds, nodeTable) ;
-                else
-                {
-                    // Makes nodes immediately.  Causing unecessary NodeTable accesses (e.g. project) 
-                    Binding b = new BindingMap() ;
-                    for ( Var v : bindingNodeIds )
-                    {
-                        NodeId id = bindingNodeIds.get(v) ;
-                        Node n = nodeTable.getNodeForNodeId(id) ;
-                        b.add(v, n) ;
-                    }
-                    return b ;
-                }
+                return convToBinding(nodeTable, bindingNodeIds) ;
             }
         } ;
     }
 
+    public static Binding convToBinding(NodeTable nodeTable, BindingNodeId bindingNodeIds)
+    {
+        if ( true )
+            return new BindingTDB(bindingNodeIds, nodeTable) ;
+        else
+        {
+            // Makes nodes immediately.  Causing unecessary NodeTable accesses (e.g. project) 
+            Binding b = new BindingMap() ;
+            for ( Var v : bindingNodeIds )
+            {
+                NodeId id = bindingNodeIds.get(v) ;
+                Node n = nodeTable.getNodeForNodeId(id) ;
+                b.add(v, n) ;
+            }
+            return b ;
+        }
+    }
+    
     // Transform : Binding ==> BindingNodeId
-    private static Transform<Binding, BindingNodeId> convFromBinding(final NodeTable nodeTable)
+    public static Transform<Binding, BindingNodeId> convFromBinding(final NodeTable nodeTable)
     {
         return new Transform<Binding, BindingNodeId>()
         {
@@ -176,7 +191,8 @@ public class SolverLib
                 if ( binding instanceof BindingTDB )
                     return ((BindingTDB)binding).getBindingId() ;
                 
-                BindingNodeId b = new BindingNodeId() ;
+                BindingNodeId b = new BindingNodeId(binding) ;
+                // and copy over, getting NodeIds.
                 Iterator<Var> vars = binding.vars() ;
     
                 for ( ; vars.hasNext() ; )
@@ -188,8 +204,11 @@ public class SolverLib
                         // Can occur with BindingProject
                         continue ;
                     
-                    // Rely on the node table cache. 
+                    // Rely on the node table cache for efficency - we will likely be
+                    // repeatedly looking up the same node in different bindings.
                     NodeId id = nodeTable.getNodeIdForNode(n) ;
+                    // Even put in "does not exist" for a node now known not to be in the DB.
+                    // Removed at TDB 0.8.7: if ( ! NodeId.doesNotExist(id) )
                     b.put(v, id) ;
                 }
                 return b ;
@@ -197,6 +216,31 @@ public class SolverLib
         } ;
     }
 
+    /** Find all the graph names in the quads table. */ 
+    public static QueryIterator graphNames(DatasetGraphTDB ds, Node graphNode,
+                                           QueryIterator input, Filter<Tuple<NodeId>> filter,
+                                           ExecutionContext execCxt)
+    {
+        Iterator<Tuple<NodeId>> iter1 = ds.getQuadTable().getNodeTupleTable().find(NodeId.NodeIdAny, NodeId.NodeIdAny, NodeId.NodeIdAny, NodeId.NodeIdAny) ;
+        if ( filter != null )
+            iter1 = Iter.filter(iter1, filter) ;
+        Iterator<NodeId> iter2 = Tuple.project(0, iter1) ;
+        Iterator<NodeId> iter3 = Iter.distinct(iter2) ;
+        Iterator<Node> iter4 = NodeLib.nodes(ds.getQuadTable().getNodeTupleTable().getNodeTable(), iter3) ;
+        
+        final Var var = Var.alloc(graphNode) ;
+        Transform<Node, Binding> bindGraphName = new Transform<Node, Binding>(){
+            public Binding convert(Node node)
+            {
+                return BindingFactory.binding(var, node) ;
+            }
+        } ;
+        
+        Iterator<Binding> iterBinding = Iter.map(iter4, bindGraphName) ;
+        
+        return new QueryIterTDB(iterBinding, input, execCxt) ;
+    }
+    
     /** Turn a BasicPattern into an abbreviated string for debugging */  
     public static String strPattern(BasicPattern pattern)
     {
@@ -205,10 +249,21 @@ public class SolverLib
         return printAbbrev(x) ; 
     }
 
+    public static Set<NodeId> convertToNodeIds(Collection<Node> nodes, DatasetGraphTDB dataset)
+    {
+        Set<NodeId> graphIds = new HashSet<NodeId>() ;
+        NodeTable nt = dataset.getQuadTable().getNodeTupleTable().getNodeTable() ;
+        for ( Node n : nodes )
+            graphIds.add(nt.getNodeIdForNode(n)) ;
+        return graphIds ;
+    }
+    
+
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

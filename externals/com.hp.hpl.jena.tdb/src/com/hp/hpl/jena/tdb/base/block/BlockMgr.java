@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,11 +9,12 @@ package com.hp.hpl.jena.tdb.base.block;
 
 import java.nio.ByteBuffer;
 
-import com.hp.hpl.jena.sparql.core.Closeable;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
 
-import com.hp.hpl.jena.tdb.lib.Sync;
+import com.hp.hpl.jena.tdb.sys.Session ;
 
-public interface BlockMgr extends Sync, Closeable
+public interface BlockMgr extends Sync, Closeable, Session
 {
     /** Allocate an uninitialized slot.  Fill with a .put */ 
     public int allocateId();
@@ -49,7 +51,7 @@ public interface BlockMgr extends Sync, Closeable
     public boolean isClosed() ; 
     
     /** Sync the block manager */
-    public void sync(boolean force) ;
+    public void sync() ;
     
     /** Signal the start of an update operation */
     public void startUpdate();
@@ -66,6 +68,7 @@ public interface BlockMgr extends Sync, Closeable
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

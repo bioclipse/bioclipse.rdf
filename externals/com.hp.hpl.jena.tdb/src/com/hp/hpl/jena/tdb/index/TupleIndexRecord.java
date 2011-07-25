@@ -11,10 +11,11 @@ import static java.lang.String.format;
 
 import java.util.Iterator;
 
-import atlas.iterator.*;
-import atlas.lib.Bytes;
-import atlas.lib.ColumnMap;
-import atlas.lib.Tuple;
+import org.openjena.atlas.iterator.* ;
+import org.openjena.atlas.lib.Bytes ;
+import org.openjena.atlas.lib.ColumnMap ;
+import org.openjena.atlas.lib.Tuple ;
+
 
 
 import com.hp.hpl.jena.tdb.TDBException;
@@ -23,19 +24,16 @@ import com.hp.hpl.jena.tdb.base.record.RecordFactory;
 import com.hp.hpl.jena.tdb.lib.TupleLib;
 import com.hp.hpl.jena.tdb.store.NodeId;
 
-public class TupleIndexRecord implements TupleIndex
+public class TupleIndexRecord extends TupleIndexBase
 {
     private static final boolean Check = false ;
     private RangeIndex index ; 
-    private final int tupleLength ;
     private RecordFactory factory ;
-    private ColumnMap colMap ;
     
     public TupleIndexRecord(int N,  ColumnMap colMapping, RecordFactory factory, RangeIndex index)
     {
-        this.tupleLength = N ;
+        super(N, colMapping) ;
         this.factory = factory ;
-        this.colMap = colMapping ;
         this.index = index ;
         
         if ( factory.keyLength() != N*SizeOfNodeId)
@@ -43,42 +41,27 @@ public class TupleIndexRecord implements TupleIndex
     }
     
     /** Insert a tuple - return true if it was really added, false if it was a duplicate */
-    //@Override
-    public boolean add(Tuple<NodeId> tuple) 
+    @Override
+    protected boolean performAdd(Tuple<NodeId> tuple) 
     { 
-        if ( Check )
-        {
-            if ( tupleLength != tuple.size() )
-            throw new TDBException(String.format("Mismatch: tuple length %d / index for length %d", tuple.size(), tupleLength)) ;
-        }
-
         Record r = TupleLib.record(factory, tuple, colMap) ;
         return index.add(r) ;
     }
+    
     /** Delete a tuple - return true if it was deleted, false if it didn't exist */
-    //@Override
-    public boolean delete(Tuple<NodeId> tuple) 
+    @Override
+    protected boolean performDelete(Tuple<NodeId> tuple) 
     { 
-        if ( Check )
-        {
-            if ( tupleLength != tuple.size() )
-            throw new TDBException(String.format("Mismatch: tuple length %d / index for length %d", tuple.size(), tupleLength)) ;
-        }
-
         Record r = TupleLib.record(factory, tuple, colMap) ;
         return index.delete(r) ;
     }
-    
-    //@Override
-    public String getLabel() { return colMap.getLabel() ;  } 
-    //public ColumnMap getColMap() { return colMap ;  }
     
     /** Find all matching tuples - a slot of NodeId.NodeIdAny (or null) means match any.
      *  Input pattern in natural order, not index order.
      */
     
-    //@Override
-    public Iterator<Tuple<NodeId>> find(Tuple<NodeId> pattern)
+    @Override
+    protected Iterator<Tuple<NodeId>> performFind(Tuple<NodeId> pattern)
     {
         return findOrScan(pattern) ;
     }
@@ -225,26 +208,6 @@ public class TupleIndexRecord implements TupleIndex
         return Iter.filter(iter, filter) ;
     }
     
-    /** Weight a pattern in normal order (not index order) */
-    //@Override
-    public int weight(Tuple<NodeId> pattern)
-    {
-        if ( Check )
-        {
-            if ( tupleLength != pattern.size() )
-            throw new TDBException(String.format("Mismatch: tuple length %d / index for length %d", pattern.size(), tupleLength)) ;
-        } 
-        
-        for ( int i = 0 ; i < tupleLength ; i++ )
-        {
-            NodeId X = colMap.fetchSlot(i, pattern) ;
-            if ( NodeId.isAny(X) )
-                // End of fixed terms
-                return i ;
-        }
-        return tupleLength ;
-    }
-    
     //@Override
     public void close()
     {
@@ -252,36 +215,29 @@ public class TupleIndexRecord implements TupleIndex
     }
     
     //@Override
-    public void sync(boolean force)
-    {
-        index.sync(force) ;
-    }
+    public void sync()      { index.sync() ; }
 
     public final RangeIndex getRangeIndex()                 { return index ; } 
-    
-    protected final ColumnMap getColumnMap()                { return colMap ; }
-    protected final RecordFactory getRecordFactory()        { return factory ; }
-    
-    //@Override
-    public final int getTupleLength()
-    {
-        return tupleLength ;
-    }
 
+    //protected final RecordFactory getRecordFactory()        { return factory ; }
+    
     //@Override
     public boolean isEmpty()
     {
         return index.isEmpty() ;
     }
-
+    
+    //@Override
+    public void clear()
+    {
+        index.clear() ;
+    }
+    
     //@Override
     public long size()
     {
         return index.size() ;
     }
-
-    @Override
-    public String toString() { return "index:"+getLabel() ; }
 }
 
 /*

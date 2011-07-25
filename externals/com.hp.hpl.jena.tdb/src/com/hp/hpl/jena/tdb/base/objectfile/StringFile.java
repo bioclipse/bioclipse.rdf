@@ -8,7 +8,10 @@ package com.hp.hpl.jena.tdb.base.objectfile;
 
 import java.nio.ByteBuffer ;
 
-import atlas.lib.Bytes ;
+import org.openjena.atlas.lib.Bytes ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+
 
 import com.hp.hpl.jena.tdb.lib.StringAbbrev ;
 
@@ -16,7 +19,7 @@ import com.hp.hpl.jena.tdb.lib.StringAbbrev ;
  * Controls the UTF encoder/decoder and is not limited to 64K byte encoded forms.
  */
 
-public class StringFile
+public class StringFile implements Sync, Closeable
 {
     protected final ObjectFile file ;
     /*
@@ -34,10 +37,16 @@ public class StringFile
     public long write(String str)
     { 
         str = compress(str) ;
-        ByteBuffer bb = ByteBuffer.allocate(4*str.length()) ;   // Worst case
+        ByteBuffer bb = file.allocWrite(4*str.length()) ;
         int len = Bytes.toByteBuffer(str, bb) ;
         bb.flip() ;
-        return file.write(bb) ;
+        return file.completeWrite(bb) ;
+        
+        
+//        ByteBuffer bb = ByteBuffer.allocate(4*str.length()) ;   // Worst case
+//        int len = Bytes.toByteBuffer(str, bb) ;
+//        bb.flip() ;
+//        return file.write(bb) ;
     }
     
     //@Override
@@ -54,14 +63,15 @@ public class StringFile
     { file.close() ; }
 
     //@Override
-    public void sync(boolean force)
-    { file.sync(force) ; }
+    public void sync() { file.sync() ; }
+    
+    //@Override
+    public void flush() { sync() ; }
 
     public ObjectFile getByteBufferFile()
     {
         return file ;
     }
-
     
     // ---- Dump
     public void dump() { dump(handler) ; }
@@ -77,6 +87,8 @@ public class StringFile
             String str = Bytes.fromByteBuffer(bb) ;
             handler.handle(fileIdx, str) ;
             fileIdx = fileIdx + bb.limit() + 4 ;
+            if ( fileIdx >= file.length() )
+                break ;
         }
     }
     
