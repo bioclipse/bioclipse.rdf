@@ -299,9 +299,10 @@ extends EditorPart implements ISelectionListener ,
 		IFile file = (IFile)getEditorInput().getAdapter(IFile.class);
 		if (file != null) {
 			String format = "N3";
-			if (getEditorInput().getName().endsWith(".rdf")) {
+			if (getEditorInput().getName().endsWith(".rdf") ||
+				getEditorInput().getName().endsWith(".owl")) {
 				format = "RDF/XML";
-			}
+			} 
 			try {
 				rdf.importFromStream(
 					store,
