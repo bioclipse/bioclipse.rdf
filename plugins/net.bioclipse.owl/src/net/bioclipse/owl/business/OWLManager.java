@@ -23,7 +23,6 @@ import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.pellet.business.IPelletManager;
 import net.bioclipse.pellet.business.PelletManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
@@ -36,7 +35,7 @@ public class OWLManager implements IBioclipseManager {
     public String getManagerName() {
         return "owl";
     }
-    
+
     public List<String> listClasses(IRDFStore store)
         throws IOException, BioclipseException, CoreException {
         return rdf.isRDFType(
@@ -44,4 +43,17 @@ public class OWLManager implements IBioclipseManager {
         );
     }
     
+    public List<String> listObjectProperties(IRDFStore store)
+    throws IOException, BioclipseException, CoreException {
+    	return rdf.isRDFType(
+    		store, "http://www.w3.org/2002/07/owl#ObjectProperty"
+    	);
+    }
+    
+    public List<String> listDataProperties(IRDFStore store)
+    throws IOException, BioclipseException, CoreException {
+    	return rdf.isRDFType(
+    		store, "http://www.w3.org/2002/07/owl#DataProperty"
+    	);
+    }
 }

@@ -31,4 +31,18 @@ public interface IOWLManager extends IBioclipseManager {
     public List<String> listClasses(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
     
+    @PublishedMethod(
+            params = "IRDFStore store",
+            methodSummary = "Returns a list of all OWL object properties."
+       )
+       public List<String> listObjectProperties(IRDFStore store)
+           throws IOException, BioclipseException, CoreException;
+       
+    @PublishedMethod(
+            params = "IRDFStore store",
+            methodSummary = "Returns a list of all OWL data properties."
+       )
+       public List<String> listDataProperties(IRDFStore store)
+           throws IOException, BioclipseException, CoreException;
+       
 }
