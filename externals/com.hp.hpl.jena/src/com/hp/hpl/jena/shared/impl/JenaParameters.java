@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: JenaParameters.java,v 1.1 2009/06/29 08:56:02 castagna Exp $
+ * $Id: JenaParameters.java,v 1.5 2010/05/23 19:19:22 andy_seaborne Exp $
  *****************************************************************/
 package com.hp.hpl.jena.shared.impl;
 
@@ -20,7 +20,7 @@ package com.hp.hpl.jena.shared.impl;
  * moved to being model-specific rather than global.
  * </p>
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:56:02 $
+ * @version $Revision: 1.5 $ on $Date: 2010/05/23 19:19:22 $
  */
 public class JenaParameters {
     
@@ -104,6 +104,7 @@ public class JenaParameters {
      * will only be unique for this single JVM run.
      */
     public static boolean disableBNodeUIDGeneration = false;
+
 }
 
 

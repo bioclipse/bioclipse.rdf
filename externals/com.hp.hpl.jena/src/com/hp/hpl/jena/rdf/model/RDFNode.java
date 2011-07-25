@@ -97,6 +97,14 @@ public interface RDFNode extends FrontsNode
         deliver an instance of that class. 
     */
     public <T extends RDFNode> boolean canAs( Class<T> view );
+
+    /** 
+        Return the model associated with this resource. If the Resource
+        was not created by a Model, the result may be null.
+
+        @return The model associated with this resource.
+    */
+    public Model getModel();
     
     /**
         Answer a .equals() version of this node, except that it's in the model 
@@ -115,4 +123,16 @@ public interface RDFNode extends FrontsNode
         @return the result returned by the selected method
     */
     public Object visitWith( RDFVisitor rv );
+
+    /**
+       If this node is a Resource, answer that resource; otherwise throw an
+       exception. 
+    */
+    public Resource asResource();
+    
+    /**
+        If this node is a Literal, answer that literal; otherwise throw an
+        exception. 
+     */
+    public Literal asLiteral();
     }

@@ -43,7 +43,7 @@ import com.hp.hpl.jena.JenaRuntime ;
 public class RDFReaderFImpl extends Object implements RDFReaderF {
 
 	private static ClassLoader classLoader = null;
-	
+
     private static final String GRDDLREADER = "com.hp.hpl.jena.grddl.GRDDLReader";
     private static final String TURTLEREADER = "com.hp.hpl.jena.n3.turtle.TurtleReader" ;
     

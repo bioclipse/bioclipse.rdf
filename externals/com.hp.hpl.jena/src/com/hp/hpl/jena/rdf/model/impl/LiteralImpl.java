@@ -43,7 +43,7 @@ import com.hp.hpl.jena.enhanced.*;
 /** An implementation of Literal.
  *
  * @author  bwm and der
- * @version  Release='$Name:  $' Revision='$Revision: 1.1 $' Date='$Date: 2009/06/29 08:55:32 $'
+ * @version  Release='$Name:  $' Revision='$Revision: 1.3 $' Date='$Date: 2010/01/19 10:06:17 $'
  */
 public class LiteralImpl extends EnhNode implements Literal {
   
@@ -73,8 +73,25 @@ public class LiteralImpl extends EnhNode implements Literal {
         @param m a model to move the literal into
         @return this
     */
-    public RDFNode inModel( Model m )
+    public Literal inModel( Model m )
+        {
+        return getModel() == m 
+            ? this 
+            : (Literal) ((ModelCom) m).getRDFNode( asNode() )
+            ;
+         }
+    
+    public Literal asLiteral()
         { return this; }
+    
+    public Resource asResource()
+        { throw new ResourceRequiredException( asNode() ); }
+    
+    /**
+        Answer the model this literal was created in, if any, otherwise null.
+    */
+    public Model getModel()
+        { return (ModelCom) getGraph(); }
     
     @Override public String toString() {
         return asNode().toString( PrefixMapping.Standard, false );
