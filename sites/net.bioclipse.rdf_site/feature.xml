@@ -24,4 +24,8 @@
          id="net.bioclipse.pellet_feature"
          version="0.0.0"/>
 
+   <includes
+         id="net.bioclipse.rdf.ui_feature"
+         version="0.0.0"/>
+
 </feature>
