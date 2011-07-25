@@ -15,7 +15,7 @@
         base-type="org.eclipse.core.runtime.xml"
         id="net.bioclipse.contenttypes.rdf.xml"
         name="Resource Description Framework (XML)"
-        file-extensions="rdf,xml,owl"
+        file-extensions="rdf,owl"
         priority="normal">
           <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
               <parameter name="element"
