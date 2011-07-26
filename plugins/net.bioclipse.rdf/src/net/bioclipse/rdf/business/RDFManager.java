@@ -27,9 +27,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
@@ -37,6 +35,7 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.Activator;
+import net.bioclipse.rdf.StringMatrixHelper;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -48,7 +47,6 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -160,59 +158,9 @@ public class RDFManager implements IBioclipseManager {
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
             ResultSet results = qexec.execSelect();
-            table = convertIntoTable(prefixMap, results);
+            table = StringMatrixHelper.convertIntoTable(prefixMap, results);
         } finally {
             qexec.close();
-        }
-        return table;
-    }
-
-    private StringMatrix convertIntoTable(
-            PrefixMapping prefixMap, ResultSet results) {
-    	StringMatrix table = new StringMatrix();
-    	int rowCount = 0;
-        while (results.hasNext()) {
-        	rowCount++;
-            QuerySolution soln = results.nextSolution();
-            Iterator<String> varNames = soln.varNames();
-            while (varNames.hasNext()) {
-            	String varName = varNames.next();
-            	int colCount = -1;
-            	if (table.hasColumn(varName)) {
-            		colCount = table.getColumnNumber(varName);
-            	} else {
-            		colCount = table.getColumnCount() + 1;
-            		table.setColumnName(colCount, varName);
-            	}
-                RDFNode node = soln.get(varName);
-                if (node != null) {
-                    String nodeStr = node.toString();
-                    if (node.isResource()) {
-                        Resource resource = (Resource)node;
-                        // the resource.getLocalName() is not accurate, so I
-                        // use some custom code
-                        String[] uriLocalSplit = split(prefixMap, resource);
-                        if (uriLocalSplit[0] == null) {
-                        	if (resource.getURI() != null) {
-                        		table.set(rowCount, colCount, resource.getURI());
-                        	} else {
-                        		// anonymous node
-                        		table.set(rowCount, colCount, "" + resource.hashCode());
-                        	}
-                        } else {
-                        	table.set(rowCount, colCount,
-                                uriLocalSplit[0] + ":" + uriLocalSplit[1]
-                            );
-                        }
-                    } else {
-                    	if (nodeStr.endsWith("@en"))
-                    		nodeStr = nodeStr.substring(
-                    			0, nodeStr.lastIndexOf('@')
-                    		);
-                    	table.set(rowCount, colCount, nodeStr);
-                    }
-                }
-            }
         }
         return table;
     }
@@ -226,23 +174,7 @@ public class RDFManager implements IBioclipseManager {
      * @param resource
      */
     public static String[] split(PrefixMapping prefixMap, Resource resource) {
-        String uri = resource.getURI();
-        if (uri == null) {
-            return new String[] {null, null};
-        }
-        Map<String,String> prefixMapMap = prefixMap.getNsPrefixMap();
-        Set<String> prefixes = prefixMapMap.keySet();
-        String[] split = { null, null };
-        for (String key : prefixes){
-            String ns = prefixMapMap.get(key);
-            if (uri.startsWith(ns)) {
-                split[0] = key;
-                split[1] = uri.substring(ns.length());
-                return split;
-            }
-        }
-        split[1] = uri;
-        return split;
+        return StringMatrixHelper.split(prefixMap, resource);
     }
 
     public IRDFStore createInMemoryStore() {
@@ -444,7 +376,7 @@ public class RDFManager implements IBioclipseManager {
         StringMatrix table = null;
         try {
             ResultSet results = qexec.execSelect();
-            table = convertIntoTable(prefixMap, results);
+            table = StringMatrixHelper.convertIntoTable(prefixMap, results);
         } finally {
             qexec.close();
         }
