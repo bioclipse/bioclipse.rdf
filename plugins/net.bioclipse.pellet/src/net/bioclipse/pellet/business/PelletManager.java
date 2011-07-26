@@ -19,15 +19,14 @@
 package net.bioclipse.pellet.business;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.rdf.StringMatrixHelper;
 import net.bioclipse.rdf.business.IJenaStore;
 import net.bioclipse.rdf.business.IRDFStore;
-import net.bioclipse.rdf.business.RDFManager;
 import net.bioclipse.scripting.ui.business.IJsConsoleManager;
 
 import org.eclipse.core.resources.IFile;
@@ -42,13 +41,10 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QueryParseException;
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ValidityReport;
 import com.hp.hpl.jena.shared.PrefixMapping;
@@ -59,9 +55,9 @@ public class PelletManager implements IBioclipseManager {
         return "pellet";
     }
 
-    public List<List<String>> reason(IRDFStore store, String queryString)
+    public StringMatrix reason(IRDFStore store, String queryString)
         throws IOException, BioclipseException, CoreException {
-        List<List<String>> table = new ArrayList<List<String>>();
+        StringMatrix matrix = new StringMatrix();
 
         if (!(store instanceof IJenaStore))
             throw new RuntimeException(
@@ -104,35 +100,13 @@ public class PelletManager implements IBioclipseManager {
         QueryExecution qexec = new PelletQueryExecution(query, ontModel);
         try {
             ResultSet results = qexec.execSelect();
-            while (results.hasNext()) {
-                QuerySolution soln = results.nextSolution();
-                List<String> row = new ArrayList<String>();
-                Iterator<String> varNames = soln.varNames();
-                while (varNames.hasNext()) {
-                    RDFNode node = soln.get(varNames.next());
-                    if (node == null) {
-                        row.add("null");
-                    } else if (node.isResource()) {
-                        Resource resource = (Resource)node;
-                        // the resource.getLocalName() is not accurate, so I
-                        // use some custom code
-                        String[] uriLocalSplit = RDFManager.split(prefixMap, resource);
-                        if (uriLocalSplit[0] == null) {
-                            row.add(resource.getURI());
-                        } else {
-                            row.add(uriLocalSplit[0] + ":" + uriLocalSplit[1]);
-                        }
-                    } else if (node != null) {
-                        String nodeStr = node.toString();
-                        row.add(nodeStr);
-                    }
-                }
-                table.add(row);
-            }
+            matrix = StringMatrixHelper.convertIntoTable(
+            	prefixMap, results
+            );
         } finally {
             qexec.close();
         }
-        return table;
+        return matrix;
     }
 
     public IRDFStore createInMemoryStore() {
@@ -180,35 +154,25 @@ public class PelletManager implements IBioclipseManager {
         }
     }
 
-    public List<String> isRDFType(IRDFStore store, String type)
+    public StringMatrix isRDFType(IRDFStore store, String type)
         throws IOException, BioclipseException, CoreException {
-        List<String> classes = new ArrayList<String>();
-        List<List<String>> sparqlResults = reason(
-            store,
-            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-            "SELECT ?o WHERE { "+
-            "  ?o rdf:type <" + type + ">." +
-            "}"
-        );
-        for (List<String> sparqlRows : sparqlResults) {
-            classes.add(sparqlRows.get(0));
-        }
-        return classes;
+    	return reason(
+    			store,
+    			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+    			"SELECT ?o WHERE { "+
+    			"  ?o rdf:type <" + type + ">." +
+    			"}"
+    	);
     }
 
-    public List<List<String>> allAbout(IRDFStore store, String identifier)
+    public StringMatrix allAbout(IRDFStore store, String identifier)
         throws BioclipseException, IOException, CoreException {
-        List<List<String>> knowledge = new ArrayList<List<String>>();
-        List<List<String>> sparqlResults = reason(
+        return reason(
             store,
             "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
             "SELECT ?p ?s WHERE { "+
             "<" + identifier + "> ?p ?s." +
             "}"
         );
-        for (List<String> sparqlRows : sparqlResults) {
-            knowledge.add(sparqlRows);
-        }
-        return knowledge;
     }
 }

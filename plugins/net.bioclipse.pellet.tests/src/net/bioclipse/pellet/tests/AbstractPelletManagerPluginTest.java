@@ -10,8 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.pellet.tests;
 
-import java.util.List;
-
+import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.pellet.business.IPelletManager;
 import net.bioclipse.rdf.business.IRDFManager;
 import net.bioclipse.rdf.business.IRDFStore;
@@ -46,11 +45,11 @@ public abstract class AbstractPelletManagerPluginTest {
             RDF.type.getURI(),
             "http://www.example.com/bar"
         );
-        List<String> results =
+        StringMatrix results =
             pellet.isRDFType(store, "http://www.example.com/bar");
-        Assert.assertEquals(1, results.size());
+        Assert.assertEquals(1, results.getRowCount());
         Assert.assertEquals(
-            "http://www.example.com/foo", results.get(0)
+            "http://www.example.com/foo", results.get(0, "o")
         );
     }
 
@@ -61,18 +60,11 @@ public abstract class AbstractPelletManagerPluginTest {
             "http://www.example.com/x",
             "http://www.example.com/bar"
         );
-        List<List<String>> results =
+        StringMatrix results =
             pellet.allAbout(store, "http://www.example.com/foo");
-        boolean includesAboveTriple = false;
-        for (List<String> triple : results) {
-            if (triple.get(0).equals("http://www.example.com/x")) {
-                includesAboveTriple = true;
-                Assert.assertEquals(
-                    "http://www.example.com/bar", triple.get(1)
-                );
-            }
-        }
-        Assert.assertTrue(includesAboveTriple);
+        Assert.assertEquals(1, results.getRowCount());
+        Assert.assertEquals("http://www.example.com/x", results.get(1, "p"));
+        Assert.assertEquals("http://www.example.com/bar", results.get(1, "s"));
     }
 
     @Test public void testReason() throws Exception {

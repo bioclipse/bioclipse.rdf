@@ -11,15 +11,15 @@
 package net.bioclipse.owl.business;
 
 import java.io.IOException;
-import java.util.List;
-
-import org.eclipse.core.runtime.CoreException;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
+
+import org.eclipse.core.runtime.CoreException;
 
 @PublishedClass("Contains OWL related methods")
 public interface IOWLManager extends IBioclipseManager {
@@ -28,21 +28,21 @@ public interface IOWLManager extends IBioclipseManager {
          params = "IRDFStore store",
          methodSummary = "Returns a list of all OWL classes."
     )
-    public List<String> listClasses(IRDFStore store)
+    public StringMatrix listClasses(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
     
     @PublishedMethod(
-            params = "IRDFStore store",
-            methodSummary = "Returns a list of all OWL object properties."
-       )
-       public List<String> listObjectProperties(IRDFStore store)
-           throws IOException, BioclipseException, CoreException;
+        params = "IRDFStore store",
+        methodSummary = "Returns a list of all OWL object properties."
+    )
+    public StringMatrix listObjectProperties(IRDFStore store)
+    throws IOException, BioclipseException, CoreException;
        
     @PublishedMethod(
-            params = "IRDFStore store",
-            methodSummary = "Returns a list of all OWL data properties."
-       )
-       public List<String> listDataProperties(IRDFStore store)
-           throws IOException, BioclipseException, CoreException;
+        params = "IRDFStore store",
+        methodSummary = "Returns a list of all OWL data type properties."
+    )
+    public StringMatrix listDatatypeProperties(IRDFStore store)
+    throws IOException, BioclipseException, CoreException;
        
 }
