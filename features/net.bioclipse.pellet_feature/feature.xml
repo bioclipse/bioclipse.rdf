@@ -860,7 +860,7 @@ GNU AGPL, see
    </url>
 
    <requires>
-      <import feature="net.bioclipse.rdf_feature" />
+      <import feature="net.bioclipse.rdf_feature"/>
    </requires>
 
    <plugin
@@ -881,7 +881,7 @@ GNU AGPL, see
          id="org.mindswap.pellet"
          download-size="0"
          install-size="0"
-         version="2.0.0"
+         version="2.0.2"
          unpack="false"/>
 
    <plugin
