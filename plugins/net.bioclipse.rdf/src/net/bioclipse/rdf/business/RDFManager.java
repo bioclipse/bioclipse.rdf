@@ -116,7 +116,9 @@ public class RDFManager implements IBioclipseManager {
             "Accept",
             "application/xml, application/rdf+xml"
         );
-        importFromStream(store, connection.getInputStream(), null, monitor);
+        InputStream stream = connection.getInputStream();
+        importFromStream(store, stream, null, monitor);
+        stream.close();
         return store;
     }
 
