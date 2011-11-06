@@ -27,8 +27,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.hp.hpl.jena.rdf.model.Model;
-
 @PublishedClass("Contains RDF related methods")
 @TestClasses(
     "net.bioclipse.rdf.tests.APITest," +
@@ -76,6 +74,17 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public IRDFStore importFromStream(
             IRDFStore store, InputStream stream, String format
+        ) throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String rdfContent, String format",
+        methodSummary = "Loads triples from the String in the given format " +
+                "(\"RDF/XML\", \"N-TRIPLE\", \"TURTLE\" and \"N3\") into " +
+                "the given store"
+    )
+    public IRDFStore importFromString(
+            IRDFStore store, String rdfContent, String format
         ) throws IOException, BioclipseException, CoreException;
 
     @Recorded

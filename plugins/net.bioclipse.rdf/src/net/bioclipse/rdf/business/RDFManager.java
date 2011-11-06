@@ -107,6 +107,13 @@ public class RDFManager implements IBioclipseManager {
         return store;
     }
 
+    public IRDFStore importFromString(IRDFStore store, String rdfContent,
+            String format, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	InputStream input = new ByteArrayInputStream(rdfContent.getBytes());
+    	return importFromStream(store, input, format, monitor);
+    }
+
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
         URL realURL = new URL(url);
