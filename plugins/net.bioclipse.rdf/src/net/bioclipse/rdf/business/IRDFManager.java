@@ -13,6 +13,7 @@ package net.bioclipse.rdf.business;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -103,6 +104,20 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String url, Map<String, String> extraHeaders, ",
+        methodSummary = "Loads a RDF/XML file from the URL into the given store"
+    )
+    @TestMethods("testImportURL")
+    public IRDFStore importURL(IRDFStore store, Map<String, String> extraHeaders, String url)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    public IRDFStore importURL(IRDFStore store, String url,
+    		Map<String, String> extraHeaders, IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded

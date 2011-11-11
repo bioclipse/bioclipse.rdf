@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.bioclipse.core.ResourcePathTransformer;
@@ -114,15 +115,29 @@ public class RDFManager implements IBioclipseManager {
     	return importFromStream(store, input, format, monitor);
     }
 
+    
+	
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
-        URL realURL = new URL(url);
+    	return importURL(store, url, null, monitor);
+    }
+    
+    public IRDFStore importURL(IRDFStore store, String url,
+    		Map<String, String> extraHeaders, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException {
+        	URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
         connection.setConnectTimeout(Activator.TIME_OUT);
         connection.setRequestProperty(
             "Accept",
             "application/xml, application/rdf+xml"
         );
+        // set the extra headers
+        if (extraHeaders != null) {
+        	for (String key : extraHeaders.keySet()) {
+        		connection.setRequestProperty(key, extraHeaders.get(key));
+        	}
+        }
         InputStream stream = connection.getInputStream();
         importFromStream(store, stream, null, monitor);
         stream.close();
