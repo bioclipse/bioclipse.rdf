@@ -49,7 +49,7 @@ public abstract class AbstractPelletManagerPluginTest {
             pellet.isRDFType(store, "http://www.example.com/bar");
         Assert.assertEquals(1, results.getRowCount());
         Assert.assertEquals(
-            "http://www.example.com/foo", results.get(0, "o")
+            "http://www.example.com/foo", results.get(1, "o")
         );
     }
 
@@ -62,9 +62,15 @@ public abstract class AbstractPelletManagerPluginTest {
         );
         StringMatrix results =
             pellet.allAbout(store, "http://www.example.com/foo");
-        Assert.assertEquals(1, results.getRowCount());
-        Assert.assertEquals("http://www.example.com/x", results.get(1, "p"));
-        Assert.assertEquals("http://www.example.com/bar", results.get(1, "s"));
+        System.out.println(results);
+        Assert.assertTrue(results.getRowCount() > 0);
+        for (int row=1; row<=results.getRowCount(); row++) {
+        	if ("http://www.example.com/x".equals(results.get(row, "p"))) {
+                Assert.assertEquals("http://www.example.com/bar", results.get(row, "s"));
+                return;
+        	}
+        }
+        Assert.fail("Could not find the expected triple");
     }
 
     @Test public void testReason() throws Exception {
