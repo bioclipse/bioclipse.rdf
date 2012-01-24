@@ -78,7 +78,8 @@ public class Activator extends AbstractUIPlugin {
     public IJavaScriptRDFManager getJavaScriptManager() {
         IJavaScriptRDFManager manager = null;
         try {
-            manager = (IJavaScriptRDFManager)jsFinderTracker.waitForService(1000*10);
+            manager = (IJavaScriptRDFManager)jsFinderTracker
+                                                     .waitForService( 1000*10 );
         } catch (InterruptedException exception) {
             LogUtils.debugTrace(logger, exception);
             throw new IllegalStateException("Could not get the RDF manager: " +
