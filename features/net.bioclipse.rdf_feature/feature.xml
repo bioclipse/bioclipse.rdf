@@ -55,7 +55,7 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
       <import plugin="org.eclipse.osgi"/>
       <import plugin="org.apache.xml.resolver" version="1.2.0" match="compatible"/>
       <import plugin="org.apache.xml.serializer" version="2.7.1" match="compatible"/>
-      <import feature="net.bioclipse.statistics_feature" version="2.5.0.qualifier" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.statistics_feature" version="2.5.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
