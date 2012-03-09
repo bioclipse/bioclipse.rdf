@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="net.bioclipse.sadi_feature"
+      label="SADI Feature"
+      version="2.5.0.qualifier"
+      provider-name="Bioclipse Team"
+      plugin="net.bioclipse.sadi">
+
+   <description>
+      RDF support for Bioclipse.
+   </description>
+
+   <copyright>
+      Copyright (c) 2008-2011 The Bioclipse Project Team and others.
+Eclipse Public License.
+
+This feature includes the Jena library, which is:
+© Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+
+And the SADI client, which is copyrighted by them.
+
+Finally, various other libraries are included too, including Apache Commons libraries.
+   </copyright>
+
+   <license url="http://jena.sourceforge.net/license.html">
+      Bioclipse SADI feature license: EPL.
+
+License of the SADI library: new BSD.
+
+Various other libraries have a Apache 2.0 license.
+
+License of the Jena library:
+
+© Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+   3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+Jena includes software developed by the Apache Software Foundation (http://www.apache.org/).
+
+Jena is built on top of other sub-systems which we gratefully acknowledge: details of these systems and their version numbers.
+   </license>
+
+   <requires>
+      <import plugin="log4j.over.slf4j"/>
+      <import plugin="net.bioclipse.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="net.bioclipse.scripting.ui"/>
+      <import plugin="org.eclipse.ui.views" version="3.4.1" match="greaterOrEqual"/>
+      <import plugin="slf4j.api"/>
+      <import plugin="org.eclipse.osgi"/>
+   </requires>
+
+   <plugin
+         id="net.bioclipse.sadi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
