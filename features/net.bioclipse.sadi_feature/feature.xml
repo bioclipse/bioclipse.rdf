@@ -7,7 +7,7 @@
       plugin="net.bioclipse.sadi">
 
    <description>
-      RDF support for Bioclipse.
+      SADI support for Bioclipse.
    </description>
 
    <copyright>
@@ -45,6 +45,10 @@ Jena includes software developed by the Apache Software Foundation (http://www.a
 
 Jena is built on top of other sub-systems which we gratefully acknowledge: details of these systems and their version numbers.
    </license>
+
+   <url>
+      <discovery label="SADI Website" url="http://sadiframework.org/content/"/>
+   </url>
 
    <requires>
       <import plugin="log4j.over.slf4j"/>
