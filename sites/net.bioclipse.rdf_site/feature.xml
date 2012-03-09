@@ -32,8 +32,4 @@
          id="net.bioclipse.cheminformatics.rdf_feature"
          version="0.0.0"/>
 
-   <includes
-         id="net.bioclipse.sadi_feature"
-         version="0.0.0"/>
-
 </feature>
