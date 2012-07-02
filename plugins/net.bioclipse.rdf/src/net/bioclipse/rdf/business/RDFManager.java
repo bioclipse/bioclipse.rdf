@@ -492,6 +492,28 @@ public class RDFManager implements IBioclipseManager {
 		}
     }
 
+    public List<String> getForPredicate(IRDFStore store, String resourceURI, String predicate) throws BioclipseException {
+    	try {
+			StringMatrix results = sparql(store,
+				"SELECT DISTINCT ?object WHERE {" +
+				" <" + resourceURI + "> <" + predicate + "> ?object" +
+				"}"
+			);
+			if (results.getRowCount() == 0) return Collections.emptyList();
+			return results.getColumn("object");
+		} catch (IOException exception) {
+			throw new BioclipseException(
+			    "Could not query to store: " + exception.getMessage(),
+			    exception
+			);
+		} catch (CoreException exception) {
+			throw new BioclipseException(
+				"Could not query to store: " + exception.getMessage(),
+				exception
+			);
+		}
+    }
+
     public List<String> allOwlSameAs(IRDFStore store, String resourceURI)
     throws IOException, BioclipseException, CoreException {
     	Set<String> resources = new HashSet<String>();
