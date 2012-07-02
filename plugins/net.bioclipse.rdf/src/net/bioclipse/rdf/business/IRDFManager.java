@@ -270,6 +270,15 @@ public interface IRDFManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store, String resourceURI",
+        methodSummary = "Lists all resources that are owl:equivalentClass as the " +
+        		"given resource."
+    )
+    public List<String> allOwlEquivalentClass(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String resourceURI",
         methodSummary = "Lists all resources that are owl:sameAs as the " +
         		"given resource."
     )
