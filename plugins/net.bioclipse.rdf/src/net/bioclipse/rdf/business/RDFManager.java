@@ -127,7 +127,8 @@ public class RDFManager implements IBioclipseManager {
         throws IOException, BioclipseException, CoreException {
         	URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
-        connection.setConnectTimeout(Activator.TIME_OUT);
+        connection.setConnectTimeout(Activator.CONNECT_TIME_OUT);
+        connection.setReadTimeout(Activator.READ_TIME_OUT);
         connection.setRequestProperty(
             "Accept",
             "application/xml, application/rdf+xml"
@@ -393,7 +394,7 @@ public class RDFManager implements IBioclipseManager {
         Query query = QueryFactory.create(sparqlQueryString);
         monitor.worked(20);
         QueryEngineHTTP qexec = (QueryEngineHTTP)QueryExecutionFactory.sparqlService(serviceURL, query);
-        qexec.addParam("timeout", "" + Activator.TIME_OUT);
+        qexec.addParam("timeout", "" + Activator.CONNECT_TIME_OUT);
         PrefixMapping prefixMap = query.getPrefixMapping();
         monitor.worked(60);
 
