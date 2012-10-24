@@ -236,6 +236,34 @@ public class RDFManager implements IBioclipseManager {
         model.add(subjectRes, propertyRes, value);
     }
 
+    public void addTypedDataProperty(IRDFStore store,
+            String subject, String property, String value,
+            String dataType)
+            throws BioclipseException {
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        model.add(subjectRes, propertyRes, model.createTypedLiteral(value, dataType));
+    }
+
+    public void addPropertyInLanguage(IRDFStore store,
+            String subject, String property, String value,
+            String language)
+            throws BioclipseException {
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        model.add(subjectRes, propertyRes, value, language);
+    }
+
     public long size(IRDFStore store) throws BioclipseException {
         if (!(store instanceof IJenaStore))
             throw new RuntimeException(

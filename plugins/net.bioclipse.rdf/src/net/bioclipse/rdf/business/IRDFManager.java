@@ -172,6 +172,30 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+                "String value, String dataType",
+        methodSummary = "Adds a triple to the given store"
+    )
+    @TestMethods("testAddTypedDataProperty")
+    public void addTypedDataProperty(IRDFStore store,
+        String subject, String predicate, String value,
+        String dataType)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+                "String value, Locale language",
+        methodSummary = "Adds a triple to the given store"
+    )
+    @TestMethods("testAddPropertyInLanguage")
+    public void addPropertyInLanguage(IRDFStore store,
+        String subject, String predicate, String value,
+        String language)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store",
         methodSummary = "Returns the number of triples in the store"
     )
