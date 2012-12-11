@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.cheminformatics.rdf_feature"
       label="RDF Cheminformatics Integration Feature"
-      version="2.5.0.qualifier"
+      version="2.6.0.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.chemoinformatics.rdf">
 
