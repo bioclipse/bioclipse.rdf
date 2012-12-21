@@ -25,6 +25,7 @@ import net.bioclipse.core.domain.StringMatrix;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.shared.PrefixMapping;
@@ -80,11 +81,12 @@ public class StringMatrixHelper {
                                 uriLocalSplit[0] + ":" + uriLocalSplit[1]
                             );
                         }
+                    } else if (node.isLiteral()) {
+                    	// properly get rid of language and typing info
+                    	Literal litNode = node.asLiteral();
+                    	nodeStr = litNode.getString();
+                    	table.set(rowCount, colCount, nodeStr);
                     } else {
-                    	if (nodeStr.endsWith("@en"))
-                    		nodeStr = nodeStr.substring(
-                    			0, nodeStr.lastIndexOf('@')
-                    		);
                     	table.set(rowCount, colCount, nodeStr);
                     }
                 }
