@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet OWL Reasoner Feature"
-      version="2.6.0.qualifier"
+      version="2.6.0.vqualifier"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
