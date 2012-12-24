@@ -304,8 +304,21 @@ public class RDFManager implements IBioclipseManager {
 
     public String asRDFN3(IRDFStore store, IProgressMonitor monitor)
     throws BioclipseException {
-    	String type = "N3";
+    	return asRDF(store, "N3", monitor);
+    }
 
+    public String asTurtle(IRDFStore store)
+    throws BioclipseException {
+        return asTurtle(store, null);
+    };
+
+    public String asTurtle(IRDFStore store, IProgressMonitor monitor)
+    throws BioclipseException {
+    	return asRDF(store, "TURTLE", monitor);
+    }
+
+    private String asRDF(IRDFStore store, String type, IProgressMonitor monitor)
+    throws BioclipseException {
     	if (monitor == null)
     		monitor = new NullProgressMonitor();
     	monitor.beginTask("Converting into N3", 1);
