@@ -5,12 +5,13 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: FBRuleInfGraph.java,v 1.2 2009/08/02 15:06:55 der Exp $
+ * $Id: FBRuleInfGraph.java,v 1.5 2010/11/12 12:21:00 chris-dollin Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.reasoner.rulesys.impl.*;
 import com.hp.hpl.jena.reasoner.transitiveReasoner.*;
 import com.hp.hpl.jena.reasoner.*;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * for future reference).
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.2 $ on $Date: 2009/08/02 15:06:55 $
+ * @version $Revision: 1.5 $ on $Date: 2010/11/12 12:21:00 $
  */
 public class FBRuleInfGraph  extends BasicForwardRuleInfGraph implements BackwardRuleInfGraphI {
     
@@ -380,7 +381,7 @@ public class FBRuleInfGraph  extends BasicForwardRuleInfGraph implements Backwar
      * this prepration is done.
      */
     @Override
-    public void prepare() {
+    public synchronized void prepare() {
         if (!isPrepared) {
             isPrepared = true;
             
@@ -741,6 +742,7 @@ public class FBRuleInfGraph  extends BasicForwardRuleInfGraph implements Backwar
         engine.add(validateOn); 
         // Look for all reports
         TriplePattern pattern = new TriplePattern(null, ReasonerVocabulary.RB_VALIDATION_REPORT.asNode(), null);
+        final Model forConversion = ModelFactory.createDefaultModel();
         for (Iterator<Triple> i = findFull(pattern); i.hasNext(); ) {
             Triple t = i.next();
             Node rNode = t.getObject();
@@ -759,24 +761,7 @@ public class FBRuleInfGraph  extends BasicForwardRuleInfGraph implements Backwar
                     for (int j = 2; j < rFunc.getArgLength(); j++) {
                         description.append( "Implicated node: " + PrintUtil.print(rFunc.getArgs()[j]) + "\n");
                     }
-                    Node culpritN = t.getSubject();
-                    RDFNode culprit = null;
-                    if (culpritN.isURI()) {
-                        culprit = ResourceFactory.createResource(culpritN.getURI());
-                    } else if (culpritN.isLiteral()) {
-                        RDFDatatype dtype = culpritN.getLiteralDatatype();
-                        String lex = culpritN.getLiteralLexicalForm();
-                        Object value = culpritN.getLiteralValue();
-                        if (dtype == null) {
-                            if (value instanceof String) {
-                                culprit = ResourceFactory.createPlainLiteral(lex);
-                            } else {
-                                culprit = ResourceFactory.createTypedLiteral(value);
-                            }
-                        } else {
-                            culprit = ResourceFactory.createTypedLiteral(lex, dtype);
-                        }
-                    }
+                    RDFNode culprit = forConversion.asRDFNode( t.getSubject() );
                     report.add(nature.equalsIgnoreCase("error"), type, description.toString(), culprit);
                 }
             }

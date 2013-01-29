@@ -6,29 +6,36 @@
 
 package com.hp.hpl.jena.sparql.sse.writers;
 
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
+import java.io.OutputStream ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.SortCondition;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpPrefixesUsed;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.op.*;
-import com.hp.hpl.jena.sparql.algebra.table.TableUnit;
-import com.hp.hpl.jena.sparql.core.*;
-import com.hp.hpl.jena.sparql.expr.E_Aggregator;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpPrefixesUsed ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
+import com.hp.hpl.jena.sparql.algebra.table.TableUnit ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.QuadPattern ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 // ToDo extract write of:
 // Table
@@ -81,13 +88,16 @@ public class WriterOp
     }
 
     // Actual work
-    public static void output(final IndentedWriter iWriter, final Op op, final SerializationContext sCxt)
+    public static void output(final IndentedWriter iWriter, final Op op, SerializationContext sCxt)
     {
+        if ( sCxt == null )
+            sCxt = new SerializationContext() ;
+        final SerializationContext sCxt2 = sCxt ;
         WriterBasePrefix.Fmt fmt = 
             new WriterBasePrefix.Fmt() {
-                public void format() {op.visit(new OpWriterWorker(iWriter, sCxt)) ;}
+                public void format() {op.visit(new OpWriterWorker(iWriter, sCxt2)) ;}
                 } ;
-        WriterBasePrefix.output(iWriter, fmt, sCxt.getPrologue()) ;
+        WriterBasePrefix.output(iWriter, fmt, sCxt2.getPrologue()) ;
     }        
     
     // Without the base/prefix wrapper. 
@@ -256,6 +266,9 @@ public class WriterOp
         public void visit(OpDiff opDiff)
         { visitOp2(opDiff, null) ; }
     
+        public void visit(OpMinus opMinus)
+        { visitOp2(opMinus, null) ; }
+
         public void visit(OpUnion opUnion)
         { visitOp2(opUnion, null) ; } 
     
@@ -284,7 +297,7 @@ public class WriterOp
         public void visit(OpGraph opGraph)
         {
             start(opGraph, NoNL) ;
-            out.println(FmtUtils.stringForNode(opGraph.getNode())) ;
+            out.println(FmtUtils.stringForNode(opGraph.getNode(), sContext)) ;
             opGraph.getSubOp().visit(this) ;
             finish(opGraph) ;
         }
@@ -292,7 +305,9 @@ public class WriterOp
         public void visit(OpService opService)
         {
             start(opService, NoNL) ;
-            out.println(FmtUtils.stringForNode(opService.getService())) ;
+            if ( opService.getSilent() )
+                out.println("silent ") ;
+            out.println(FmtUtils.stringForNode(opService.getService(), sContext)) ;
             opService.getSubOp().visit(this) ;
             finish(opService) ;
         }
@@ -352,7 +367,7 @@ public class WriterOp
             visitOp1(opList) ;
         }
         
-        public void visit(OpGroupAgg opGroup)
+        public void visit(OpGroup opGroup)
         {
             start(opGroup, NoNL) ;
             writeNamedExprList(opGroup.getGroupVars()) ;
@@ -363,13 +378,13 @@ public class WriterOp
                 start() ;
                 out.incIndent() ;
                 boolean first = true ;
-                for ( Iterator<E_Aggregator> iter = opGroup.getAggregators().iterator() ; iter.hasNext() ; )
+                for ( Iterator<ExprAggregator> iter = opGroup.getAggregators().iterator() ; iter.hasNext() ; )
                 {
-                    E_Aggregator agg = iter.next();
+                    ExprAggregator agg = iter.next();
                     if ( ! first )
                         out.print(" ") ;
                     first = false ;
-                    Var v = agg.asVar() ;
+                    Var v = agg.getVar() ;
                     String str = agg.getAggregator().toPrefixString() ;
                     start() ;
                     out.print(v) ;
@@ -406,6 +421,27 @@ public class WriterOp
             finish(opOrder) ;
         }
         
+        public void visit(OpTopN opTop)
+        { 
+            start(opTop, NoNL) ;
+            
+            // Write conditions
+            start() ;
+            writeIntOrDefault(opTop.getLimit()) ;
+            
+            boolean first = true ;
+            for ( SortCondition sc : opTop.getConditions() )
+            {
+                if ( ! first )
+                    out.print(" ") ;
+                first = false ;
+                formatSortCondition(sc) ;
+            }
+            finish() ;
+            out.newline();
+            printOp(opTop.getSubOp()) ;
+            finish(opTop) ;
+        }
         
         // Neater would be a pair of explicit SortCondition formatter
         private void formatSortCondition(SortCondition sc)
@@ -463,6 +499,15 @@ public class WriterOp
             out.println();
             printOp(opAssign.getSubOp()) ;
             finish(opAssign) ;
+        }
+        
+        public void visit(OpExtend opExtend)
+        {
+            start(opExtend, NoNL) ;
+            writeNamedExprList(opExtend.getVarExprList()) ;
+            out.println();
+            printOp(opExtend.getSubOp()) ;
+            finish(opExtend) ;
         }
         
         public void visit(OpSlice opSlice)

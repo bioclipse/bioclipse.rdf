@@ -10,14 +10,15 @@ import java.io.IOException ;
 import java.nio.ByteBuffer ;
 import java.util.Iterator ;
 
-import atlas.lib.Bytes ;
-import atlas.lib.Pair ;
+import org.openjena.atlas.lib.Bytes ;
+import org.openjena.atlas.lib.Pair ;
 
 import com.hp.hpl.jena.tdb.base.block.BlockException ;
 import com.hp.hpl.jena.tdb.base.file.FileBase ;
 import com.hp.hpl.jena.tdb.base.file.FileException ;
 import com.hp.hpl.jena.tdb.lib.StringAbbrev ;
-import com.hp.hpl.jena.tdb.sys.SystemTDB ;
+import static com.hp.hpl.jena.tdb.sys.SystemTDB.SizeOfInt ;
+import static com.hp.hpl.jena.tdb.sys.SystemTDB.ObjectFileWriteCacheSize;
 
 /** Variable length ByteBuffer file on disk.  Read by id ; write is append-only */  
 
@@ -28,6 +29,10 @@ public class ObjectFileDiskDirect implements ObjectFile
      */
     protected long filesize ;
     protected final FileBase file ;
+    // Delayed write buffer
+    private ByteBuffer output = ByteBuffer.allocate(ObjectFileWriteCacheSize) ;
+    private boolean inAllocWrite = true ;
+    private ByteBuffer allocByteBuffer = null ;
 
     public ObjectFileDiskDirect(String filename)
     {
@@ -37,7 +42,7 @@ public class ObjectFileDiskDirect implements ObjectFile
         } catch (IOException ex) { throw new BlockException("Failed to get filesize", ex) ; } 
     }
     
-    private ByteBuffer lengthBuffer = ByteBuffer.allocate(SystemTDB.SizeOfInt) ;
+    private ByteBuffer lengthBuffer = ByteBuffer.allocate(SizeOfInt) ;
     
     //@Override
     public long write(ByteBuffer bb)
@@ -60,10 +65,108 @@ public class ObjectFileDiskDirect implements ObjectFile
         } catch (IOException ex)
         { throw new FileException("ObjectFile.write", ex) ; }
     }
+
+    private long allocLocation = -1 ;
     
+    public ByteBuffer allocWrite(int maxBytes)
+    {
+        // Include space for length.
+        int spaceRequired = maxBytes + SizeOfInt ;
+        // Find space.
+        if ( spaceRequired > output.remaining() )
+            flushOutputBuffer() ;
+        
+        if ( spaceRequired > output.remaining() )
+        {
+            // Too big.
+            inAllocWrite = true ;
+            allocByteBuffer = ByteBuffer.allocate(spaceRequired) ;
+            allocLocation = -1 ;
+            return allocByteBuffer ;  
+        }
+        
+        // Will fit.
+        inAllocWrite = true ;
+        int start = output.position() ;
+        // id (but don't tell the caller yet).
+        allocLocation = filesize+start ;
+        
+        // Slice it.
+        output.position(start + SizeOfInt) ;
+        output.limit(start+spaceRequired) ;
+        ByteBuffer bb = output.slice() ; 
+
+        allocByteBuffer = bb ;
+        return bb ;
+    }
+
+    public long completeWrite(ByteBuffer buffer)
+    {
+        if ( ! inAllocWrite )
+            throw new FileException("Not in the process of an allocated write operation pair") ;
+        if ( allocByteBuffer != buffer )
+            throw new FileException("Wrong byte buffer in an allocated write operation pair") ;
+
+        if ( allocLocation == -1 )
+            // It was too big to use the buffering.
+            return write(buffer) ;
+        
+        int actualLength = buffer.limit()-buffer.position() ;
+        // Insert object length
+        int idx = (int)(allocLocation-filesize) ;
+        output.putInt(idx, actualLength) ;
+        // And bytes to idx+actualLength+4 are used
+        inAllocWrite = false;
+        allocByteBuffer = null ;
+        int newLen = idx+actualLength+4 ;
+        output.position(newLen);
+        output.limit(output.capacity()) ;
+        return allocLocation ;
+    }
+
+    private void flushOutputBuffer()
+    {
+        long location = filesize ;
+        try {
+            file.channel.position(location) ;
+            output.flip();
+            int x = file.channel.write(output) ;
+            filesize += x ;
+        } catch (IOException ex)
+        { throw new FileException("ObjectFile.flushOutputBuffer", ex) ; }
+        
+        output.position(0) ;
+        output.limit(output.capacity()) ;
+    }
+
+
     //@Override
     public ByteBuffer read(long loc)
     {
+        if ( loc < 0 )
+            throw new IllegalArgumentException("ObjectFile.read: Bad read: "+loc) ;
+        
+        // Maybe be in the write buffer
+        if ( loc >= filesize )
+        {
+            if ( loc > filesize+output.capacity() )
+                throw new IllegalArgumentException("ObjectFile.read: Bad read: "+loc) ;
+            
+            int x = output.position() ;
+            int y = output.limit() ;
+            
+            int offset = (int)(loc-filesize) ;
+            int len = output.getInt(offset) ;
+            int posn = offset + SizeOfInt ;
+            // Slice the data bytes,
+            output.position(posn) ;
+            output.limit(posn+len) ;
+            ByteBuffer bb = output.slice() ;
+            output.limit(y) ;
+            output.position(x) ;
+            return bb ; 
+        }
+        
         try {
             file.channel.position(loc) ;
             lengthBuffer.position(0) ;
@@ -132,9 +235,7 @@ public class ObjectFileDiskDirect implements ObjectFile
     { file.close() ; }
 
     //@Override
-    public void sync(boolean force)
-    { file.sync(force) ; }
-
+    public void sync()                  { flushOutputBuffer() ; file.sync() ; }
     
     // ---- Dump
     public void dump() { dump(handler) ; }

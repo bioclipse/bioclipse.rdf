@@ -6,11 +6,13 @@
 
 package com.hp.hpl.jena.sparql.util.graph;
 
-import java.util.Date;
+import java.util.Date ;
 
-import com.hp.hpl.jena.sparql.util.StringUtils;
-import com.hp.hpl.jena.sparql.util.Timer;
+import com.hp.hpl.jena.sparql.util.StringUtils ;
+import com.hp.hpl.jena.sparql.util.Timer ;
 
+// To be retired.
+// Use a sink instead.
 public class GraphLoadMonitor extends GraphListenerCounter
 {
     Timer timer = null ;

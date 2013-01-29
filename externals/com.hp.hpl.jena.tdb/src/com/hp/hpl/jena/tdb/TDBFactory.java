@@ -6,19 +6,20 @@
 
 package com.hp.hpl.jena.tdb;
 
-
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetImpl;
-import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils;
-import com.hp.hpl.jena.tdb.assembler.VocabTDB;
-import com.hp.hpl.jena.tdb.base.file.Location;
-import com.hp.hpl.jena.tdb.store.DatasetGraphTDB;
-import com.hp.hpl.jena.tdb.sys.TDBMaker;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.ModelFactory ;
+import com.hp.hpl.jena.sparql.core.DatasetImpl ;
+import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderLib ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
+import com.hp.hpl.jena.tdb.assembler.VocabTDB ;
+import com.hp.hpl.jena.tdb.base.file.Location ;
+import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
+import com.hp.hpl.jena.tdb.sys.SystemTDB ;
+import com.hp.hpl.jena.tdb.sys.TDBMaker ;
 
 /** Public factory for creating objects (graphs, datasest) associated with TDB */
 public class TDBFactory
@@ -79,12 +80,16 @@ public class TDBFactory
 
     /** Create or connect to a TDB-backed dataset */ 
     public static Dataset createDataset(Location location)
-    { return new DatasetImpl(TDBMaker._createDatasetGraph(location)) ; }
+    { return createDataset(createDatasetGraph(location)) ; }
 
     /** Create or connect to a TDB dataset backed by an in-memory block manager. For testing.*/ 
     public static Dataset createDataset()
-    { return new DatasetImpl(TDBMaker._createDatasetGraph()) ; }
+    { return createDataset(createDatasetGraph()) ; }
 
+    /** Create a dataset around a DatasetGraphTDB */ 
+    public static Dataset createDataset(DatasetGraphTDB datasetGraph)
+    { return new DatasetImpl(datasetGraph) ; }
+    
     /** Create a graph, at the given location */
     public static Graph createGraph(Location loc)       { return TDBMaker._createGraph(loc) ; }
 
@@ -121,7 +126,15 @@ public class TDBFactory
 
     /** Create or connect to a TDB-backed dataset (graph-level) */
     public static DatasetGraphTDB createDatasetGraph()
-    { return TDBMaker._createDatasetGraph() ; }
+    {
+        // Make silent by setting the optimizer to the no-opt
+        ReorderTransformation rt = SystemTDB.defaultOptimizer ;
+        if ( rt == null )
+            SystemTDB.defaultOptimizer = ReorderLib.identity() ;
+        DatasetGraphTDB dsg = TDBMaker._createDatasetGraph() ;
+        SystemTDB.defaultOptimizer  = rt ;
+        return dsg ;
+    }
 }
 
 /*

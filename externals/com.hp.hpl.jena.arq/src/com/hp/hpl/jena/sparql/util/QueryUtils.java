@@ -6,18 +6,19 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.QueryCheckException;
-import com.hp.hpl.jena.sparql.lang.ParserRegistry;
-import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.sparql.sse.SSEParseException;
-import com.hp.hpl.jena.sparql.sse.WriterSSE;
-import com.hp.hpl.jena.sparql.sse.builders.BuildException;
+import org.openjena.atlas.io.IndentedLineBuffer ;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryException;
-import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.query.QueryFactory ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.QueryCheckException ;
+import com.hp.hpl.jena.sparql.lang.ParserRegistry ;
+import com.hp.hpl.jena.sparql.sse.SSE ;
+import com.hp.hpl.jena.sparql.sse.SSEParseException ;
+import com.hp.hpl.jena.sparql.sse.WriterSSE ;
+import com.hp.hpl.jena.sparql.sse.builders.BuildException ;
 
 public class QueryUtils
 {
@@ -32,16 +33,24 @@ public class QueryUtils
         IndentedLineBuffer buff = new IndentedLineBuffer() ;
         Op op = Algebra.compile(query) ;
         if ( optimizeAlgebra )
-            op =  Algebra.optimize(op) ;
-        WriterSSE.out(buff.getIndentedWriter(), op, query) ;
-        String str = buff.getBuffer().toString() ;
+            op = Algebra.optimize(op) ;
+        WriterSSE.out(buff, op, query) ;
+        String str = buff.toString() ;
         
         try {
             Op op2 = SSE.parseOp(str) ;
             if ( op.hashCode() != op2.hashCode() )
+            {
+                op.hashCode() ;
+                op2.hashCode() ;
+                dump(op, op2) ;
                 throw new QueryCheckException("reparsed algebra expression hashCode does not equal algebra from query") ;
+            }
             if ( ! op.equals(op2) )
+            {
+                dump(op, op2) ;
                 throw new QueryCheckException("reparsed algebra expression does not equal query algebra") ;
+            }
         } catch (SSEParseException ex)
         { 
             System.err.println(str);
@@ -52,6 +61,14 @@ public class QueryUtils
             System.err.println(str);
             throw ex ; 
         }
+    }
+    
+    private static void dump(Op op, Op op2)
+    {
+        System.err.println("***********") ;
+        System.err.println(op) ;
+        System.err.println(op2) ;
+        System.err.println("***********") ;   
     }
     
     public static void checkParse(Query query)

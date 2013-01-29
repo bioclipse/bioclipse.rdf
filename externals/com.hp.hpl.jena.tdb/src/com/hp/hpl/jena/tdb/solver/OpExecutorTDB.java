@@ -6,20 +6,23 @@
 
 package com.hp.hpl.jena.tdb.solver;
 
+import org.openjena.atlas.iterator.Filter ;
+import org.openjena.atlas.lib.Tuple ;
+import org.openjena.atlas.logging.Log ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-import atlas.iterator.Filter ;
-import atlas.lib.Tuple ;
-import atlas.logging.Log ;
 
 import com.hp.hpl.jena.graph.Graph ;
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
 import com.hp.hpl.jena.sparql.algebra.Op ;
 import com.hp.hpl.jena.sparql.algebra.op.OpBGP ;
+import com.hp.hpl.jena.sparql.algebra.op.OpDatasetNames ;
+import com.hp.hpl.jena.sparql.algebra.op.OpDistinct ;
 import com.hp.hpl.jena.sparql.algebra.op.OpFilter ;
 import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern ;
-import com.hp.hpl.jena.sparql.algebra.opt.TransformFilterPlacement ;
+import com.hp.hpl.jena.sparql.algebra.op.OpReduced ;
+import com.hp.hpl.jena.sparql.algebra.optimize.TransformFilterPlacement ;
 import com.hp.hpl.jena.sparql.core.BasicPattern ;
 import com.hp.hpl.jena.sparql.core.Quad ;
 import com.hp.hpl.jena.sparql.core.Substitute ;
@@ -29,24 +32,20 @@ import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPeek ;
 import com.hp.hpl.jena.sparql.engine.main.OpExecutor ;
 import com.hp.hpl.jena.sparql.engine.main.OpExecutorFactory ;
 import com.hp.hpl.jena.sparql.engine.main.QC ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderProc ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.ReorderTransformation ;
 import com.hp.hpl.jena.sparql.expr.ExprList ;
-import com.hp.hpl.jena.sparql.util.Context ;
-import com.hp.hpl.jena.tdb.TDBException ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderProc ;
-import com.hp.hpl.jena.tdb.solver.reorder.ReorderTransformation ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
 import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
 import com.hp.hpl.jena.tdb.store.GraphNamedTDB ;
 import com.hp.hpl.jena.tdb.store.GraphTDB ;
 import com.hp.hpl.jena.tdb.store.GraphTriplesTDB ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
-import com.hp.hpl.jena.tdb.sys.SystemTDB ;
 
 /** TDB executor for algebra expressions.  It is the standard ARQ executor
  *  except for basic graph patterns and filtered basic graph patterns (currently).  
  * 
  * See also: StageGeneratorDirectTDB, a non-reordering 
- * 
- * @author Andy Seaborne
  */
 public class OpExecutorTDB extends OpExecutor
 {
@@ -73,11 +72,31 @@ public class OpExecutorTDB extends OpExecutor
         isForTDB = (execCxt.getActiveGraph() instanceof GraphTDB) ;
     }
 
+    // Retrieving nodes isn't so bad because they will be needed anyway.
+    // And if their duplicates, likely to be cached.
+    // Need to work with SolverLib which wraps the NodeId bindgins with a converter. 
+    
+    @Override
+    protected QueryIterator execute(OpDistinct opDistinct, QueryIterator input)
+    {
+        return super.execute(opDistinct, input) ;
+    }
+    
+    @Override
+    protected QueryIterator execute(OpReduced opReduced, QueryIterator input)
+    {
+        return super.execute(opReduced, input) ;
+    }
+
+    
     @Override
     protected QueryIterator execute(OpFilter opFilter, QueryIterator input)
     {
         if ( ! isForTDB )
             return super.execute(opFilter, input) ;
+        
+        // If the filter does not apply to the input??
+        // Where does ARQ catch this?
         
         // (filter (bgp ...))
         if ( OpBGP.isBGP(opFilter.getSubOp()) )
@@ -133,7 +152,7 @@ public class OpExecutorTDB extends OpExecutor
 
     /** Execute a BGP (and filters) on a TDB graph, which may be in default storage or it may be a named graph */ 
     private static QueryIterator executeBGP(GraphTDB graph, OpBGP opBGP, QueryIterator input, ExprList exprs, 
-                                         ExecutionContext execCxt)
+                                            ExecutionContext execCxt)
     {
         // Is it the real default graph (normal route or explicitly named)?
         if ( ! isDefaultGraphStorage(graph.getGraphNode()))
@@ -188,7 +207,7 @@ public class OpExecutorTDB extends OpExecutor
 
         gn = decideGraphNode(gn, execCxt) ;
         if ( gn == null )
-            return optimizeExecuteTriples(ds.getDefaultGraphTDB(), input, bgp, exprs, execCxt) ;
+            return optimizeExecuteTriples(ds.getEffectiveDefaultGraph(), input, bgp, exprs, execCxt) ;
         
         // ---- Execute quads+filters
         ReorderTransformation transform = ds.getTransform() ;
@@ -301,21 +320,13 @@ public class OpExecutorTDB extends OpExecutor
     
         return false ;
     }
-
-    // ---- Dynamic datasets
     
-    public static Filter<Tuple<NodeId>> getFilter(Context context)
-    {
-        Object x = context.get(SystemTDB.symTupleFilter) ;
-
-        try {
-            @SuppressWarnings("unchecked")
-            Filter<Tuple<NodeId>> f = (Filter<Tuple<NodeId>>)x ;
-            return f ;
-        } catch (ClassCastException ex)
-        {
-            throw new TDBException("Not a Filter<Tuple<NodeId>>:"+x, ex) ;
-        }
+    @Override
+    protected QueryIterator execute(OpDatasetNames dsNames, QueryIterator input)
+    { 
+        DatasetGraphTDB ds = (DatasetGraphTDB)execCxt.getDataset() ;
+        Filter<Tuple<NodeId>> filter = QC2.getFilter(execCxt.getContext()) ;
+        return SolverLib.graphNames(ds, dsNames.getGraphNode(), input, filter, execCxt) ;
     }
     
     // ---- OpExecute factories and plain executor.
@@ -338,7 +349,7 @@ public class OpExecutorTDB extends OpExecutor
         public OpExecutorPlainTDB(ExecutionContext execCxt)
         {
             super(execCxt) ;
-            filter = getFilter(execCxt.getContext()) ;
+            filter = QC2.getFilter(execCxt.getContext()) ;
         }
         
         @Override
@@ -349,8 +360,7 @@ public class OpExecutorTDB extends OpExecutor
             if ( g instanceof GraphTDB )
             {
                 BasicPattern bgp = opBGP.getPattern() ;
-                if ( Explain.explaining(Explain.InfoLevel.ALL, execCxt.getContext()) )
-                    Explain.explain("Execute", bgp, execCxt.getContext()) ;
+                Explain.explain("Execute", bgp, execCxt.getContext()) ;
                 // Triple-backed (but may be named as explicit default graph).
                 return SolverLib.execute((GraphTDB)g, bgp, input, filter, execCxt) ;
             }
@@ -367,10 +377,7 @@ public class OpExecutorTDB extends OpExecutor
             if ( execCxt.getDataset() instanceof DatasetGraphTDB )
             {
                 DatasetGraphTDB ds = (DatasetGraphTDB)execCxt.getDataset() ;
-                
-                if ( Explain.explaining(Explain.InfoLevel.ALL, execCxt.getContext()) )
-                    Explain.explain("Execute", opQuadPattern.getPattern(), execCxt.getContext()) ;
-
+                Explain.explain("Execute", opQuadPattern.getPattern(), execCxt.getContext()) ;
                 BasicPattern bgp = opQuadPattern.getBasicPattern() ;
                 return SolverLib.execute(ds, gn, bgp, input, filter, execCxt) ;
             }
@@ -380,21 +387,17 @@ public class OpExecutorTDB extends OpExecutor
             {
                 if ( g instanceof GraphTriplesTDB )
                 {
-                    // Triples graph from TDB (which is the defaul tgraph of the dataset),
+                    // Triples graph from TDB (which is the default graph of the dataset),
                     // used a named graph in a composite dataset.
                     BasicPattern bgp = opQuadPattern.getBasicPattern() ;
-                    if ( Explain.explaining(Explain.InfoLevel.ALL, execCxt.getContext()) )
-                        Explain.explain("Execute", bgp, execCxt.getContext()) ;
+                    Explain.explain("Execute", bgp, execCxt.getContext()) ;
                     return SolverLib.execute((GraphTDB)g, bgp, input, filter, execCxt) ;
                 }
                 
                 if ( g instanceof GraphNamedTDB )
                 {
-                    // Legacy - when ARQ upgrades, this will be deprecated and need updating.
-                    
-                    if ( Explain.explaining(Explain.InfoLevel.ALL, execCxt.getContext()) )
-                        Explain.explain("Execute", opQuadPattern.getPattern(), execCxt.getContext()) ;
-
+                    // Legacy?/ Does not now happen?
+                    Explain.explain("Execute", opQuadPattern.getPattern(), execCxt.getContext()) ;
                     // Quad-backed graph
                     return SolverLib.execute(((GraphTDB)g).getDataset(), opQuadPattern.getGraphNode(), opQuadPattern.getBasicPattern(), 
                                              input, filter, execCxt) ;

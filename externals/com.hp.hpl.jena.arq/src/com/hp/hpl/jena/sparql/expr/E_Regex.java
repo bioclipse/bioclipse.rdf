@@ -1,24 +1,20 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyrght 2010 Epimorphics Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Symbol;
+import java.util.List ;
 
-//import java.util.regex.* ;
+import com.hp.hpl.jena.query.ARQ ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Symbol ;
 
-/** Indirect to the choosen regular expression implementation. 
- * 
- * @author Andy Seaborne
- */
+/** Indirect to the choosen regular expression implementation */
 
-public class E_Regex extends ExprFunction
+public class E_Regex extends ExprFunctionN
 {
     private static Symbol regexImpl = null ;
     static
@@ -31,13 +27,13 @@ public class E_Regex extends ExprFunction
         
         if ( regexImpl == null )
         {
-            ALog.warn(E_Regex.class, "Regex implementation some weird setting: default to Java") ;
+            Log.warn(E_Regex.class, "Regex implementation some weird setting: default to Java") ;
             regexImpl = ARQ.javaRegex;
         }
         if ( !regexImpl.equals(ARQ.javaRegex) &&
              !regexImpl.equals(ARQ.xercesRegex) )
         {
-            ALog.warn(E_Regex.class, "Regex implementation not recognized : default to Java") ;
+            Log.warn(E_Regex.class, "Regex implementation not recognized : default to Java") ;
             regexImpl = ARQ.javaRegex;
         }  
     }
@@ -45,49 +41,39 @@ public class E_Regex extends ExprFunction
     private static final String name = "regex" ;
     private RegexEngine regexEngine = null ;
     
-    private Expr expr ;
-    private Expr pattern ;
-    private Expr flags ;
-    
-    public E_Regex(Expr _expr, Expr _pattern, Expr _flags)
+    public E_Regex(Expr expr, Expr pattern, Expr flags)
     {
-        super(name) ;
-        expr = _expr ;
-        pattern = _pattern ;
-        flags = _flags ;
-        init() ;
+        super(name, expr, pattern, flags) ;
+        init(pattern, flags) ;
     }
 
     // Not used by parser
-    public E_Regex(Expr _expr, String _pattern, String _flags)
+    public E_Regex(Expr expr, String pattern, String flags)
     {
-        super(name) ;
-        expr = _expr ;
-        pattern = NodeValue.makeString(_pattern) ;
-        flags = NodeValue.makeString(_flags) ;
-        init() ;
+        super(name, expr, NodeValue.makeString(pattern), NodeValue.makeString(flags)) ;
+        init(getArg(2), getArg(3)) ;
     }
     
-    private void init()
+    private void init(Expr pattern, Expr flags)
     {
         if ( pattern.isConstant() && pattern.getConstant().isString() && ( flags==null || flags.isConstant() ) )
             regexEngine = makeRegexEngine(pattern.getConstant(), (flags==null)?null:flags.getConstant()) ;
     }
     
+
     @Override
-    public NodeValue eval(Binding binding, FunctionEnv env)
+    public NodeValue eval(List<NodeValue> args)
     {
-        NodeValue v = expr.eval(binding, env) ;
+        NodeValue v = args.get(0) ;
+        NodeValue vPattern = args.get(1) ;
+        NodeValue vFlags = ( args.size() == 2 ? null : args.get(2) ) ;
+        
         if ( ! v.isString() )
-            throw new ExprEvalException("REGEX: "+expr+" evaluates to "+v+", which is not a string") ;
+            throw new ExprEvalException("REGEX: "+v+" is not a string") ;
 
         RegexEngine regex = regexEngine ;
         if ( regex == null  )
-        {
-            NodeValue vPattern = pattern.eval(binding, env) ;
-            NodeValue vFlags = (flags==null) ? null : flags.eval(binding, env) ;
             regex = makeRegexEngine(vPattern, vFlags) ;
-        }
         
         boolean b = regex.match(v.getString()) ;
         
@@ -112,56 +98,28 @@ public class E_Regex extends ExprFunction
         return new RegexJava(pattern, flags) ;
     }
     
-    @Override
-    public Expr getArg(int i)
-    {
-        if ( i == 1 )
-            return expr ;
-        if ( i == 2 )
-            return pattern ;
-        if ( i == 3 )
-            return flags ;
-        
-        return null ;
-    }
+//    /** @return Returns the expr of the regex */
+//    public final Expr getRegexExpr() { return expr1 ; }
+//
+//    /** @return Returns the pattern. */
+//    public final Expr getPattern()  { return expr2 ; }
+//
+//    /** @return Returns the flags. */
+//    public final Expr getFlags() { return expr3 ; }
 
     @Override
-    public int numArgs()
+    protected Expr copy(ExprList newArgs)
     {
-        if ( flags != null )
-            return 3 ;
-        return 2 ;
+        if ( newArgs.size() == 2 )
+            return new E_Regex(newArgs.get(0), newArgs.get(1), null) ; 
+        return new E_Regex(newArgs.get(0), newArgs.get(1), newArgs.get(2)) ;   
     }
-
-    /** @return Returns the expr of the regex */
-    public Expr getRegexExpr() { return expr ; }
-
-    /** @return Returns the flags. */
-    public Expr getFlags() { return flags ; }
-
-    /**
-     * @return Returns the pattern.
-     */
-    public Expr getPattern()
-    {
-        return pattern ;
-    }
-
-    @Override
-    public Expr copySubstitute(Binding binding, boolean foldConstants)
-    {
-        Expr e = expr.copySubstitute(binding, foldConstants) ;
-        Expr p = pattern.copySubstitute(binding, foldConstants) ;
-        Expr f = (flags==null)? null : flags.copySubstitute(binding, foldConstants) ;
-        
-        return new E_Regex(e,p,f) ;
-    }
-
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
- *  All rights reserved.
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyrght 2010 Epimorphics Ltd.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

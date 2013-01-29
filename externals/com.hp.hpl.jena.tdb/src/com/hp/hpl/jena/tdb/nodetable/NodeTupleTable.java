@@ -1,158 +1,67 @@
 /*
- * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
-package com.hp.hpl.jena.tdb.nodetable;
-import static java.lang.String.format ;
+package com.hp.hpl.jena.tdb.nodetable ;
 
 import java.util.Iterator ;
 
-import atlas.iterator.NullIterator ;
-import atlas.lib.Tuple ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.atlas.lib.Tuple ;
 
 import com.hp.hpl.jena.graph.Node ;
-import com.hp.hpl.jena.sparql.core.Closeable ;
-import com.hp.hpl.jena.tdb.TDBException ;
-import com.hp.hpl.jena.tdb.index.TupleIndex ;
 import com.hp.hpl.jena.tdb.index.TupleTable ;
-import com.hp.hpl.jena.tdb.lib.NodeLib ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
-import com.hp.hpl.jena.tdb.lib.TupleLib ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
 
-
-/** Support code to group tuple table and node table */ 
-public class NodeTupleTable implements Sync, Closeable
+public interface NodeTupleTable extends Sync, Closeable
 {
-    protected final NodeTable nodeTable ;
-    protected final TupleTable tupleTable ;
-    
-    public NodeTupleTable(int N, TupleIndex[] indexes, NodeTable nodeTable)
-    {
-        if ( indexes.length == 0 || indexes[0] == null )
-            throw new TDBException("A primary index is required") ;
-        for ( TupleIndex index : indexes )
-        {
-            if ( N != index.getTupleLength() )
-                throw new TDBException(format("Inconsistent: TupleTable width is %d but index %s is %d",
-                                              N, index.getLabel(), index.getTupleLength() )) ;   
-        }
-        
-        this.tupleTable = new TupleTable(N, indexes) ;
-        this.nodeTable = nodeTable ;
-    }
-    
-    public boolean addRow(Node...nodes)
-    {
-        NodeId n[] = new NodeId[nodes.length] ;
-        for ( int i = 0 ; i < nodes.length ; i++ )
-            n[i] = nodeTable.getAllocateNodeId(nodes[i]) ;
+    public boolean addRow(Node... nodes) ;
 
-        Tuple<NodeId> t = Tuple.create(n) ;
-        try {
-            return tupleTable.add(t) ;
-        } catch (TDBException ex)
-        {
-            String x = NodeLib.format(" ", nodes) ; 
-            System.err.println("Bad add for tuple: "+x) ;
-            throw ex ;
-        }
-    }
+    public boolean deleteRow(Node... nodes) ;
 
-    public boolean deleteRow(Node...nodes)
-    {
-        NodeId n[] = new NodeId[nodes.length] ;
-        for ( int i = 0 ; i < nodes.length ; i++ )
-        {
-            NodeId id = idForNode(nodes[i]) ;
-            if ( NodeId.doesNotExist(id) )
-                return false ;
-            n[i] = id ;
-        }
-        
-        Tuple<NodeId> t = Tuple.create(n) ;
-        return tupleTable.delete(t) ;
-    }
-    
     /** Find by node. */
-    public Iterator<Tuple<Node>> find(Node...nodes)
-    {
-        Iterator<Tuple<NodeId>> iter1 = findAsNodeIds(nodes) ;
-        if ( iter1 == null )
-            return new NullIterator<Tuple<Node>>() ;
-        Iterator<Tuple<Node>> iter2 = TupleLib.convertToNodes(nodeTable, iter1) ;
-        return iter2 ;
-    }
-    
-    /** Find by node - return an iterator of NodeIds. Can return "null" for not found as well as NullIterator */
-    public Iterator<Tuple<NodeId>> findAsNodeIds(Node...nodes)
-    {
-        NodeId n[] = new NodeId[nodes.length] ;
-        
-        for ( int i = 0 ; i < nodes.length ; i++ )
-        {
-            NodeId id = idForNode(nodes[i]) ;
-            if ( NodeId.doesNotExist(id) )
-                return null ;
-            n[i] = id ;
-        }
+    public Iterator<Tuple<Node>> find(Node... nodes) ;
 
-        return find(n) ;
-    }
-    
+    /** Find by node - return an iterator of NodeIds. Can return "null" for not found as well as NullIterator */
+    public Iterator<Tuple<NodeId>> findAsNodeIds(Node... nodes) ;
+
+    /** Find by NodeId. */
+    public Iterator<Tuple<NodeId>> find(NodeId... ids) ;
     
     /** Find by NodeId. */
-    public Iterator<Tuple<NodeId>> find(NodeId...ids)
-    {
-        Tuple<NodeId> tuple = Tuple.create(ids) ;
-        Iterator<Tuple<NodeId>> iter = tupleTable.find(tuple) ;
-        return iter ;
-    }
+    public Iterator<Tuple<NodeId>> find(Tuple<NodeId> ids) ;
+    
 
-    
-    // ==== Node
+    /** Find all tuples */ 
+    public Iterator<Tuple<NodeId>> findAll() ;
 
-    protected final NodeId idForNode(Node node)
-    {
-        if ( node == null || node == Node.ANY )
-            return NodeId.NodeIdAny ;
-        return nodeTable.getNodeIdForNode(node) ;
-    }
-    
-    // ==== Accessors
-    
     /** Return the undelying tuple table - used with great care by tools
      * that directly manipulate internal structures. 
      */
-    public final TupleTable getTupleTable() { return tupleTable ; }
-    
+    public TupleTable getTupleTable() ;
+
     /** Return the node table */
-    public final NodeTable getNodeTable()   { return nodeTable ; }
+    public NodeTable getNodeTable() ;
+
+    public boolean isEmpty() ;
     
-    public boolean isEmpty()        { return tupleTable.isEmpty() ; }
+    /** Clear the tuple table.  After this operation, find* will find  nothing.
+     * This does not mean all data has been removed - for example, it does not mean
+     * that any node table has been emptied.
+     */
+    public void clear() ;
+
+    // No clear operation - need to manage the tuple table 
+    // and node tables separately.
     
-    public long size()              { return tupleTable.size() ; }
-    
-    //@Override
-    public final void close()
-    {
-        tupleTable.close() ;
-        nodeTable.close() ;
-    }
-    
-    //@Override
-    public final void sync(boolean force)
-    {
-        tupleTable.sync(force) ;
-        nodeTable.sync(force) ;
-    }
-   
+    public long size() ;
 }
 
 /*
- * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,26 +1,25 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
-/** Repeatedly execute the subclass operation for each Binding in the input iterator. 
- * 
- * @author     Andy Seaborne
- */
+/** Repeatedly execute the subclass operation for each Binding in the input iterator. */
  
 public abstract class QueryIterRepeatApply extends QueryIter1
 {
     int count = 0 ; 
-    private QueryIterator currentStage ;
+    private QueryIterator currentStage ; 
+    private volatile boolean cancelRequested = false;   // [CANCEL] needed? super.cancelRequest?
     
     public QueryIterRepeatApply( QueryIterator input ,
                                  ExecutionContext context)
@@ -30,11 +29,10 @@ public abstract class QueryIterRepeatApply extends QueryIter1
         
         if ( input == null )
         {
-            ALog.fatal(this, "[QueryIterRepeatApply] Repeated application to null input iterator") ;
+            Log.fatal(this, "[QueryIterRepeatApply] Repeated application to null input iterator") ;
             return ;
         }
     }
-    
        
     protected QueryIterator getCurrentStage()
     {
@@ -56,6 +54,15 @@ public abstract class QueryIterRepeatApply extends QueryIter1
             
             if ( currentStage == null  )
                 return false ;
+            
+            if ( cancelRequested )
+            {
+                // This ensures we don't miss a change to cancelRequested
+                // In the middle of a cancel.
+                // XXX This repeatedly calls subcancel if the iterator is drained.
+                // But QueryItertaorBase turns that into a single call of requestCancel.
+                performRequestCancel(currentStage);
+            }
             
             if ( currentStage.hasNext() )
                 return true ;
@@ -100,6 +107,14 @@ public abstract class QueryIterRepeatApply extends QueryIter1
     {
         if ( currentStage != null )
             currentStage.close() ;
+    }
+    
+    @Override
+    protected void requestSubCancel()
+    {
+        if ( currentStage != null )
+            currentStage.cancel() ; // [CANCEL]
+        cancelRequested = true;
     }
 }
 

@@ -6,15 +6,16 @@
 
 package arq.cmdline;
 
-import java.io.PrintStream;
-import java.util.Iterator;
+import java.io.PrintStream ;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Symbol;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.shared.impl.PrefixMappingImpl ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.Symbol ;
 
 public class ModSymbol implements ArgModuleGeneral
 {
@@ -64,7 +65,7 @@ public class ModSymbol implements ArgModuleGeneral
             context.set(symbol, value) ;
         }
         
-        ARQ.getContext().setAll(context) ;
+        ARQ.getContext().putAll(context) ;
     }
     
     public void verbose() { verbose(System.out) ; }

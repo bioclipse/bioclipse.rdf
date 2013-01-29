@@ -6,15 +6,13 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingNamedVar;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingNamedVar ;
 
 /** Filter bindings for distinguished variables only 
- *  Currently unused.
- * @author Andy Seaborne
- */
+ *  Currently unused. */
 
 public class QueryIterDistinguishedVars extends QueryIterConvert
 {

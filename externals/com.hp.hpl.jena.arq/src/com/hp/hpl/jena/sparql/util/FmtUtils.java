@@ -5,24 +5,28 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.net.MalformedURLException;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Node_Literal;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.iri.IRI;
-import com.hp.hpl.jena.iri.IRIFactory;
-import com.hp.hpl.jena.iri.IRIRelativize;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.vocabulary.XSD;
+import java.net.MalformedURLException ;
+
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.logging.Log ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Node_Literal ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.iri.IRI ;
+import com.hp.hpl.jena.iri.IRIFactory ;
+import com.hp.hpl.jena.iri.IRIRelativize ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.vocabulary.XSD ;
 
 /** Presentation forms of various kinds of objects.
  *  Beware that bNodes are abbreviated to _:b0 etc.
@@ -32,7 +36,6 @@ public class FmtUtils
 {
     // Consider withdrawing non-serialzation context forms of this.
     // Or a temporary SerialzationContext does not abbreviate bNodes.
-    // Rename as PresentationUtils (!!)
     static final String indentPrefix = "  " ;
     public static boolean multiLineExpr = false ;
     public static boolean printOpName = true ;
@@ -70,21 +73,39 @@ public class FmtUtils
     // Formatting various items
     public static String stringForQuad(Quad quad)
     {
-        return
-            stringForNode(quad.getGraph())+" "+
-            stringForNode(quad.getSubject())+" "+
-            stringForNode(quad.getPredicate())+" "+
-            stringForNode(quad.getObject()) ;
+        StringBuilder sb = new StringBuilder() ;
+        
+        if ( quad.getGraph() != null )
+        {
+            sb.append(stringForNode(quad.getGraph())) ;
+            sb.append(" ") ;
+        }
+        
+        sb.append(stringForNode(quad.getSubject())) ;
+        sb.append(" ") ;
+        sb.append(stringForNode(quad.getPredicate())) ;
+        sb.append(" ") ;
+        sb.append(stringForNode(quad.getObject())) ;
+        return sb.toString() ;
     }
     
     
     public static String stringForQuad(Quad quad, PrefixMapping prefixMap)
     {
-        return
-            stringForNode(quad.getGraph(), prefixMap)+" "+
-            stringForNode(quad.getSubject(), prefixMap)+" "+
-            stringForNode(quad.getPredicate(), prefixMap)+" "+
-            stringForNode(quad.getObject(), prefixMap) ;
+        StringBuilder sb = new StringBuilder() ;
+        
+        if ( quad.getGraph() != null )
+        {
+            sb.append(stringForNode(quad.getGraph(), prefixMap)) ;
+            sb.append(" ") ;
+        }
+        
+        sb.append(stringForNode(quad.getSubject(), prefixMap)) ;
+        sb.append(" ") ;
+        sb.append(stringForNode(quad.getPredicate(), prefixMap)) ;
+        sb.append(" ") ;
+        sb.append(stringForNode(quad.getObject(), prefixMap)) ;
+        return sb.toString() ;
     }
     
     // To a Writer?
@@ -319,7 +340,7 @@ public class FmtUtils
         if ( n.equals(Node.ANY) )
             return "ANY" ;
 
-        ALog.warn(FmtUtils.class, "Failed to turn a node into a string: "+n) ;
+        Log.warn(FmtUtils.class, "Failed to turn a node into a string: "+n) ;
         return n.toString() ;
     }
 
@@ -340,6 +361,9 @@ public class FmtUtils
     {
         if ( context == null )
             return stringForURI(uri, null, null) ;
+//        if ( ! context.getPrologue().explicitlySetBaseURI() )
+//            return stringForURI(uri, null, context.getPrefixMapping()) ;
+        
         return stringForURI(uri, context.getBaseIRI(), context.getPrefixMapping()) ;
     }
 

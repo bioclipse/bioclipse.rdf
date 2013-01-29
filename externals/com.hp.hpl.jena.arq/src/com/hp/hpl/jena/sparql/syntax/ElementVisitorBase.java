@@ -18,6 +18,8 @@ public class ElementVisitorBase implements ElementVisitor
     
     public void visit(ElementAssign el)         { }
 
+    public void visit(ElementBind el)           { }
+
     public void visit(ElementUnion el)          { }
 
     public void visit(ElementDataset el)        { }
@@ -32,6 +34,8 @@ public class ElementVisitorBase implements ElementVisitor
     
     public void visit(ElementNotExists el)      { }
     
+    public void visit(ElementMinus el)          { }
+
     public void visit(ElementService el)        { }
     
     public void visit(ElementFetch el)          { }

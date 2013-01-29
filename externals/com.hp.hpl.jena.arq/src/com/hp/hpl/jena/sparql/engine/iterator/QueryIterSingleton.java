@@ -6,34 +6,38 @@
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.Binding1;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
 
-/** A singleton iterator 
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+
+/** A singleton iterator */
 
 public class QueryIterSingleton extends QueryIterYieldN
 {
     // A common usage?
     public static QueryIterSingleton create(Binding parent, Var var, Node value, ExecutionContext execCxt)
     {
-        Binding b = new Binding1(parent, var, value) ;
-        return new QueryIterSingleton(b, execCxt) ;
+        Binding b = BindingFactory.binding(parent, var, value) ;
+        return QueryIterSingleton.create(b, execCxt) ;
     }
     
+    public static QueryIterSingleton create(Binding binding, ExecutionContext execCxt)
+    {
+        return new QueryIterSingleton(binding, execCxt) ;
+        
+    }
+
     private QueryIterSingleton(Binding binding) // Not needed
     {
         this(binding, null) ;
     }
     
-    public QueryIterSingleton(Binding binding, ExecutionContext context)
+    protected QueryIterSingleton(Binding binding, ExecutionContext context)
     {
         super(1, binding, context) ;
     }
@@ -43,6 +47,9 @@ public class QueryIterSingleton extends QueryIterYieldN
     {
         out.print("QueryIterSingleton "+binding);
     }
+    
+//    @Override
+//    public void closeIterator() { super.closeIterator() ; }
 }
 
 

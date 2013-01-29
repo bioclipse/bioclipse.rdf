@@ -6,12 +6,9 @@
 
 package com.hp.hpl.jena.sparql.syntax;
 
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
-/** The syntax element for "Not Exists" in a pattern.
- * 
- * @author Andy Seaborne
- */
+/** The syntax element for "Not Exists" in a pattern. */
 
 public class ElementNotExists extends Element1
 {

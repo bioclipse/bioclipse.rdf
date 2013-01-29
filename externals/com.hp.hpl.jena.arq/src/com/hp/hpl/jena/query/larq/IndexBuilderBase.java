@@ -6,20 +6,17 @@
 
 package com.hp.hpl.jena.query.larq;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.File ;
+import java.io.IOException ;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer ;
+import org.apache.lucene.index.IndexReader ;
+import org.apache.lucene.index.IndexWriter ;
+import org.apache.lucene.store.Directory ;
+import org.apache.lucene.store.FSDirectory ;
+import org.apache.lucene.store.RAMDirectory ;
 
-/** Root class for index creation.
- *  
- * @author Andy Seaborne
- */
+/** Root class for index creation. */
 
 public class IndexBuilderBase implements IndexBuilder 
 {

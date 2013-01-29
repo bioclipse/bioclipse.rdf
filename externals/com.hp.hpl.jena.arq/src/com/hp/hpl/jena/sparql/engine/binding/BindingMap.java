@@ -5,19 +5,18 @@
 
 package com.hp.hpl.jena.sparql.engine.binding;
 
-import java.util.* ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.Map ;
 
 import com.hp.hpl.jena.graph.Node ;
-import com.hp.hpl.jena.sparql.core.Var;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 
 /** A mapping from a name to a value such that we can create a tree of levels
  *  with higher (earlier levels) being shared.
  *  Looking up a name is done by looking in the current level,
- *  then trying the parent is not found. 
- * 
- * @author   Andy Seaborne
- */
+ *  then trying the parent is not found. */
 
 
 public class BindingMap extends BindingBase
@@ -25,7 +24,9 @@ public class BindingMap extends BindingBase
     // Bindings are often small.  Is this overkill? 
     Map<Var, Node> map = new HashMap<Var, Node>() ;
     
+    /** Using BindingFcatory.create is better */
     public BindingMap(Binding parent) { super(parent) ; }
+    /** Using BindingFcatory.create is better */
     public BindingMap() { super(BindingRoot.create()) ; } // null?
 
     /** Add a (name,value) */
@@ -33,7 +34,8 @@ public class BindingMap extends BindingBase
     @Override
     protected void add1(Var var, Node node)
     {
-        map.put(var, node) ;
+        if ( ! Var.isAnonVar(var) )
+            map.put(var, node) ;
     }
 
     @Override

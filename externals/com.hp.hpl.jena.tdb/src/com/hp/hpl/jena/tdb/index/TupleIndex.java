@@ -1,20 +1,19 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.index;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import atlas.lib.Tuple;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.atlas.lib.Tuple ;
 
-
-import com.hp.hpl.jena.sparql.core.Closeable;
-
-import com.hp.hpl.jena.tdb.lib.Sync;
-import com.hp.hpl.jena.tdb.store.NodeId;
+import com.hp.hpl.jena.tdb.store.NodeId ;
 
 public interface TupleIndex extends Sync, Closeable
 {
@@ -33,20 +32,29 @@ public interface TupleIndex extends Sync, Closeable
 
     public Iterator<Tuple<NodeId>> find(Tuple<NodeId> pattern) ;
     
+    /** return an iterator of everything */
     public Iterator<Tuple<NodeId>> all() ;
     
-    /** Weight a pattern in normal order (not index order) */
+    /** Weight a pattern - specified in normal order (not index order).
+     * Large numbers means better match. */
     public int weight(Tuple<NodeId> pattern) ;
 
+    /** Length of tuple supported */
     public int getTupleLength() ;
 
+    /** Size of index (number of slots). May be an estimate and not exact. -1 for unknown.  */
     public long size() ;
 
+    /** Answer whether empty or not */
     public boolean isEmpty() ;
+    
+    /** Clear the index */
+    public void clear() ;
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

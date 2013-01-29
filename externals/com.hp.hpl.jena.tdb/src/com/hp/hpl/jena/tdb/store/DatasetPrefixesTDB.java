@@ -1,35 +1,39 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-P;ackard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.store;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.HashMap ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.Map ;
+import java.util.Set ;
 
-import atlas.lib.ColumnMap;
-import atlas.lib.Tuple;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.lib.ColumnMap ;
+import org.openjena.atlas.lib.Tuple ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.sparql.lib.iterator.Iter;
-import com.hp.hpl.jena.tdb.base.file.FileSet;
-import com.hp.hpl.jena.tdb.base.file.Location;
-import com.hp.hpl.jena.tdb.base.record.RecordFactory;
-import com.hp.hpl.jena.tdb.graph.DatasetPrefixStorage;
-import com.hp.hpl.jena.tdb.graph.GraphPrefixesProjection;
-import com.hp.hpl.jena.tdb.index.IndexBuilder;
-import com.hp.hpl.jena.tdb.index.TupleIndex;
-import com.hp.hpl.jena.tdb.index.TupleIndexRecord;
-import com.hp.hpl.jena.tdb.nodetable.NodeTable;
-import com.hp.hpl.jena.tdb.nodetable.NodeTableFactory;
-import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable;
-import com.hp.hpl.jena.tdb.sys.Names;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.core.DatasetPrefixStorage ;
+import com.hp.hpl.jena.sparql.graph.GraphPrefixesProjection ;
+import com.hp.hpl.jena.tdb.base.file.FileSet ;
+import com.hp.hpl.jena.tdb.base.file.Location ;
+import com.hp.hpl.jena.tdb.base.record.RecordFactory ;
+import com.hp.hpl.jena.tdb.index.IndexBuilder ;
+import com.hp.hpl.jena.tdb.index.TupleIndex ;
+import com.hp.hpl.jena.tdb.index.TupleIndexRecord ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTableFactory ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTableConcrete ;
+import com.hp.hpl.jena.tdb.sys.ConcurrencyPolicy ;
+import com.hp.hpl.jena.tdb.sys.ConcurrencyPolicyMRSW ;
+import com.hp.hpl.jena.tdb.sys.Names ;
 
 public class DatasetPrefixesTDB implements DatasetPrefixStorage
 {
@@ -37,6 +41,8 @@ public class DatasetPrefixesTDB implements DatasetPrefixStorage
     // The nodetable is itself an index and a data file.
     
     static final String unamedGraphURI = "" ; //Quad.defaultGraphNode.getURI() ;
+    
+    // Use NodeTupleTableView?
     private final NodeTupleTable nodeTupleTable ;
     static final ColumnMap colMap = new ColumnMap("GPU", "GPU") ;
     
@@ -44,14 +50,14 @@ public class DatasetPrefixesTDB implements DatasetPrefixStorage
 
     
     @Deprecated
-    public static DatasetPrefixesTDB create(Location location) { return create(IndexBuilder.get(), location) ; }
+    public static DatasetPrefixesTDB create(Location location, ConcurrencyPolicy policy) { return create(IndexBuilder.get(), location, policy) ; }
     
     @Deprecated
-    public static DatasetPrefixesTDB create(IndexBuilder indexBuilder, Location location)
-    { return new DatasetPrefixesTDB(indexBuilder, location) ; }
+    public static DatasetPrefixesTDB create(IndexBuilder indexBuilder, Location location, ConcurrencyPolicy policy)
+    { return new DatasetPrefixesTDB(indexBuilder, location, policy) ; }
 
     @Deprecated
-    private DatasetPrefixesTDB(IndexBuilder indexBuilder, Location location)
+    private DatasetPrefixesTDB(IndexBuilder indexBuilder, Location location, ConcurrencyPolicy policy)
     {
         // TO BE REMOVED when DI sorted out.
         // This is a table "G" "P" "U" (Graph, Prefix, URI), indexed on GPU only.
@@ -73,19 +79,19 @@ public class DatasetPrefixesTDB implements DatasetPrefixStorage
             filesetNodeTable = new FileSet(location, Names.prefixId2Node) ;
         
         NodeTable nodes = NodeTableFactory.create(indexBuilder, filesetNodeTable, filesetNodeTableIdx, -1, -1) ;
-        nodeTupleTable = new NodeTupleTable(3, indexes, nodes) ;
+        nodeTupleTable = new NodeTupleTableConcrete(3, indexes, nodes, policy) ;
     }
 
     //---- DI version
     
-    public DatasetPrefixesTDB(TupleIndex[] indexes, NodeTable nodes)
+    public DatasetPrefixesTDB(TupleIndex[] indexes, NodeTable nodes, ConcurrencyPolicy policy)
     {
-        this.nodeTupleTable = new NodeTupleTable(3, indexes, nodes) ;
+        this.nodeTupleTable = new NodeTupleTableConcrete(3, indexes, nodes, policy) ;
     }
     
     private DatasetPrefixesTDB()
     {
-        this(IndexBuilder.mem(), Location.mem()) ;
+        this(IndexBuilder.mem(), Location.mem(), new ConcurrencyPolicyMRSW()) ;
     }
     
     /** Testing - dataset prefixes in-memory */
@@ -117,10 +123,12 @@ public class DatasetPrefixesTDB implements DatasetPrefixStorage
     {
         Node g = Node.createURI(graphName) ; 
         Node p = Node.createLiteral(prefix) ; 
+        
         Iterator<Tuple<Node>> iter = nodeTupleTable.find(g, p, null) ;
         if ( ! iter.hasNext() )
             return null ;
-        Node uri = iter.next().get(2) ;
+        Tuple<Node> t = iter.next() ;
+        Node uri = t.get(2) ;
         Iter.close(iter) ;
         return uri.getURI() ; 
     }
@@ -200,14 +208,12 @@ public class DatasetPrefixesTDB implements DatasetPrefixStorage
     }
 
     //@Override
-    public void sync(boolean force)
-    { 
-        nodeTupleTable.sync(force) ;
-    }
+    public void sync()  { nodeTupleTable.sync() ; }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

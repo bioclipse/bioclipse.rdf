@@ -30,7 +30,8 @@ public class Activator extends AbstractUIPlugin {
     private ServiceTracker jsFinderTracker;
 
     /** HTTP time out in milliseconds. */
-    public static final Integer TIME_OUT = 5000; 
+    public static final Integer CONNECT_TIME_OUT = 5000; 
+    public static final Integer READ_TIME_OUT = 30000; 
 
     public Activator() {}
 
@@ -78,7 +79,8 @@ public class Activator extends AbstractUIPlugin {
     public IJavaScriptRDFManager getJavaScriptManager() {
         IJavaScriptRDFManager manager = null;
         try {
-            manager = (IJavaScriptRDFManager)jsFinderTracker.waitForService(1000*10);
+            manager = (IJavaScriptRDFManager)jsFinderTracker
+                                                     .waitForService( 1000*10 );
         } catch (InterruptedException exception) {
             LogUtils.debugTrace(logger, exception);
             throw new IllegalStateException("Could not get the RDF manager: " +

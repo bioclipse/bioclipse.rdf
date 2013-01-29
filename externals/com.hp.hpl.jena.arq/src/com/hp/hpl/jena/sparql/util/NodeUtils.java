@@ -6,26 +6,35 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.MapFilter;
-import com.hp.hpl.jena.util.iterator.MapFilterIterator;
-import com.hp.hpl.jena.util.iterator.WrappedIterator;
+import org.openjena.atlas.lib.StrUtils ;
+
+import com.hp.hpl.jena.datatypes.RDFDatatype ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.iri.IRI ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.NodeFunctions ;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator ;
+import com.hp.hpl.jena.util.iterator.MapFilter ;
+import com.hp.hpl.jena.util.iterator.MapFilterIterator ;
+import com.hp.hpl.jena.util.iterator.WrappedIterator ;
 
 
-/** Node utilities. 
- * @author Andy Seaborne
- */ 
+/** Node utilities */ 
 
 
 public class NodeUtils
 {
+    public interface EqualityTest { boolean equal(Node n1, Node n2) ; }
+
+    public static Node asNode(IRI iri)  { return Node.createURI(iri.toString()) ; }
+    public static Node asNode(String iri)  { return Node.createURI(iri) ; }
+    
     public static boolean isStringLiteral(Node literal)
     {
         if ( ! literal.isLiteral() )
@@ -40,6 +49,15 @@ public class NodeUtils
         if ( dType != null && ! dType.equals(XSDDatatype.XSDstring) )
             return false ;
         
+        return true ;
+    }
+    
+    public static boolean hasLang(Node node)
+    {
+        if ( ! node.isLiteral() ) return false ;
+        String x = node.getLiteralLanguage() ;
+        if ( x == null ) return false ;
+        if ( x.equals("") ) return false ;
         return true ;
     }
     
@@ -91,7 +109,7 @@ public class NodeUtils
             {
                 String s1 = node1.getBlankNodeId().getLabelString() ;
                 String s2 = node2.getBlankNodeId().getLabelString() ;
-                return StringUtils.strCompare(s1, s2) ;
+                return StrUtils.strCompare(s1, s2) ;
             }
             // bNodes before anything else.
             return Expr.CMP_LESS ;
@@ -109,7 +127,7 @@ public class NodeUtils
             {
                 String s1 = node1.getURI() ;
                 String s2 = node2.getURI() ;
-                return StringUtils.strCompare(s1, s2) ; 
+                return StrUtils.strCompare(s1, s2) ; 
             }
             return Expr.CMP_LESS ;
         }
@@ -145,7 +163,7 @@ public class NodeUtils
         String lex1 = node1.getLiteralLexicalForm() ;
         String lex2 = node2.getLiteralLexicalForm() ;
         
-        int x = StringUtils.strCompare(lex1, lex2) ;
+        int x = StrUtils.strCompare(lex1, lex2) ;
         if ( x != Expr.CMP_EQUAL )
             return x ;
  
@@ -188,17 +206,17 @@ public class NodeUtils
         {
               // Syntactic - lang tags case considered
               // case sensitive if necessary
-              x = StringUtils.strCompareIgnoreCase(lang1, lang2) ;
+              x = StrUtils.strCompareIgnoreCase(lang1, lang2) ;
               if ( x != Expr.CMP_EQUAL )
                   return x ;
-              x = StringUtils.strCompare(lang1, lang2) ;
+              x = StrUtils.strCompare(lang1, lang2) ;
               if ( x != Expr.CMP_EQUAL )
                   return x ;
               throw new ARQInternalErrorException("compareLiteralsBySyntax: lexical form and languages tags identical on non.equals literals");
         }
         
         // Two datatypes.
-        return StringUtils.strCompare(dt1, dt2) ;
+        return StrUtils.strCompare(dt1, dt2) ;
     }
     
     private static boolean simpleLiteral(Node node)
@@ -206,6 +224,29 @@ public class NodeUtils
         return  node.getLiteralDatatypeURI() == null && 
                 node.getLiteralLanguage().equals("") ; 
     }
+
+    // This is term comparison.
+    public static EqualityTest sameTerm = new EqualityTest() {
+        public boolean equal(Node n1, Node n2)
+        {
+            return NodeFunctions.sameTerm(n1, n2) ;
+        }
+    } ;
+    // This is value comparison
+    public static EqualityTest sameValue = new EqualityTest() {
+        public boolean equal(Node n1, Node n2)
+        {
+            NodeValue nv1 = NodeValue.makeNode(n1) ;
+            NodeValue nv2 = NodeValue.makeNode(n2) ;
+            try {
+                return NodeValue.sameAs(nv1, nv2) ;
+            } catch(ExprEvalException ex)
+            {
+                // Incomparible as values - must be different for our purposes.
+                return false ; 
+            }
+        }
+    } ;
 }
 
 /*

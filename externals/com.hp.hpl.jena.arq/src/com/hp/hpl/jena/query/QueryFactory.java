@@ -6,21 +6,18 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.n3.IRIResolver;
-import com.hp.hpl.jena.sparql.lang.Parser;
-import com.hp.hpl.jena.sparql.lang.ParserRegistry;
-import com.hp.hpl.jena.sparql.lang.ParserARQ;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.syntax.Template;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.n3.IRIResolver ;
+import com.hp.hpl.jena.sparql.lang.Parser ;
+import com.hp.hpl.jena.sparql.lang.ParserARQ ;
+import com.hp.hpl.jena.sparql.lang.ParserRegistry ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import com.hp.hpl.jena.sparql.syntax.Template ;
+import com.hp.hpl.jena.util.FileManager ;
 
 
 public class QueryFactory
 {
-
-    // ---- static methods for making a query
-    
-    /** Create a SPARQL query from the given string by calling the parser.
+    /** Create a SPARQL query from the given string.
      *
      * @param queryString      The query string
      * @throws QueryException  Thrown when a parse error occurs
@@ -28,19 +25,19 @@ public class QueryFactory
     
     static public Query create(String queryString)
     {
-        return create(queryString, Syntax.defaultSyntax) ;
+        return create(queryString, Syntax.defaultQuerySyntax) ;
     }
 
-    /** Create a query from the given string by calling the parser.
+    /** Create a query from the given string with the 
      *
      * @param queryString      The query string
-     * @param langURI          URI for the syntax
+     * @param syntax           {@link Syntax}
      * @throws QueryException  Thrown when a parse error occurs
      */
     
-    static public Query create(String queryString, Syntax langURI)
+    static public Query create(String queryString, Syntax syntax)
     {
-        return create(queryString, null, langURI) ;
+        return create(queryString, null, syntax) ;
     }
 
     /** Create a query from the given string by calling the parser.
@@ -53,7 +50,7 @@ public class QueryFactory
     static public Query create(String queryString, String baseURI)
     {
         Query query = new Query() ;
-        parse(query, queryString, baseURI, Syntax.defaultSyntax) ;
+        parse(query, queryString, baseURI, Syntax.defaultQuerySyntax) ;
         return query ;
         
     }
@@ -62,22 +59,28 @@ public class QueryFactory
     *
     * @param queryString      The query string
     * @param baseURI          Base URI
-    * @param querySyntax      URI for the syntax
+    * @param syntax           {@link Syntax}
     * @throws QueryException  Thrown when a parse error occurs
     */
    
-   static public Query create(String queryString, String baseURI, Syntax querySyntax)
+   static public Query create(String queryString, String baseURI, Syntax syntax)
    {
        Query query = new Query() ;
-       parse(query, queryString, baseURI, querySyntax) ;
+       parse(query, queryString, baseURI, syntax) ;
        return query ;
        
    }
    
-    /**
-     * Make a query - no parsing done  
+   /**
+    * Make a query - no parsing done  
+    */
+   static public Query create() { return new Query() ; }
+
+   
+   /**
+     * Make a query - no parsing done - old name: {@link #create()} preferred. 
      */
-    static public Query make() { return new Query() ; }
+    static public Query make() { return create() ; }
 
     /**
      * Make a query from another one by deep copy (a clone).
@@ -197,7 +200,7 @@ public class QueryFactory
         if ( baseURI == null )
             baseURI = url ;
         if ( langURI == null )
-            langURI = Syntax.guessQueryFileSyntax(url) ;
+            langURI = Syntax.guessFileSyntax(url) ;
         
         return create(qStr, baseURI, langURI) ;
     }

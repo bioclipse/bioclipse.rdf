@@ -5,7 +5,7 @@
  * 
  * (c) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * [See end of file]
- * $Id: RETEEngine.java,v 1.1 2009/06/29 08:55:33 castagna Exp $
+ * $Id: RETEEngine.java,v 1.4 2010/05/18 08:18:48 der Exp $
  *****************************************************************/
 package com.hp.hpl.jena.reasoner.rulesys.impl;
 
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * an enclosing ForwardInfGraphI which holds the raw data and deductions.
  * 
  * @author <a href="mailto:der@hplb.hpl.hp.com">Dave Reynolds</a>
- * @version $Revision: 1.1 $ on $Date: 2009/06/29 08:55:33 $
+ * @version $Revision: 1.4 $ on $Date: 2010/05/18 08:18:48 $
  */
 public class RETEEngine implements FRuleEngineI {
     
@@ -49,8 +49,9 @@ public class RETEEngine implements FRuleEngineI {
     /** The conflict set of rules waiting to fire */
     protected RETEConflictSet conflictSet;
     
-    /** List of predicates used in rules to assist in fast data loading */
-    protected HashSet<Node> predicatesUsed;
+    /** Map from predicates used in the rules to object value they are used with, can be Node.ANY */
+//    protected Map<Node, Node> predicatePatterns;
+    protected OneToManyMap<Node, Node> predicatePatterns;
     
     /** Flag, if true then there is a wildcard predicate in the rule set so that selective insert is not useful */
     protected boolean wildcardRule;
@@ -137,9 +138,9 @@ public class RETEEngine implements FRuleEngineI {
                     addTriple( i.next(), false );
                 }
             } else {
-                for (Iterator<Node> p = predicatesUsed.iterator(); p.hasNext(); ) {
-                    Node predicate = p.next();
-                    for (Iterator<Triple> i = inserts.find(new TriplePattern(null, predicate, null)); i.hasNext(); ) {
+                for (Map.Entry<Node, Node> ent : predicatePatterns.entrySet()) {
+//                    System.out.println("FastInit: " + ent.getKey() + " = " + ent.getValue());
+                    for (Iterator<Triple> i = inserts.find(new TriplePattern(null, ent.getKey(), ent.getValue())); i.hasNext(); ) {
                         Triple t = i.next();
                         addTriple(t, false);
                     }
@@ -199,7 +200,7 @@ public class RETEEngine implements FRuleEngineI {
      * internal axiom closures.
      */
     public Object getRuleStore() {
-        return new RuleStore(clauseIndex, predicatesUsed, wildcardRule, isMonotonic);
+        return new RuleStore(clauseIndex, predicatePatterns, wildcardRule, isMonotonic);
     }
     
     /**
@@ -207,7 +208,7 @@ public class RETEEngine implements FRuleEngineI {
      */
     public void setRuleStore(Object ruleStore) {
         RuleStore rs = (RuleStore)ruleStore;
-        predicatesUsed = rs.predicatesUsed;
+        predicatePatterns = rs.predicatePatterns;
         wildcardRule = rs.wildcardRule;
         isMonotonic = rs.isMonotonic;
         
@@ -238,7 +239,7 @@ public class RETEEngine implements FRuleEngineI {
      */
     public void compile(List<Rule> rules, boolean ignoreBrules) {
         clauseIndex = new OneToManyMap<Node, RETENode>();
-        predicatesUsed = new HashSet<Node>();
+        predicatePatterns = new OneToManyMap<Node, Node>();
         wildcardRule = false;
             
         for (Iterator<Rule> it = rules.iterator(); it.hasNext(); ) {
@@ -256,13 +257,16 @@ public class RETEEngine implements FRuleEngineI {
                     ArrayList<Node> clauseVars = new ArrayList<Node>(numVars);
                     RETEClauseFilter clauseNode = RETEClauseFilter.compile((TriplePattern)clause, numVars, clauseVars);
                     Node predicate = ((TriplePattern)clause).getPredicate();
+                    Node object = ((TriplePattern)clause).getObject();
                     if (predicate.isVariable()) {
                         clauseIndex.put(Node.ANY, clauseNode);
                         wildcardRule = true;
                     } else {
                         clauseIndex.put(predicate, clauseNode);
                         if (! wildcardRule) {
-                            predicatesUsed.add(predicate);
+                            if (object.isVariable()) object = Node.ANY;
+                            if (Functor.isFunctor(object)) object = Node.ANY;
+                            recordPredicatePattern(predicate, object);
                         }
                     }
                 
@@ -298,9 +302,26 @@ public class RETEEngine implements FRuleEngineI {
                     
         }
             
-        if (wildcardRule) predicatesUsed = null;
+        if (wildcardRule) predicatePatterns = null;
     }    
-
+    
+    /**
+     * Helper. Record a new predicate/value pattern. Ensure there is either
+     * one wildcard or a number of specific patterns
+     */
+    private void recordPredicatePattern(Node predicate, Node value) {
+        if (predicatePatterns.contains(predicate, Node.ANY)) {
+            // already fully covered
+        } else if (value.equals(Node.ANY)) {
+            predicatePatterns.remove(predicate);
+            predicatePatterns.put(predicate, value);
+        } else {
+            // TODO possibly introduce a threshold here for the number of patterns allowed before generalizing
+            predicatePatterns.put(predicate, value);
+        }
+        return;
+    }
+    
     /**
      * Create a terminal node for the RETE network. Normally this is RETETerminal
      * but some people have experimented with alternative delete handling by
@@ -325,7 +346,8 @@ public class RETEEngine implements FRuleEngineI {
             logger.debug("Add triple: " + PrintUtil.print(triple));
         }
         if (deletesPending.size() > 0) deletesPending.remove(triple);
-        addsPending.add(triple);
+        if (!addsPending.contains(triple))      // Experimental, not sure why it wasn't done before
+            addsPending.add(triple);
         if (deduction) {
             infGraph.addDeduction(triple);
         }
@@ -529,8 +551,8 @@ public class RETEEngine implements FRuleEngineI {
         /** Map from predicate node to rule + clause, Node_ANY is used for wildcard predicates */
         protected OneToManyMap<Node, RETENode> clauseIndex;
     
-        /** List of predicates used in rules to assist in fast data loading */
-        protected HashSet<Node> predicatesUsed;
+        /** Map from predicates used in the rules to object value they are used with, can be Node.ANY */
+        protected OneToManyMap<Node, Node> predicatePatterns;
     
         /** Flag, if true then there is a wildcard predicate in the rule set so that selective insert is not useful */
         protected boolean wildcardRule;
@@ -539,9 +561,9 @@ public class RETEEngine implements FRuleEngineI {
         protected boolean isMonotonic = true;
         
         /** Constructor */
-        RuleStore(OneToManyMap<Node, RETENode> clauseIndex, HashSet<Node> predicatesUsed, boolean wildcardRule, boolean isMonotonic) {
+        RuleStore(OneToManyMap<Node, RETENode> clauseIndex, OneToManyMap<Node, Node> predicatesPatterns, boolean wildcardRule, boolean isMonotonic) {
             this.clauseIndex = clauseIndex;
-            this.predicatesUsed = predicatesUsed;
+            this.predicatePatterns = predicatesPatterns;
             this.wildcardRule = wildcardRule;
             this.isMonotonic = isMonotonic;
         }

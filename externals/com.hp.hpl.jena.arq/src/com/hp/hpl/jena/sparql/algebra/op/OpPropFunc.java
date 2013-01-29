@@ -6,23 +6,20 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpVisitor;
-import com.hp.hpl.jena.sparql.algebra.Transform;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpVisitor ;
+import com.hp.hpl.jena.sparql.algebra.Transform ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 /** Property functions (or any OpBGP replacement)
- *  Execution will be per-engine specific
- *  
- * @author Andy Seaborne
- */
+ *  Execution will be per-engine specific */
 public class OpPropFunc extends Op1
 {
     // c.f. OpProcedure which is similar except for the handling of arguments.
-    // Safer to have two (Ops are mainly asbrtact synatx , not executional).
+    // Safer to have two (Ops are mainly abstract syntax, not executional).
     private Node uri ;
     private PropFuncArg subjectArgs ;
     private PropFuncArg objectArgs2 ;

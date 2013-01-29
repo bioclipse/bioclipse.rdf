@@ -6,20 +6,32 @@
 
 package com.hp.hpl.jena.sparql.mgt;
 
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.n3.IRIResolver ;
+
 
 public class SystemInfo implements SystemInfoMBean
 {
     private final String name ;
+    private final Node   iri ;
     private final String version ;
     private final String buildDate ;
 
     public SystemInfo(String name, String version, String buildDate)
     {
         this.name = name ;
+        this.iri = createIRI(name) ;
         this.version = version ;
         this.buildDate = buildDate ;
     }
     
+    private static Node createIRI(String iriStr)
+    {
+        try {
+            return Node.createURI(IRIResolver.resolveGlobal(iriStr)) ;
+        } catch (RuntimeException ex) { return null ; }
+    }
+        
     public String getBuildDate()
     {
         return buildDate ;
@@ -33,6 +45,11 @@ public class SystemInfo implements SystemInfoMBean
     public String getName()
     { 
         return name ;
+    }
+    
+    public Node getIRI()
+    { 
+        return Node.createURI(name) ;
     }
 }
 

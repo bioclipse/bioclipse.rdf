@@ -6,18 +6,15 @@
 
 package com.hp.hpl.jena.sparql.core.describe;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** A DescribeHandler provides the description of a resource.
  *  DESCRIBE queries return RDF that describes the resource found, either
  *  from the query pattern or explicitly named in the DESCRIBE clause.
  *  For each resource, any handlers are called to builds the RDF model
- *  that is to be the result of the query.     
- * 
- * @author Andy Seaborne
- */
+ *  that is to be the result of the query. */
 
 public interface DescribeHandler
 {

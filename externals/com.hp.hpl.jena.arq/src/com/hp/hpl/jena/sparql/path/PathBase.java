@@ -6,15 +6,22 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
 public abstract class PathBase implements Path
 {
-    protected static final int hashAlt      = 0x190 ;
-    protected static final int hashSeq      = 0x191 ;
-    protected static final int hashMod      = 0x193 ;
-    protected static final int hashReverse  = 0x193 ;
+    protected static final int hashAlt          = 0x190 ;
+    protected static final int hashSeq          = 0x191 ;
+    protected static final int hashMod          = 0x192 ;
+    protected static final int hashInverse      = 0x193 ;
+    protected static final int hashNegPropClass = 0x194 ;
+    protected static final int hashLink         = 0x195 ;
+    protected static final int hashRevLink      = 0x196 ;
+    protected static final int hashZeroOrMore   = 0x197 ;
+    protected static final int hashOneOrMore    = 0x198 ;
+    protected static final int hashZeroOrOne    = 0x199 ;
+    protected static final int hashFixedLength  = 0x200 ;
     
     @Override
     public abstract int hashCode() ;

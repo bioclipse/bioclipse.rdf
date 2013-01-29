@@ -7,10 +7,10 @@
 package arq.cmdline;
 
 
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.resultset.ResultsFormat;
-import com.hp.hpl.jena.sparql.util.QueryExecUtils;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.resultset.ResultsFormat ;
+import com.hp.hpl.jena.sparql.util.QueryExecUtils ;
 
 public class ModResultsOut implements ArgModuleGeneral
 {
@@ -35,7 +35,7 @@ public class ModResultsOut implements ArgModuleGeneral
         cmdLine.getUsage().startCategory("Results") ;
         cmdLine.add(resultsFmtDecl,
                     "--results",
-                    "Results format (Result set: text, XML, JSON; Graph: RDF serialization)") ;  
+                    "Results format (Result set: text, XML, JSON, CSV, TSV; Graph: RDF serialization)") ;  
     }
 
     public void checkCommandLine(CmdArgModule cmdLine)

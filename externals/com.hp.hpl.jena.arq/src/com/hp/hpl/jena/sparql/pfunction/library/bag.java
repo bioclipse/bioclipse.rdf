@@ -6,12 +6,10 @@
 
 package com.hp.hpl.jena.sparql.pfunction.library;
 
-import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDF ;
 
 
-/** Bag membership 
- * @author Andy Seaborne
- */ 
+/** Bag membership */ 
 
 public class bag extends container
 {

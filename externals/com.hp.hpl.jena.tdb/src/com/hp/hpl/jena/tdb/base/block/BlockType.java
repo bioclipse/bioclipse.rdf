@@ -6,17 +6,18 @@
 
 package com.hp.hpl.jena.tdb.base.block;
 
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Named;
-import com.hp.hpl.jena.sparql.util.Printable;
-import com.hp.hpl.jena.tdb.TDBException;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.io.Printable ;
+
+import com.hp.hpl.jena.sparql.util.Named ;
+import com.hp.hpl.jena.tdb.TDBException ;
 
 public enum BlockType implements Printable, Named
 {
     // The id should fit into an unsigned byte.
-    BTREE_BRANCH
+    BTREE_NODE
     {
-        @Override public String getName()   { return "BTreeBranch" ; }
+        @Override public String getName()   { return "BTreeNode" ; }
         @Override public int id()           { return 5 ; }
     } ,
     
@@ -28,13 +29,13 @@ public enum BlockType implements Printable, Named
 
     BPTREE_LEAF
     {
-        @Override public String getName()   { return "BPlusTreeBranch" ; }
+        @Override public String getName()   { return "BPlusTreeLeaf" ; }
         @Override public int id()           { return 7 ; }
     } ,
 
     DICTIONARY
     {
-        @Override public String getName()   { return "DICTIONARY" ; }
+        @Override public String getName()   { return "Dictionary" ; }
         @Override public int id()           { return 10 ; }
     } ,
     
@@ -55,10 +56,11 @@ public enum BlockType implements Printable, Named
     
     public static BlockType extract(int x)
     {
-        if ( x == BTREE_BRANCH.id() )       return BTREE_BRANCH ;
+        if ( x == BTREE_NODE.id() )       return BTREE_NODE ;
         if ( x == BPTREE_BRANCH.id() )      return BPTREE_BRANCH ;
         if ( x == BPTREE_LEAF.id() )        return BPTREE_LEAF ;
         if ( x == RECORD_BLOCK.id() )       return RECORD_BLOCK ;
+        if ( x == DICTIONARY.id() )         return DICTIONARY ;
         throw new TDBException("No known block type for "+x) ;
     }
 }

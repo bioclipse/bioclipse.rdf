@@ -2,23 +2,22 @@
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 
 /** Iterator over another QueryIterator, applying a converter function
- *  to each object that is returned by .next()
- * 
- * @author Andy Seaborne
- */
+ *  to each object that is returned by .next() */
 
 public class QueryIterConvert extends QueryIter1
 {
@@ -36,7 +35,12 @@ public class QueryIterConvert extends QueryIter1
     }
     
     @Override
-    protected void closeSubIterator() {}
+    protected void 
+    closeSubIterator() {}
+    
+    @Override
+    protected void 
+    requestSubCancel() {}
 
     @Override
     public boolean hasNextBinding()

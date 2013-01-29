@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet OWL Reasoner Feature"
-      version="2.5.0.qualifier"
+      version="2.6.0.vqualifier"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
@@ -860,7 +860,7 @@ GNU AGPL, see
    </url>
 
    <requires>
-      <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201" match="greaterOrEqual"/>
+      <import feature="net.bioclipse.rdf_feature"/>
    </requires>
 
    <plugin
@@ -881,7 +881,7 @@ GNU AGPL, see
          id="org.mindswap.pellet"
          download-size="0"
          install-size="0"
-         version="2.0.0"
+         version="2.0.2"
          unpack="false"/>
 
    <plugin

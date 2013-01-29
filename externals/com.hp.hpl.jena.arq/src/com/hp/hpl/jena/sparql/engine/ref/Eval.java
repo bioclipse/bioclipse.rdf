@@ -6,37 +6,35 @@
 
 package com.hp.hpl.jena.sparql.engine.ref;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.algebra.TableFactory ;
+import com.hp.hpl.jena.sparql.algebra.op.OpDatasetNames ;
+import com.hp.hpl.jena.sparql.algebra.op.OpGraph ;
+import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern ;
+import com.hp.hpl.jena.sparql.algebra.table.TableEmpty ;
+import com.hp.hpl.jena.sparql.algebra.table.TableUnit ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingRoot ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterConcat ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPlainWrapper ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRoot ;
+import com.hp.hpl.jena.sparql.engine.main.StageBuilder ;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.TableFactory;
-import com.hp.hpl.jena.sparql.algebra.op.OpDatasetNames;
-import com.hp.hpl.jena.sparql.algebra.op.OpGraph;
-import com.hp.hpl.jena.sparql.algebra.op.OpQuadPattern;
-import com.hp.hpl.jena.sparql.algebra.table.TableEmpty;
-import com.hp.hpl.jena.sparql.algebra.table.TableUnit;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.Binding1;
-import com.hp.hpl.jena.sparql.engine.binding.BindingRoot;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterConcat;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPlainWrapper;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRoot;
-import com.hp.hpl.jena.sparql.engine.main.StageBuilder;
-
-
-
+// Spit out a few of the longer ops.
 public class Eval
 {
     public static Table eval(Evaluator evaluator, Op op)
@@ -64,11 +62,11 @@ public class Eval
 
         DatasetGraph dsg = evaluator.getExecContext().getDataset() ;
         Iterator<Node> iter = dsg.listGraphNodes() ;
-        List<Binding> list = new ArrayList<Binding>(dsg.size()) ;
+        List<Binding> list = new ArrayList<Binding>((int)dsg.size()) ;
         for ( ; iter.hasNext(); )
         {
             Node gn = iter.next();
-            Binding b = new Binding1(null, Var.alloc(graphNode), gn) ;
+            Binding b = BindingFactory.binding(Var.alloc(graphNode), gn) ;
             list.add(b) ;
         }
 
@@ -79,8 +77,6 @@ public class Eval
     
     static Table evalGraph(OpGraph opGraph, Evaluator evaluator)
     {
-        // Complicated by the fact we can't eval the subnode then eval the op.
-        // This would be true if we had a more quad-like view of execution.
         ExecutionContext execCxt = evaluator.getExecContext() ;
         
         if ( ! Var.isVar(opGraph.getNode()) )
@@ -106,7 +102,7 @@ public class Eval
             
             Table tableVarURI = TableFactory.create(gVar, gn) ;
             // Evaluate the pattern, join with this graph node possibility.
-            
+            // XXX If Var.ANON then no-opt.
             Table patternTable = eval(e2, opGraph.getSubOp()) ;
             Table stepResult = evaluator.join(patternTable, tableVarURI) ;
             
@@ -159,7 +155,7 @@ public class Eval
                 //Op tableVarURI = TableFactory.create(gn.getName(), Node.createURI(uri)) ;
                 
                 Graph g = cxt.getDataset().getGraph(gn) ;
-                Binding b = new Binding1(BindingRoot.create(), gVar, gn) ;
+                Binding b = BindingFactory.binding(BindingRoot.create(), gVar, gn) ;
                 ExecutionContext cxt2 = new ExecutionContext(cxt, g) ;
 
                 // Eval the pattern, eval the variable, join.

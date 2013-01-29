@@ -14,6 +14,8 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
+import com.hp.hpl.jena.tdb.sys.SystemTDB ;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ import org.slf4j.LoggerFactory;
 final
 public class BlockMgrMapped extends BlockMgrFile
 {
-    /* Blocks are addressed by postive ints - 
+    /* Blocks are addressed by positive ints - 
      * Is that a limit?
      * One billion is 2^30
      * If a block is 8K, the 2^31*2^13 =  2^44 bits or 2^14 billion = 16K Billion. = 16 trillion bytes.
@@ -32,7 +34,7 @@ public class BlockMgrMapped extends BlockMgrFile
 
     // Segmentation avoids over-mapping; allows file to grow (in chunks) 
     private final int GrowthFactor = 2 ;
-    private final int SegmentSize = 8 * 1024 * 1024 ;       // 8Meg
+    private final int SegmentSize = SystemTDB.SegmentSize ;
     private final int blocksPerSegment ;                              
     
     private int initialNumSegements = 1 ;
@@ -179,11 +181,15 @@ public class BlockMgrMapped extends BlockMgrFile
 
     private synchronized void flushDirtySegments()
     {
+        // This does not force dirty segments to disk.
+        super.force() ;
+        
         // A linked list (with uniqueness) of dirty segments may be better.
         for ( int i = 0 ; i < segments.length ; i++ )
         {
             if ( segments[i] != null && segmentDirty[i] )
             {
+                // Can we "flush" them all at once?
                 segments[i].force() ;
                 segmentDirty[i] = false ;
                 segmentDirtyCount-- ;
@@ -216,15 +222,14 @@ public class BlockMgrMapped extends BlockMgrFile
     }
     
     //@Override
-    public void sync(boolean force)
+    public void sync()
     {
         checkIfClosed() ;
-        if ( force )
-            force() ;
+        force() ;
     }
 
     @Override
-    public void _close()
+    protected void _close()
     {
         force() ;
         // There is no unmap operation for MappedByteBuffers.

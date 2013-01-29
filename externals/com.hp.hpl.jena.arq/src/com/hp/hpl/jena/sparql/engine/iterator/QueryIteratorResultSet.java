@@ -1,16 +1,19 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software License (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class QueryIteratorResultSet extends QueryIteratorBase
 {
@@ -19,6 +22,8 @@ public class QueryIteratorResultSet extends QueryIteratorBase
     
     @Override
     protected void closeIterator()          { resultSet = null ; }
+    @Override
+    protected void requestCancel()          { }
     @Override
     protected boolean hasNextBinding()      { return resultSet.hasNext() ; }
     @Override
@@ -32,6 +37,7 @@ public class QueryIteratorResultSet extends QueryIteratorBase
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

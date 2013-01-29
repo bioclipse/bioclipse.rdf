@@ -1,34 +1,34 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package arq;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.Iterator ;
+import java.util.List ;
 
-import arq.cmd.CmdException;
-import arq.cmdline.ArgDecl;
-import arq.cmdline.CmdUpdate;
+import org.openjena.atlas.io.IndentedWriter ;
+import arq.cmd.CmdException ;
+import arq.cmdline.ArgDecl ;
+import arq.cmdline.CmdUpdate ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-
-import com.hp.hpl.jena.sparql.modify.op.UpdateLoad;
-import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.sparql.util.graph.GraphLoadMonitor;
-
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.modify.request.UpdateLoad ;
+import com.hp.hpl.jena.sparql.sse.SSE ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.sparql.util.graph.GraphLoadMonitor ;
+import com.hp.hpl.jena.update.GraphStore ;
+import com.hp.hpl.jena.update.UpdateExecutionFactory ;
+import com.hp.hpl.jena.update.UpdateRequest ;
 
 public class load extends CmdUpdate
 {
-    ArgDecl graphNameArg = new ArgDecl(ArgDecl.HasValue, "--graph") ;
-    ArgDecl dumpArg = new ArgDecl(ArgDecl.NoValue, "--dump") ;       // Write the result to stdout.
+    static private final ArgDecl graphNameArg = new ArgDecl(ArgDecl.HasValue, "--graph") ;
+    static private final ArgDecl dumpArg = new ArgDecl(ArgDecl.NoValue, "--dump") ;
     
     String graphName = null ;
     List<String> loadFiles = null ;
@@ -68,14 +68,12 @@ public class load extends CmdUpdate
         if ( loadFiles.size() == 0 )
             throw new CmdException("Nothing to do") ;
         
-        UpdateLoad loadReq = new UpdateLoad() ;
-        if ( graphName != null )
-            loadReq.setGraphName(graphName) ;
-        
+        UpdateRequest req = new UpdateRequest() ;
         for ( Iterator<String> iter = loadFiles.iterator() ; iter.hasNext() ; )
         {
             String filename = iter.next();
-            loadReq.addLoadIRI(filename) ;
+            UpdateLoad loadReq = new UpdateLoad(filename, graphName) ;
+            req.add(loadReq) ;
         }
         
         if ( true )
@@ -90,7 +88,7 @@ public class load extends CmdUpdate
         }
         
         
-        UpdateFactory.create(loadReq, graphStore).execute() ;
+        UpdateExecutionFactory.create(req, graphStore).execute() ;
         
         if ( dump )
         {
@@ -110,6 +108,7 @@ public class load extends CmdUpdate
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

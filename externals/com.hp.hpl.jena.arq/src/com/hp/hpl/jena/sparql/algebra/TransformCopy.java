@@ -1,14 +1,15 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
 /** One step in the transformation process.
  *  Used with Transformer, performs a a bottom-up rewrite.
@@ -24,27 +25,30 @@ public class TransformCopy implements Transform
 
     public Op transform(OpTable opTable)                            { return xform(opTable) ; }
     public Op transform(OpBGP opBGP)                                { return xform(opBGP) ; }
+    public Op transform(OpQuadPattern opQuadPattern)                { return xform(opQuadPattern) ; }
     public Op transform(OpTriple opTriple)                          { return xform(opTriple) ; }
     public Op transform(OpPath opPath)                              { return xform(opPath) ; }
 
     public Op transform(OpProcedure opProc, Op subOp)               { return xform(opProc, subOp) ; }
     public Op transform(OpPropFunc opPropFunc, Op subOp)            { return xform(opPropFunc, subOp) ; }
-    public Op transform(OpDatasetNames dsNames)                     { return xform(dsNames) ; }
-    public Op transform(OpQuadPattern quadPattern)                  { return xform(quadPattern) ; }
+    public Op transform(OpDatasetNames opDatasetNames)              { return xform(opDatasetNames) ; }
 
-    public Op transform(OpFilter opFilter, Op x)                    { return xform(opFilter, x) ; }
-    public Op transform(OpGraph opGraph, Op x)                      { return xform(opGraph, x) ; }
-    public Op transform(OpService opService, Op x)                  { return xform(opService, x) ; }
+    public Op transform(OpFilter opFilter, Op subOp)                { return xform(opFilter, subOp) ; }
+    public Op transform(OpGraph opGraph, Op subOp)                  { return xform(opGraph, subOp) ; }
+    public Op transform(OpService opService, Op subOp)              { return xform(opService, subOp) ; }
+
+    public Op transform(OpAssign opAssign, Op subOp)                { return xform(opAssign, subOp) ; }
+    public Op transform(OpExtend opExtend, Op subOp)                { return xform(opExtend, subOp) ; }
     
     public Op transform(OpJoin opJoin, Op left, Op right)           { return xform(opJoin, left, right) ; }
     public Op transform(OpLeftJoin opLeftJoin, Op left, Op right)   { return xform(opLeftJoin, left, right) ; }
     public Op transform(OpDiff opDiff, Op left, Op right)           { return xform(opDiff, left, right) ; }
+    public Op transform(OpMinus opMinus, Op left, Op right)         { return xform(opMinus, left, right) ; }
     public Op transform(OpUnion opUnion, Op left, Op right)         { return xform(opUnion, left, right) ; }
     public Op transform(OpConditional opCond, Op left, Op right)    { return xform(opCond, left, right) ; }
 
     public Op transform(OpSequence opSequence, List<Op> elts)           { return xform(opSequence, elts) ; }
     public Op transform(OpDisjunction opDisjunction, List<Op> elts)     { return xform(opDisjunction, elts) ; }
-
     
     public Op transform(OpExt opExt)                                { return opExt ; }
     
@@ -53,12 +57,12 @@ public class TransformCopy implements Transform
     
     public Op transform(OpList opList, Op subOp)                    { return xform(opList, subOp) ; }
     public Op transform(OpOrder opOrder, Op subOp)                  { return xform(opOrder, subOp) ; }
+    public Op transform(OpTopN opTop, Op subOp)                     { return xform(opTop, subOp) ; }
     public Op transform(OpProject opProject, Op subOp)              { return xform(opProject, subOp) ; }
     public Op transform(OpDistinct opDistinct, Op subOp)            { return xform(opDistinct, subOp) ; }
     public Op transform(OpReduced opReduced, Op subOp)              { return xform(opReduced, subOp) ; }
-    public Op transform(OpAssign opAssign, Op subOp)                { return xform(opAssign, subOp) ; }
     public Op transform(OpSlice opSlice, Op subOp)                  { return xform(opSlice, subOp) ; }
-    public Op transform(OpGroupAgg opGroupAgg, Op subOp)            { return xform(opGroupAgg, subOp) ; }
+    public Op transform(OpGroup opGroup, Op subOp)                  { return xform(opGroup, subOp) ; }
 
     private Op xform(Op0 op)
     { 
@@ -103,6 +107,7 @@ public class TransformCopy implements Transform
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

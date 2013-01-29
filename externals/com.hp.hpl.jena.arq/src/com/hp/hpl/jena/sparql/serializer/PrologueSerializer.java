@@ -6,12 +6,13 @@
 
 package com.hp.hpl.jena.sparql.serializer;
 
-import java.util.Map;
+import java.util.Map ;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.PrefixMapping2;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.PrefixMapping2 ;
 
 public class PrologueSerializer
 {
@@ -20,24 +21,6 @@ public class PrologueSerializer
         printBase(prologue, out) ;
         printPrefixes(prologue, out) ;
     }
-    
-//  public String toString()
-//  { return PrintUtils.toString(this) ; }
-//  
-//  public String toString(PrefixMapping pmap)
-//  {
-//      IndentedLineBuffer buff = new IndentedLineBuffer() ;
-//      IndentedWriter out = buff.getIndentedWriter() ;
-//      this.output(out) ;
-//      return buff.toString() ;
-//  }
-//
-//  public void output(IndentedWriter out)
-//  {
-//      printBase(out) ;
-//      printPrefixes(out) ;
-//  }
-//  
     
     private static void printBase(Prologue prologue, IndentedWriter out)
     {
@@ -51,6 +34,9 @@ public class PrologueSerializer
 
     public static void printPrefixes(Prologue prologue, IndentedWriter out)
     {
+        if ( prologue.getPrefixMapping() == null )
+            return ;
+        
         Map<String, String> pmap = null ;
 
         if ( prologue.getPrefixMapping() instanceof PrefixMapping2 )

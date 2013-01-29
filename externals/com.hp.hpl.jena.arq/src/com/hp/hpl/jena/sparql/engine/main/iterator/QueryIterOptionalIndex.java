@@ -6,17 +6,18 @@
 
 package com.hp.hpl.jena.sparql.engine.main.iterator;
 
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterDefaulting;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton;
-import com.hp.hpl.jena.sparql.engine.main.QC;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterDefaulting ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton ;
+import com.hp.hpl.jena.sparql.engine.main.QC ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 
 
@@ -34,7 +35,7 @@ public class QueryIterOptionalIndex extends QueryIterRepeatApply
     protected QueryIterator nextStage(Binding binding)
     {
         Op op2 = QC.substitute(op, binding) ;
-        QueryIterator thisStep = new QueryIterSingleton(binding, getExecContext()) ;
+        QueryIterator thisStep = QueryIterSingleton.create(binding, getExecContext()) ;
         
         QueryIterator cIter = QC.execute(op2, thisStep, super.getExecContext()) ;
         cIter = new QueryIterDefaulting(cIter, binding, getExecContext()) ;

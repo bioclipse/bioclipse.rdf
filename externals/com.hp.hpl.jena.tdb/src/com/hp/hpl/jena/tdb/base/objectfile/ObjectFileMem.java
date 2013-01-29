@@ -6,17 +6,18 @@
 
 package com.hp.hpl.jena.tdb.base.objectfile;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.nio.ByteBuffer ;
+import java.util.ArrayList ;
 import java.util.Iterator ;
-import java.util.List;
+import java.util.List ;
 
-import atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.IteratorInteger ;
+import org.openjena.atlas.iterator.Transform ;
+import org.openjena.atlas.lib.Pair ;
 
-import atlas.iterator.IteratorInteger ;
-import atlas.iterator.Transform ;
-import atlas.lib.ByteBufferLib;
-import atlas.lib.Pair ;
+import org.openjena.atlas.lib.ByteBufferLib ;
+
 
 /** In-memory ByteBufferFile (for testing) - copies bytes in and out
  * to ensure no implicit modification.  
@@ -44,7 +45,7 @@ public class ObjectFileMem implements ObjectFile
     public ByteBuffer read(long id)
     {
         if ( id < 0 || id >= buffers.size() )
-            throw new IllegalArgumentException() ;
+            throw new IllegalArgumentException("Id "+id+" not in range [0, "+buffers.size()+"]") ;
         
         if ( closed )
             throw new IllegalStateException("Closed") ;
@@ -63,6 +64,16 @@ public class ObjectFileMem implements ObjectFile
         return buffers.size()-1 ; 
     }
 
+    public ByteBuffer allocWrite(int maxBytes)
+    {
+        return ByteBuffer.allocate(maxBytes) ;
+    }
+
+    public long completeWrite(ByteBuffer buffer)
+    {
+        return write(buffer) ;
+    }
+
     public Iterator<Pair<Long, ByteBuffer>> all()
     {
         int N = buffers.size() ;
@@ -77,6 +88,9 @@ public class ObjectFileMem implements ObjectFile
         return Iter.map(iter, transform) ;
     }
 
+    public void sync()
+    {}
+    
     public void sync(boolean force)
     {}
 

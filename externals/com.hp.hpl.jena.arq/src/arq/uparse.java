@@ -6,22 +6,25 @@
 
 package arq;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
+import java.io.IOException ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import arq.cmdline.ArgDecl;
-import arq.cmdline.CmdARQ;
+import arq.cmdline.ArgDecl ;
+import arq.cmdline.CmdARQ ;
 
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.util.FileUtils;
+import com.hp.hpl.jena.query.Syntax ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.update.UpdateFactory ;
+import com.hp.hpl.jena.update.UpdateRequest ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 public class uparse extends CmdARQ
 {
-    ArgDecl fileArg = new ArgDecl(ArgDecl.HasValue, "--file", "--update") ;
+    protected static final ArgDecl fileArg = new ArgDecl(ArgDecl.HasValue, "file", "update") ;
+    protected static final ArgDecl syntaxArg = new ArgDecl(ArgDecl.HasValue, "syntax", "syn") ;
     List<String> requestFiles = null ;
+    protected Syntax updateSyntax = Syntax.defaultUpdateSyntax ;
     
     public static void main (String... argv)
     { new uparse(argv).mainRun() ; }
@@ -29,7 +32,8 @@ public class uparse extends CmdARQ
     protected uparse(String[] argv)
     {
         super(argv) ;
-        super.add(fileArg, "--file=FILE", "Update commands to parse") ;
+        super.add(fileArg, "--file=FILE",  "Update commands to parse") ;
+        super.add(syntaxArg, "--syntax=name", "Update syntax") ;
     }
 
     @Override
@@ -37,13 +41,15 @@ public class uparse extends CmdARQ
     {
         requestFiles = getValues(fileArg) ;
         super.processModulesAndArgs() ;
+        if ( super.cmdStrictMode )
+            updateSyntax = Syntax.syntaxSPARQL_11 ;
     }
     
     @Override
     protected String getCommandName() { return Utils.className(this) ; }
     
     @Override
-    protected String getSummary() { return getCommandName()+"--file=<request file>" ; }
+    protected String getSummary() { return getCommandName()+" --file=<request file> | <update string>" ; }
 
     @Override
     protected void exec()
@@ -55,9 +61,11 @@ public class uparse extends CmdARQ
             if ( x != null )
                 execOne(x) ; 
         }
+        
         for ( Iterator<String> iter = super.positionals.listIterator() ; iter.hasNext() ; )
         {
             String x = iter.next();
+            x =  indirect(x) ;
             execOne(x) ; 
         }
 
@@ -71,15 +79,16 @@ public class uparse extends CmdARQ
             return FileUtils.readWholeFileAsUTF8(filename) ;
         } catch (IOException ex)
         {
-            System.err.println("Not such file: "+filename) ;
+            System.err.println("No such file: "+filename) ;
             return null ;
         }
     }
     
     private void execOne(String updateString)
     {
-        UpdateRequest req = UpdateFactory.create(updateString) ;
-        System.out.println(req) ;
+        UpdateRequest req = UpdateFactory.create(updateString, updateSyntax) ;
+        //req.output(IndentedWriter.stderr) ;
+        System.out.print(req) ;
     }
     
     static final String divider = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" ;

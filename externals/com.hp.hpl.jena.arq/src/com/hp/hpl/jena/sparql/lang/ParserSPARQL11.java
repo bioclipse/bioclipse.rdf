@@ -9,6 +9,8 @@ package com.hp.hpl.jena.sparql.lang;
 import java.io.Reader ;
 import java.io.StringReader ;
 
+import org.openjena.atlas.logging.Log ;
+
 import com.hp.hpl.jena.query.Query ;
 import com.hp.hpl.jena.query.QueryException ;
 import com.hp.hpl.jena.query.QueryParseException ;
@@ -17,7 +19,6 @@ import com.hp.hpl.jena.shared.JenaException ;
 import com.hp.hpl.jena.sparql.lang.sparql_11.SPARQLParser11 ;
 import com.hp.hpl.jena.sparql.syntax.Element ;
 import com.hp.hpl.jena.sparql.syntax.Template ;
-import com.hp.hpl.jena.sparql.util.ALog ;
 
 
 public class ParserSPARQL11 extends Parser
@@ -25,7 +26,7 @@ public class ParserSPARQL11 extends Parser
     private interface Action { void exec(SPARQLParser11 parser) throws Exception ; }
     
     @Override
-    public Query parse(final Query query, String queryString)
+    protected Query parse$(final Query query, String queryString)
     {
         query.setSyntax(Syntax.syntaxSPARQL_11) ;
 
@@ -103,7 +104,7 @@ public class ParserSPARQL11 extends Parser
         }
         catch (Throwable th)
         {
-            ALog.warn(ParserSPARQL11.class, "Unexpected throwable: ",th) ;
+            Log.warn(ParserSPARQL11.class, "Unexpected throwable: ",th) ;
             throw new QueryException(th.getMessage(), th) ;
         }
     }

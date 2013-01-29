@@ -1,14 +1,15 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
-
+/** A visitor helper that maps all visits to a few general ones */ 
 public abstract class OpVisitorByType implements OpVisitor
 {
     protected abstract void visitN(OpN op) ;
@@ -20,6 +21,9 @@ public abstract class OpVisitorByType implements OpVisitor
     protected abstract void visit0(Op0 op) ;    
     
     protected abstract void visitExt(OpExt op) ;    
+
+    protected void visitModifer(OpModifier opMod)
+    { visit1(opMod) ; }
 
     public void visit(OpBGP opBGP)
     { visit0(opBGP) ; }
@@ -54,6 +58,9 @@ public abstract class OpVisitorByType implements OpVisitor
     public void visit(OpDiff opDiff)
     { visit2(opDiff) ; }
 
+    public void visit(OpMinus opMinus)
+    { visit2(opMinus) ; }
+
     public void visit(OpUnion opUnion)
     { visit2(opUnion) ; }
     
@@ -87,30 +94,37 @@ public abstract class OpVisitorByType implements OpVisitor
     public void visit(OpAssign opAssign)
     { visit1(opAssign) ; }
 
+    public void visit(OpExtend opExtend)
+    { visit1(opExtend) ; }
+
     public void visit(OpList opList)
-    { visit1(opList) ; }
+    { visitModifer(opList) ; }
 
     public void visit(OpOrder opOrder)
-    { visit1(opOrder) ; }
+    { visitModifer(opOrder) ; }
 
     public void visit(OpProject opProject)
-    { visit1(opProject) ; }
+    { visitModifer(opProject) ; }
 
     public void visit(OpReduced opReduced)
-    { visit1(opReduced) ; }
+    { visitModifer(opReduced) ; }
 
     public void visit(OpDistinct opDistinct)
-    { visit1(opDistinct) ; }
+    { visitModifer(opDistinct) ; }
 
     public void visit(OpSlice opSlice)
-    { visit1(opSlice) ; }
+    { visitModifer(opSlice) ; }
 
-    public void visit(OpGroupAgg opGroupAgg)
-    { visit1(opGroupAgg) ; }
+    public void visit(OpGroup opGroup)
+    { visit1(opGroup) ; }
+
+    public void visit(OpTopN opTop)
+    { visit1(opTop) ; }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,20 +6,25 @@
 
 package com.hp.hpl.jena.sparql.sse.builders;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigInteger ;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemList;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
 
 public class BuilderNode
 {
     public static Node buildNode(Item item)
     {
+        if ( item.isSymbol("true") )
+            return NodeConst.nodeTrue ;
+        if ( item.isSymbol("false") )
+            return NodeConst.nodeFalse ;
         if ( !item.isNode() )
             BuilderLib.broken(item, "Not a node", item) ;
         return item.getNode() ;

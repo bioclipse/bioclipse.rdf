@@ -1,20 +1,26 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.nodevalue;
+import java.util.Iterator ;
+
 import com.hp.hpl.jena.graph.Node ;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.ExprTypeException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.vocabulary.XSD;
+import com.hp.hpl.jena.iri.IRI ;
+import com.hp.hpl.jena.iri.IRIFactory ;
+import com.hp.hpl.jena.iri.Violation ;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.ExprTypeException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.vocabulary.XSD ;
 
 /**
  * Implementation of node-centric functions.  
- * @author Andy Seaborne
  */
 public class NodeFunctions
 {
@@ -45,23 +51,7 @@ public class NodeFunctions
         }
         return false ;
     }
-//    
-//    private static boolean sameTermLiterals(Node n1, Node n2)
-//    {
-//        // But language tags are case insensitive.
-//        String lang1 =  n1.getLiteralLanguage() ;
-//        String lang2 =  n2.getLiteralLanguage() ;
-//        
-//        if ( ! lang1.equals("") && lang1.equalsIgnoreCase(lang2) )
-//        {
-//            // Two language tags, equal by case insensitivity.
-//            return n1.getLiteralLexicalForm().equals(n2.getLiteralLexicalForm()) ;
-//            if ( b )
-//                return true ;
-//        }
-//        return false ; 
-//    }
-        
+
     // -------- RDFterm-equals
     
     public static NodeValue rdfTermEquals(NodeValue nv1, NodeValue nv2)
@@ -76,8 +66,8 @@ public class NodeFunctions
         if ( n1.isLiteral() && n2.isLiteral() )
         {
             // Two literals, may be sameTerm by language tag case insensitivity.
-            String lang1 =  n1.getLiteralLanguage() ;
-            String lang2 =  n2.getLiteralLanguage() ;
+            String lang1 = n1.getLiteralLanguage() ;
+            String lang2 = n2.getLiteralLanguage() ;
                 
             if ( ! lang1.equals("") && lang1.equalsIgnoreCase(lang2) )
             {
@@ -248,10 +238,97 @@ public class NodeFunctions
     // -------- isLiteral
     public static NodeValue isLiteral(NodeValue nv) { return NodeValue.booleanReturn(isLiteral(nv.asNode())) ; }
     public static boolean isLiteral(Node node) { return node.isLiteral() ; }
+    
+    private static final IRIFactory iriFactory = IRIFactory.iriImplementation() ;
+    public  static boolean warningsForIRIs = false ;
+    
+    // -------- IRI
+    public static NodeValue iri(NodeValue nv, String baseIRI)
+    {
+        if ( isIRI(nv.asNode()) )
+            return nv ;
+        Node n2 = iri(nv.asNode(), baseIRI) ;
+        return NodeValue.makeNode(n2) ;
+    }
+    
+    public static Node iri(Node nv, String baseIRI)
+    {
+        if ( nv.isURI() )
+            return nv ;
+        
+        if ( nv.isBlank() )
+        {
+            // Skolemization of blank nodes to IRIs : Don't ask, just don't ask.
+            String x = nv.getBlankNodeLabel() ;
+            return Node.createURI("_:"+x) ;
+        }
+        
+        if ( nv.isLiteral() && 
+             nv.getLiteralDatatype() == null && 
+             nv.getLiteralLanguage().equals("") )
+        {
+            // Plain literal
+            IRI iri = null ;
+            String iriStr = nv.getLiteralLexicalForm() ;
+            
+            // Level of checking?
+            if ( baseIRI != null )
+            {
+                IRI base = iriFactory.create(baseIRI);
+                iri = base.create(iriStr);
+            }
+            else
+                iri = iriFactory.create(iriStr);
+            
+            if ( ! iri.isAbsolute() )
+                throw new ExprEvalException("Relative IRI string: "+iriStr) ;
+            if ( warningsForIRIs && iri.hasViolation(false) )
+            {
+                String msg = "unknown violation from IRI library" ; 
+                Iterator<Violation> iter = iri.violations(false) ;
+                if ( iter.hasNext() )
+                {
+                    Violation viol = iter.next() ;
+                    msg = viol.getShortMessage() ;
+                }
+                Log.warn(NodeFunctions.class, "Bad IRI: "+msg+": "+iri) ;
+            }
+            return Node.createURI(iri.toString()) ;
+        }
+        throw new ExprEvalException("Can't make an IRI from "+nv) ;
+    }
+
+    public static NodeValue strDatatype(NodeValue v1, NodeValue v2)
+    {
+        if ( ! v1.isString() ) throw new ExprEvalException("Not a string (arg 1): "+v1) ;
+        if ( ! v2.isIRI() ) throw new ExprEvalException("Not an IRI (arg 2): "+v2) ;
+        
+        String lex = v1.asString() ;
+        Node dt = v2.asNode() ;
+        // Check?
+        
+        Node n = Node.createLiteral(lex, null, Node.getType(dt.getURI())) ;
+        return NodeValue.makeNode(n) ; 
+    }
+    
+    public static NodeValue strLang(NodeValue v1, NodeValue v2)
+    {
+        if ( ! v1.isString() ) throw new ExprEvalException("Not a string (arg 1): "+v1) ;
+        if ( ! v2.isString() ) throw new ExprEvalException("Not a string (arg 2): "+v2) ;
+        
+        String lex = v1.asString() ;
+        String lang = v2.asString() ;
+        // Check?
+        
+        Node n = Node.createLiteral(lex, lang, null) ;
+        return NodeValue.makeNode(n) ; 
+    }
+
 }
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

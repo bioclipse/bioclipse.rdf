@@ -1,29 +1,99 @@
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.mgt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.lib.StrUtils ;
+import org.slf4j.Logger ;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.StrUtils;
-import com.hp.hpl.jena.sparql.util.Symbol;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.core.QuadPattern ;
+import com.hp.hpl.jena.sparql.path.Path ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.SSE ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterNode ;
+import com.hp.hpl.jena.sparql.util.Context ;
+
+/** Execution logging for query processing on a per query basis.
+ * This class provides an overlay on top of the system logging to provide
+ * control of log message down to a per query basis. The associated logging channel
+ * must also be enabled.  
+ * 
+ * An execution can detail the query, the algebra and every point at which the dataset is touched.
+ *  
+ *  Caution: logging can be a significant cost for small queries and for memory-backed datasets
+ *  because of formatting the output and disk or console output overhead.
+ *  
+ *  @see ARQ#logExec
+ *  @see ARQ#getExecutionLogging
+ *  @see ARQ#setExecutionLogging
+ */
 
 public class Explain
 {
-    // CHANGE ME.
-    static public final Logger    logExec    = LoggerFactory.getLogger("com.hp.hpl.jena.tdb.exec") ;
-//    static public boolean explaining = false ;
-    // MOVE ME to  ARQConstants
-    public static final Symbol symLogExec = ARQConstants.allocSymbol("logExec") ;
+    /** Control whether messages include multiple line output.
+     *  In multiple line output, subsequent lines start with a space to help log file parsing. 
+     */
+    public static boolean MultiLineMode = true ;
+    
+    /* The logging system provided levels: TRACE < DEBUG < INFO < WARN < ERROR < FATAL
+     * Explain logging is always at logging level INFO.
+     * Per query: SYSTEM > EXEC (Query) > DETAIL (Algebra) > DEBUG (every BGP)
+     * 
+     * Control:
+     *   tdb:logExec = true (all), or enum
+     * 
+Document:
+  Include setting different loggers etc for log4j.
+     */
+
+    // Need per-query identifier.
+    
+    // These are the per-execution levels.
+    
+    /** Information level for query execution. */
+    public static enum InfoLevel
+    {
+        /** Log each query */
+        INFO { @Override public int level() { return 10 ; } } ,
+        
+        /** Log each query and it's algebra form after optimization */
+        FINE { @Override public int level() { return 20 ; } } ,
+        
+        /** Log query, algebra and every database access (can be expensive) */
+        ALL { @Override public int level()  { return 30 ; } } ,
+        
+        /** No query execution logging. */
+        NONE { @Override public int level() { return -1 ; } }
+        ;
+        
+        abstract public int level() ;
+        
+        public static InfoLevel get(String name)
+        {
+            if ( "ALL".equalsIgnoreCase(name))  return ALL ;
+            if ( "FINE".equalsIgnoreCase(name)) return FINE ;
+            if ( "INFO".equalsIgnoreCase(name)) return INFO ;
+            if ( "NONE".equalsIgnoreCase(name)) return NONE ;
+            return null ;
+        }
+    }
+
+    static public final Logger logExec = ARQ.getExecLogger() ;
+    static public final Logger logInfo = ARQ.getInfoLogger() ;
+//    
+//    // MOVE ME to ARQConstants
+//    public static final Symbol symLogExec = TDB.symLogExec ; //ARQConstants.allocSymbol("logExec") ;
     
     // ---- Query
     
@@ -34,10 +104,19 @@ public class Explain
     
     public static void explain(String message, Query query, Context context)
     {
-        if ( explaining(context) )
-            _explain(message, query.toString(), false) ;
+        if ( explaining(InfoLevel.INFO, logExec, context) )
+        {
+            // One line or indented multiline format
+            IndentedLineBuffer iBuff = new IndentedLineBuffer() ;
+            if ( true )
+                iBuff.incIndent() ;
+            else
+                iBuff.setFlatMode(true) ;
+            query.serialize(iBuff) ;
+            String x = iBuff.asString() ;
+            _explain(logExec, message, x, true) ;
+        }
     }
-    
     
     // ---- Algebra
     
@@ -48,11 +127,20 @@ public class Explain
     
     public static void explain(String message, Op op, Context context)
     {
-        if ( explaining(context) )
-            _explain(message, op.toString(), false) ;
+        if ( explaining(InfoLevel.FINE, logExec, context) )
+        {
+            IndentedLineBuffer iBuff = new IndentedLineBuffer() ;
+            if ( true )
+                iBuff.incIndent() ;
+            else
+                iBuff.setFlatMode(true) ;
+            op.output(iBuff) ;
+            String x = iBuff.asString() ;
+            _explain(logExec, message, x, true) ;
+        }
     }
     
-    // ---- BGP
+    // ---- BGP and quads
     
     public static void explain(BasicPattern bgp, Context context)
     {
@@ -61,48 +149,177 @@ public class Explain
     
     public static void explain(String message, BasicPattern bgp, Context context)
     {
-        if ( explaining(context) )
-            _explain(message, bgp.toString(), false) ;
+        if ( explaining(InfoLevel.ALL, logExec, context) )
+            _explain(logExec, message, bgp.toString(), false) ;
     }
+    
+    public static void explain(String message, QuadPattern quads, Context context)
+    {
+        if ( explaining(InfoLevel.ALL, logExec,context) )
+        {
+            IndentedLineBuffer iBuff = new IndentedLineBuffer() ;
+            if ( true )
+                iBuff.incIndent() ;
+            else
+                iBuff.setFlatMode(true) ;
+            formatQuads(iBuff, quads) ;
+            iBuff.flush() ;
+            String str = iBuff.toString() ;
+            _explain(logExec, message, str, false) ;
+        }
+    }
+    
+//    public static void explainHTTP(String message, String request, Context context)
+//    {
+//        if ( explaining(InfoLevel.ALL, logExec,context) )
+//        {
+//            IndentedLineBuffer iBuff = new IndentedLineBuffer() ;
+//            if ( true )
+//                iBuff.incIndent() ;
+//            else
+//                iBuff.setFlatMode(true) ;
+//            ???
+//            iBuff.flush() ;
+//            String str = iBuff.toString() ;
+//            _explain(logExec, message, str, false) ;
+//        }
+//    }
 
+    // TEMP : quad list that looks right.
+    // Remove when QuadPatterns roll through from ARQ.
+    
+    private static void formatQuads(IndentedLineBuffer out, QuadPattern quads)
+    {
+        SerializationContext sCxt = SSE.sCxt((SSE.defaultPrefixMapWrite)) ;
+
+        boolean first = true ;
+        for ( Quad qp : quads )
+        {
+            if ( !first )
+                out.print(" ") ;
+            else
+                first = false ;
+            out.print("(") ;
+            WriterNode.output(out, qp.getGraph(), sCxt) ;
+            out.print(" ") ;
+            WriterNode.output(out, qp.getSubject(), sCxt) ;
+            out.print(" ") ;
+            WriterNode.output(out, qp.getPredicate(), sCxt) ;
+            out.print(" ") ;
+            WriterNode.output(out, qp.getObject(), sCxt) ;
+            out.print(")") ;
+        }
+    }    
     // ----
     
-    private static void _explain(String reason, String explanation, boolean oneLine)
+    private static void _explain(Logger logger, String reason, String explanation, boolean newlineAlways)
     {
-        if ( oneLine )
-        {
-            //??
-        }
-        
+        // "explanation" should already be indented with some whitespace 
         while ( explanation.endsWith("\n") || explanation.endsWith("\r") )
             explanation = StrUtils.chop(explanation) ;
-        explanation = reason+"\n"+explanation ;
-        _explain(explanation) ;
+        if ( newlineAlways || explanation.contains("\n") )
+            explanation = reason+"\n"+explanation ;
+        else
+            explanation = reason+" :: "+explanation ;
+        _explain(logger, explanation) ;
         //System.out.println(explanation) ;
     }
     
-    private static void _explain(String explanation)
+    private static void _explain(Logger logger, String explanation)
     {
-        logExec.info(explanation) ;
+        logger.info(explanation) ;
     }
 
+    // General information
     public static void explain(Context context, String message)
     {
-        if ( explaining(context) )
-            _explain(message) ;
+        if ( explaining(InfoLevel.INFO, logInfo, context) )
+            _explain(logInfo, message) ;
     }
 
-    
-    
-    public static boolean explaining(Context context)
+    public static void explain(Context context, String format, Object... args)
     {
-        return context.isTrue(symLogExec) && logExec.isInfoEnabled() ;
+        if ( explaining(InfoLevel.INFO, logInfo, context) )
+        {
+            // Caveat: String.format is not cheap.
+            String str = String.format(format, args) ;
+            _explain(logInfo, str) ;
+        }
     }
 
+//    public static boolean explaining(InfoLevel level, Context context)
+//    {
+//        return explaining(level, logExec, context) ;
+//    }
+    
+
+    
+    public static boolean explaining(InfoLevel level, Logger logger, Context context)
+    {
+        if ( ! _explaining(level, context) ) return false ;
+        return logger.isInfoEnabled() ;
+    }
+    
+    private static boolean _explaining(InfoLevel level, Context context)
+    {
+        if ( level == InfoLevel.NONE ) return false ;
+        
+        Object x = context.get(ARQ.symLogExec, null) ;
+        
+        if ( x == null )
+            return false ;
+        
+        // Enum level.
+        if ( level.level() == InfoLevel.NONE.level() ) return false ;
+
+        if ( x instanceof InfoLevel )
+        {
+            InfoLevel z = (InfoLevel)x ;
+            if ( z == InfoLevel.NONE ) return false ;
+            return ( z.level() >= level.level() ) ;
+        }
+        
+        if ( x instanceof String )
+        {
+            String s = (String)x ;
+            
+            if ( s.equalsIgnoreCase("info") )
+                return level.equals(InfoLevel.INFO) ;
+            if ( s.equalsIgnoreCase("fine") ) 
+                return level.equals(InfoLevel.FINE) || level.equals(InfoLevel.INFO) ;
+            if ( s.equalsIgnoreCase("all") )
+                // All levels.
+                return true ;
+            // Backwards compatibility.
+            if ( s.equalsIgnoreCase("true") ) 
+                return true ;
+            if ( s.equalsIgnoreCase("none") ) 
+                return false ;
+
+        }
+        
+        return Boolean.TRUE.equals(x) ;
+    }
+
+    // Path
+    public static void explain(Node s, Path path, Node o, Context context)
+    {
+        explain("Path", s, path, o, context) ; 
+    }
+
+    public static void explain(String message, Node s, Path path, Node o, Context context)
+    {
+        if ( explaining(InfoLevel.ALL, logExec, context) )
+        {
+            String str = s+" "+path+" "+o ;
+            _explain(logExec, message, str, false) ;
+        }
+    }
 }
 
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

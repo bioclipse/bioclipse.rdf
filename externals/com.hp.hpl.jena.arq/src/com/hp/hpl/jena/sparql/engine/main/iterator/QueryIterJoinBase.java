@@ -2,28 +2,27 @@
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.main.iterator;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.algebra.TableFactory;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIter2;
-import com.hp.hpl.jena.sparql.expr.ExprList;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.algebra.TableFactory ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIter2 ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
 
 /** Join or LeftJoin by calculating both sides, then doing the join
  *  It usually better to use substitute algorithm (not this
  *  QueryIterator in other words) as that is effectively indexing
- *  from one side into the other.  
- * 
- * @author Andy Seaborne
- */ 
+ *  from one side into the other. */ 
 public abstract class QueryIterJoinBase extends QueryIter2
 {
+    // Use QueryIter2LoopOnLeft
     private QueryIterator current ;
     protected Table tableRight ;          // Materialized iterator
     protected ExprList exprs ;
@@ -69,11 +68,17 @@ public abstract class QueryIterJoinBase extends QueryIter2
     }
 
     @Override
-    protected void releaseResources()
+    protected void closeSubIterator()
     {
-        if ( current != null )
-            current.close() ;
+        performClose(current) ;
+        if ( tableRight != null ) tableRight.close() ;
         tableRight = null ;
+    }
+    
+    @Override
+    protected void requestSubCancel()
+    { 
+        closeSubIterator() ;
     }
 
     // Move on regardless.

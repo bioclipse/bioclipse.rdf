@@ -1,32 +1,29 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.function;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
-/** Interface to value-testing extensions to the expression evaluator.
- * 
- * @author Andy Seaborne
- */
+/** Interface to value-testing extensions to the expression evaluator. */
 
 public abstract class FunctionBase implements Function
 {
     String uri = null ;
     protected ExprList arguments = null ;
-    protected Binding currentBinding = null ; 
     private FunctionEnv env ;
     
     public final void build(String uri, ExprList args)
@@ -38,6 +35,9 @@ public abstract class FunctionBase implements Function
 
     public NodeValue exec(Binding binding, ExprList args, String uri, FunctionEnv env)
     {
+        // This is merely to allow functions to be 
+        // It duplicates code in E_Function/ExprFunctionN.
+        
         this.env = env ;
         
         if ( args == null )
@@ -52,9 +52,7 @@ public abstract class FunctionBase implements Function
             evalArgs.add(x) ;
         }
         
-        currentBinding = binding ;
         NodeValue nv =  exec(evalArgs) ;
-        currentBinding = null ;
         arguments = null ;
         return nv ;
     }
@@ -67,18 +65,19 @@ public abstract class FunctionBase implements Function
 
     public abstract void checkBuild(String uri, ExprList args) ;
     
-    /** Get argument, indexing from 1 **/
-    public NodeValue getArg(int i)
-    {
-        i = i-1 ;
-        if ( i < 0 || i >= arguments.size()  )
-            return null ;
-        return (NodeValue)arguments.get(i) ;
-    }
+//    /** Get argument, indexing from 1 **/
+//    public NodeValue getArg(int i)
+//    {
+//        i = i-1 ;
+//        if ( i < 0 || i >= arguments.size()  )
+//            return null ;
+//        return (NodeValue)arguments.get(i) ;
+//    }
 }
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

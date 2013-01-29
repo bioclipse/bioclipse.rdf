@@ -4,32 +4,28 @@
  */
 
 package com.hp.hpl.jena.query;
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.core.DataSourceImpl ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
+import com.hp.hpl.jena.sparql.core.DatasetImpl ;
+import com.hp.hpl.jena.sparql.engine.Plan ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineFactory ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry ;
+import com.hp.hpl.jena.sparql.engine.QueryExecutionBase ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingRoot ;
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.util.FileManager ;
 
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DataSourceImpl;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetImpl;
-import com.hp.hpl.jena.sparql.engine.Plan;
-import com.hp.hpl.jena.sparql.engine.QueryEngineFactory;
-import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry;
-import com.hp.hpl.jena.sparql.engine.QueryExecutionBase;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingRoot;
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Context;
 
-
-/** Place to make QueryExecution objects from Query objects or a string.   
- *  
- * @author     Andy Seaborne
- */
+/** Place to make QueryExecution objects from Query objects or a string. */
  
 public class QueryExecutionFactory
 {
@@ -453,7 +449,7 @@ public class QueryExecutionFactory
      
     public static Plan createPlan(Query query, Graph graph)
     {
-        return makePlan(query, new DataSourceGraphImpl(graph), null, null) ; 
+        return makePlan(query, DatasetGraphFactory.createOneGraph(graph), null, null) ; 
     }
     
     public static Plan createPlan(Query query, DatasetGraph dataset)
@@ -529,16 +525,16 @@ public class QueryExecutionFactory
     
     static private QueryExecution make(Query query, Dataset dataset, Context context)
     {
-        query.validate() ;
+        query.setResultVars() ;
         if ( context == null )
-            context = ARQ.getContext().copy();
+            context = ARQ.getContext().copy();  // .copy probably not necessary but safe. 
         DatasetGraph dsg = null ;
         if ( dataset != null )
             dsg = dataset.asDatasetGraph() ;
         QueryEngineFactory f = findFactory(query, dsg, context);
         if ( f == null )
         {
-            ALog.warn(QueryExecutionFactory.class, "Failed to find a QueryEngineFactory for query: "+query) ;
+            Log.warn(QueryExecutionFactory.class, "Failed to find a QueryEngineFactory for query: "+query) ;
             return null ;
         }
         return new QueryExecutionBase(query, dataset, context, f) ;

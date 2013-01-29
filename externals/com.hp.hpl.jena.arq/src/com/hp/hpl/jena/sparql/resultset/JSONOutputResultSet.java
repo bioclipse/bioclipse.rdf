@@ -6,48 +6,48 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import com.hp.hpl.jena.sparql.lib.org.json.*;
-
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-
 import static com.hp.hpl.jena.sparql.resultset.JSONResults.* ;
+
+import java.io.OutputStream ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.Map ;
+
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.json.io.JSWriter ;
+
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.Literal ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import org.openjena.atlas.logging.Log ;
 /**
  * A JSON writer for SPARQL Result Sets
  * 
  * Format: <a href="http://www.w3.org/2001/sw/DataAccess/json-sparql/">Serializing SPARQL Query Results in JSON</a> 
  * 
- * JSON: <a href="http://json.org">http://json.org/</a>
- * 
- * @author Andy Seaborne
- */
+ * JSON: <a href="http://json.org">http://json.org/</a> */
 
 public class JSONOutputResultSet implements ResultSetProcessor
 {
+    // XXX JSONOutputResultSet - Could improve the streaming - minor. 
     static boolean multiLineValues = false ;
     static boolean multiLineVarNames = false ;
-
-    IndentedWriter out ;
-    int bNodeCounter = 0 ;
-    Map<Resource, String> bNodeMap = new HashMap<Resource, String>() ;
+    
+    private boolean outputGraphBNodeLabels = false ;
+    private IndentedWriter out ;
+    private int bNodeCounter = 0 ;
+    private Map<Resource, String> bNodeMap = new HashMap<Resource, String>() ;
     
     JSONOutputResultSet(OutputStream outStream)
     { this(new IndentedWriter(outStream)) ; }
     
     JSONOutputResultSet(IndentedWriter indentedOut)
-    { out = indentedOut ; }
+    {   out = indentedOut ;
+        outputGraphBNodeLabels = ARQ.isTrue(ARQ.outputGraphBNodeLabels) ;
+    }
     
     public void start(ResultSet rs)
     {
@@ -155,7 +155,7 @@ public class JSONOutputResultSet implements ResultSetProcessor
         else if ( value.isResource() )
             printResource((Resource)value) ;
         else 
-            ALog.warn(this, "Unknown RDFNode type in result set: "+value.getClass()) ;
+            Log.warn(this, "Unknown RDFNode type in result set: "+value.getClass()) ;
         out.decIndent() ;
         
         if ( !multiLineValues ) out.print(" ") ; 
@@ -203,12 +203,21 @@ public class JSONOutputResultSet implements ResultSetProcessor
     {
         if ( resource.isAnon() )
         {
+            String label ; 
+            if ( outputGraphBNodeLabels )
+                label = resource.getId().getLabelString() ;
+            else
+            {
+                if ( ! bNodeMap.containsKey(resource))
+                    bNodeMap.put(resource, "b"+(bNodeCounter++)) ;
+                label = bNodeMap.get(resource) ;
+            }
+            
             out.print(quoteName(dfType)+": "+quote(dfBNode)+" , ") ;
             if ( multiLineValues ) out.println() ;
-            if ( ! bNodeMap.containsKey(resource))
-                bNodeMap.put(resource, "b"+(bNodeCounter++)) ;
-            String label = bNodeMap.get(resource) ;
+            
             out.print(quoteName(dfValue)+": "+quote(label)) ;
+            
             if ( multiLineValues ) out.println() ;
         }
         else
@@ -223,7 +232,7 @@ public class JSONOutputResultSet implements ResultSetProcessor
     
     private static String quote(String string)
     {
-        return JSONObject.quote(string) ;
+        return JSWriter.outputQuotedString(string) ;
     }
     
     // Quote a name (known to be JSON-safe)

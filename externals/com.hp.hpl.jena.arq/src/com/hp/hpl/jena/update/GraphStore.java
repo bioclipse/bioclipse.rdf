@@ -1,21 +1,18 @@
 /*
- * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.update;
 
-import com.hp.hpl.jena.sparql.core.DataSourceGraph;
-
-import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
 
 /** A collection of graphs that an update can be applied to.
  *  The collection is one unnamed graph and zero or more named graphs, like
- *  a SPARQL dataset.   
- * @author Andy Seaborne
- */
-public interface GraphStore extends DataSourceGraph
+ *  a SPARQL dataset. */
+public interface GraphStore extends DatasetGraph
 {
     /** Convert to a dataset (for query) */
     public Dataset toDataset() ;
@@ -26,12 +23,11 @@ public interface GraphStore extends DataSourceGraph
     public void finishRequest() ;
     
 //    public void sync() ;
-//
 //    public void close() ;
 }
 
 /*
- * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

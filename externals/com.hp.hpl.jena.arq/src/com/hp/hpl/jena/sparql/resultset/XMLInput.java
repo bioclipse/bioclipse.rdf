@@ -6,17 +6,14 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import java.io.InputStream;
+import java.io.InputStream ;
 
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.sparql.util.RefBoolean;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.util.RefBoolean ;
 
-/** Code that reads an XML Result Set and builds the ARQ structure for the same.
- * 
- * @author Andy Seaborne
- */
+/** Code that reads an XML Result Set and builds the ARQ structure for the same. */
 
 
 public class XMLInput

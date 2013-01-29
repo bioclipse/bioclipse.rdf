@@ -2,25 +2,24 @@
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.procedure.Procedure;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.procedure.Procedure ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** QueryIterator for a procedure.  Delays first touch until first call because
  *  first touch may cause work to be done.
  *  
- *  Assumes .build already called.
- *  
- * @author Andy Seaborne
- */
+ *  Assumes .build already called. */
 
 public class QueryIterProcedure extends QueryIter1
 {
@@ -50,6 +49,13 @@ public class QueryIterProcedure extends QueryIter1
         procIter.close(); 
     }
 
+    @Override
+    protected void requestSubCancel()
+    { 
+       if (procIter != null) 
+    	   procIter.cancel(); 
+    }
+    
     @Override
     protected boolean hasNextBinding()
     {

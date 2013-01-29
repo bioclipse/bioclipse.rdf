@@ -1,13 +1,13 @@
 /*
  	(c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  	All rights reserved - see end of file.
- 	$Id: NotUniqueException.java,v 1.2 2007/01/02 11:20:08 andy_seaborne Exp $
 */
 
 package com.hp.hpl.jena.sparql.util;
 
-import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.rdf.model.Property ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.shared.JenaException ;
 
 public class NotUniqueException extends JenaException
 {

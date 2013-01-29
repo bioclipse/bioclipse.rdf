@@ -6,14 +6,16 @@
 
 package com.hp.hpl.jena.sparql.sse.writers;
 
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.path.*;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.path.* ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 /** SSE Writer */
 public class WriterPath
@@ -89,7 +91,7 @@ public class WriterPath
     public static String asString(Path path, Prologue prologue)
     {
         IndentedLineBuffer buff = new IndentedLineBuffer() ;
-        WriterPathVisitor w = new WriterPathVisitor(buff.getIndentedWriter(), prologue) ;
+        WriterPathVisitor w = new WriterPathVisitor(buff, prologue) ;
         path.visit(w) ;
         w.out.flush();
         return buff.asString() ;
@@ -112,10 +114,38 @@ public class WriterPath
             path.visit(this) ;
         }
 
+        private void output(Node node)
+        {
+            out.print(FmtUtils.stringForNode(node, prologue)) ;
+        }
+        
         //@Override
         public void visit(P_Link pathNode)
         {
-            out.print(FmtUtils.stringForNode(pathNode.getNode(), prologue)) ;
+            output(pathNode.getNode()) ;
+        }
+
+        public void visit(P_ReverseLink pathNode)
+        {
+            out.print("(") ;
+            out.print(Tags.tagPathRev) ;
+            out.print(" ") ;
+            output(pathNode.getNode()) ;
+            out.print(")") ;
+        }
+
+        //@Override
+        public void visit(P_NegPropSet pathNotOneOf)
+        {
+            out.print("(") ;
+            out.print(Tags.pathNotOneOf) ;
+
+            for ( P_Path0 p : pathNotOneOf.getNodes() )
+            {
+                out.print(" ") ;
+                output(p) ;
+            }
+            out.print(")") ;
         }
 
         //@Override
@@ -152,26 +182,63 @@ public class WriterPath
             out.print(modInt(pathMod.getMin())) ;
             out.print(" ") ;
             out.print(modInt(pathMod.getMax())) ;
-
-            if ( oneLiner(pathMod.getSubPath()) )
-                out.print(" ") ;
-            else
-                nl(out) ;
-            out.incIndent() ;
-            output(pathMod.getSubPath()) ;
-            out.decIndent() ;
+            writeOneLiner(pathMod.getSubPath()) ;
             out.print(")") ;
         }
 
         private static String modInt(long value)
         {
             if ( value == P_Mod.INF ) return "*" ;
-            //if ( value == P_Mod.UNSET ) return " ;
-
+            if ( value == P_Mod.UNSET ) return "_" ;
             return Long.toString(value) ;
         }
 
-        public void visit(P_Reverse reversePath)
+        public void visit(P_FixedLength path)
+        {
+            out.print("(") ;
+            out.print(Tags.tagPathFixedLength) ;
+            out.print(" ") ;
+            
+            out.print(modInt(path.getCount())) ;
+            writeOneLiner(path.getSubPath()) ;
+            out.print(")") ;
+        }
+
+        public void visit(P_ZeroOrOne path)
+        { 
+            writeStarPlusQuery(Tags.tagPathZeroOrOne, path.getSubPath()) ;
+        }
+
+        public void visit(P_ZeroOrMore path)
+        { 
+            writeStarPlusQuery(Tags.tagPathZeroOrMore, path.getSubPath()) ;
+        }
+
+        public void visit(P_OneOrMore path)
+        { 
+            writeStarPlusQuery(Tags.tagPathOneOrMore, path.getSubPath()) ;
+        }
+        
+        private void writeOneLiner(Path path)
+        {
+            if ( oneLiner(path) )
+                out.print(" ") ;
+            else
+                nl(out) ;
+            out.incIndent() ;
+            output(path) ;
+            out.decIndent() ;
+        }
+        
+        private void writeStarPlusQuery(String tag, Path subPath)
+        {
+            out.print("(") ;
+            out.print(tag) ;
+            writeOneLiner(subPath) ;
+            out.print(")") ;
+        }
+
+        public void visit(P_Inverse reversePath)
         {
             out.print("(") ;
             out.print(Tags.tagPathReverse) ;

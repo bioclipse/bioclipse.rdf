@@ -1,83 +1,79 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
 
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-
-public class AggCountVar implements AggregateFactory
+public class AggCountVar extends AggregatorBase
 {
     // ---- COUNT(?var)
-    
-    // ---- AggregatorFactory
-    private Var var ;
+    private Expr expr ;
 
-    public AggCountVar(Var var) { this.var = var ; } 
+    public AggCountVar(Expr expr) { this.expr = expr ; }
+    public Aggregator copy(Expr expr) { return new AggCountVar(expr) ; }
 
-    public Aggregator create()
-    {
-        // One per each time there is an aggregation.
-        // For count(*) - one per group operator (so shared with having clause)
-        return new AggCountVarWorker() ;
+    @Override
+    public String toString() { return "count("+expr+")" ; }
+    @Override
+    public String toPrefixString() { return "(count "+expr+")" ; }
+
+    @Override
+    protected Accumulator createAccumulator()
+    { 
+        return new AccCountVar(expr) ;
     }
+
+    public Expr getExpr() { return expr ; }
+
+    @Override
+    public int hashCode()   { return HC_AggCountVar ^ expr.hashCode() ; }
     
-    // ---- Aggregator
-    private class AggCountVarWorker extends AggregatorBase
+    @Override
+    public boolean equals(Object other)
     {
-        public AggCountVarWorker()
-        {
-            super() ;
-        }
-
-        @Override
-        public String toString() { return "count("+var+")" ; }
-        public String toPrefixString() { return "(count "+var+")" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccCountVar() ;
-        }
-
-        private final Var getVar() { return var ; }
-        
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            if ( ! ( other instanceof AggCountVarWorker ) )
-                return false ;
-            AggCountVarWorker agg = (AggCountVarWorker)other ;
-            return agg.getVar().equals(getVar()) ;
-        } 
-        
-        @Override
-        public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
+        if ( ! ( other instanceof AggCountVar ) )
+            return false ;
+        AggCountVar agg = (AggCountVar)other ;
+        return agg.getExpr().equals(getExpr()) ;
     }
+
+    @Override
+    public Node getValueEmpty()     { return NodeConst.nodeZero ; } 
 
     // ---- Accumulator
-    private class AccCountVar implements Accumulator
+    private static class AccCountVar extends AccumulatorExpr
     {
         private long count = 0 ;
-        public AccCountVar()   { }
-        public void accumulate(Binding binding, FunctionEnv functionEnv)
-        { 
-            if ( binding.contains(var) )
-                count++ ;
-        }
-        public NodeValue getValue()             { return NodeValue.makeInteger(count) ; }
+        public AccCountVar(Expr expr)   { super(expr) ; }
+
+        @Override
+        public void accumulate(NodeValue nv, Binding binding, FunctionEnv functionEnv)
+        { count++ ; }
+
+        @Override
+        protected void accumulateError(Binding binding, FunctionEnv functionEnv)
+        {}
+
+        @Override
+        public NodeValue getAccValue()             { return NodeValue.makeInteger(count) ; }
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

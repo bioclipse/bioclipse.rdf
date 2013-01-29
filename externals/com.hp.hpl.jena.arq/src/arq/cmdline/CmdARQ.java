@@ -6,15 +6,16 @@
 
 package arq.cmdline;
 
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIteratorBase;
-import com.hp.hpl.jena.sparql.util.Utils;
-
-import com.hp.hpl.jena.query.ARQ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIteratorBase ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public abstract class CmdARQ extends CmdGeneral
 {
     protected ModSymbol modSymbol = new ModSymbol() ;
-    ArgDecl  strictDecl = new ArgDecl(ArgDecl.NoValue, "strict", "basic") ;
+    ArgDecl  strictDecl = new ArgDecl(ArgDecl.NoValue, "strict") ;
+    
+    protected boolean cmdStrictMode = false ; 
     
     protected CmdARQ(String[] argv)
     {
@@ -32,6 +33,7 @@ public abstract class CmdARQ extends CmdGeneral
             modVersion.printVersionAndExit() ;
         if ( super.contains(strictDecl) ) 
             ARQ.setStrictMode() ;
+        cmdStrictMode = super.contains(strictDecl) ;
         if ( modGeneral.debug )
             QueryIteratorBase.traceIterators = true ;
     }

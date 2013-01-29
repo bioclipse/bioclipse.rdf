@@ -9,16 +9,22 @@ package com.hp.hpl.jena.tdb.base.objectfile;
 import java.nio.ByteBuffer ;
 import java.util.Iterator ;
 
-import atlas.lib.Pair ;
-
-import com.hp.hpl.jena.sparql.core.Closeable ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Pair ;
+import org.openjena.atlas.lib.Sync ;
 
 /** Temporary name.
  */
 public interface ObjectFile extends Sync, Closeable
 {
     public static final String type = "object" ;
+    
+    /** Allocate space for a write - pass this buffer to completeWrite */ 
+    public ByteBuffer allocWrite(int maxBytes) ;
+    
+    /** Announce that a write is complete - return the accessor number */
+    public long completeWrite(ByteBuffer buffer) ;
+
     /** Write out the buffer - return the accessor number */ 
     public long write(ByteBuffer buffer) ;
 
@@ -27,7 +33,6 @@ public interface ObjectFile extends Sync, Closeable
     
     /** Length, in units used by read/write for ids */
     public long length() ;
-    public void sync(boolean force) ;
     public void close() ;
     
     /** All the bytebuffers */

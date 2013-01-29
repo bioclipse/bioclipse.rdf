@@ -2,22 +2,21 @@
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
 
-/** A query iterator that yields the same thing N times. 
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+
+/** A query iterator that yields the same thing N times. */
 
 public class QueryIterYieldN extends QueryIter
 {
@@ -59,6 +58,11 @@ public class QueryIterYieldN extends QueryIter
     protected void closeIterator()
     {
         //binding = null ;
+    }
+    
+    @Override
+    protected void requestCancel()
+    {
     }
     
     @Override

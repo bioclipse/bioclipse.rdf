@@ -6,23 +6,21 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.OutputStream ;
+import java.util.HashMap ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
 
-/** XML Output (ResultSet format)
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.Literal ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import org.openjena.atlas.logging.Log ;
+
+/** XML Output (ResultSet format) */
 
 
 public class XMLOutputResultSet
@@ -157,7 +155,7 @@ public class XMLOutputResultSet
             return ;
         }
         
-        ALog.warn(this,"Unknown RDFNode type in result set: "+node.getClass()) ;
+        Log.warn(this,"Unknown RDFNode type in result set: "+node.getClass()) ;
     }
     
     void printLiteral(Literal literal)
@@ -213,8 +211,8 @@ public class XMLOutputResultSet
         s = s.replaceAll("&", "&amp;") ;
         s = s.replaceAll("<", "&lt;") ;
         s = s.replaceAll(">", "&gt;") ;
-        s = s.replaceAll("\r", "&#x0A;") ;  // Safe - excessively safe
-        s = s.replaceAll("\n", "&#x0D;") ;
+        s = s.replaceAll("\r", "&#x0D;") ;
+        s = s.replaceAll("\n", "&#x0A;") ;  // Safe - excessively safe
         return s ;
     }
 

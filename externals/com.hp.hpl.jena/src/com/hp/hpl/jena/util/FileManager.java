@@ -54,7 +54,7 @@ import com.hp.hpl.jena.shared.*;
  * 
  * 
  * @author     Andy Seaborne
- * @version    $Id: FileManager.java,v 1.1 2009/06/29 08:55:47 castagna Exp $
+ * @version    $Id: FileManager.java,v 1.3 2010/03/08 13:23:13 andy_seaborne Exp $
  */
  
 public class FileManager
@@ -304,7 +304,8 @@ public class FileManager
     }
     
     /**
-     * Read a file of RDF into a model.
+     * Read a file of RDF into a model.  Guesses the syntax of the file based on filename extension, 
+     *  defaulting to RDF/XML.
      * @param model
      * @param filenameOrURI
      * @return The model or null, if there was an error.
@@ -479,7 +480,7 @@ public class FileManager
             Reader r = FileUtils.asBufferedUTF8(in) ;
             StringWriter sw = new StringWriter(1024);
             char buff[] = new char[1024];
-            while (r.ready()) {
+            while (true) {
                 int l = r.read(buff);
                 if (l <= 0)
                     break;

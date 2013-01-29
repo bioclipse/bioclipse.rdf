@@ -6,22 +6,20 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.HashMap ;
+import java.util.Map ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.VarAlloc;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.core.VarAlloc ;
 
 
-/** Map from _:* form to bNodes
- * 
- * @author Andy Seaborne
- */
+/** Map from _:* form to bNodes */
 
 public class LabelToNodeMap
 {
+    // Wil be replaced by LabelToNode in RIOT
     Map<String, Node> bNodeLabels = new HashMap<String, Node>() ;
     
     // Variables or bNodes?
@@ -30,6 +28,11 @@ public class LabelToNodeMap
     boolean generateVars = false ;
     VarAlloc allocator = null ;
     
+    /** Create blank nodes, with the same blank node returned for thre same label.  
+     * 
+     * @return LabelToNodeMap
+     */
+
     public static LabelToNodeMap createBNodeMap()
     { return new LabelToNodeMap(false, null) ; }
     
@@ -44,17 +47,7 @@ public class LabelToNodeMap
     public static LabelToNodeMap createVarMap()
     { return new LabelToNodeMap(true, new VarAlloc(ARQConstants.allocParserAnonVars) ) ; }
     
-//    private LabelToNodeMap() { this(false) ; }
-    private LabelToNodeMap(VarAlloc allocator) { this(false, allocator) ; }
-    
-//    private LabelToNodeMap(boolean genVars)
-//    {
-//        // Global - whoops.
-//        this(genVars, VarAlloc.getBNodeAllocator()) ;
-//        generateVars = genVars ;
-//    }
-    
-    public LabelToNodeMap(boolean genVars, VarAlloc allocator) 
+    private LabelToNodeMap(boolean genVars, VarAlloc allocator) 
     {
         generateVars = genVars ;
         this.allocator = allocator ;

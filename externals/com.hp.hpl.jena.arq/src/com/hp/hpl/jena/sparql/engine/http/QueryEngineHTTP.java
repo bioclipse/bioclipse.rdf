@@ -2,26 +2,42 @@
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software License (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.http;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.ByteArrayInputStream ;
+import java.io.InputStream ;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.concurrent.TimeUnit ;
 
-import com.hp.hpl.jena.query.*;
+import org.openjena.atlas.io.IO ;
+import org.openjena.atlas.lib.NotImplemented ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.sparql.resultset.XMLInput;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryExecution ;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.query.ResultSetFactory ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.resultset.XMLInput ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.graph.GraphFactory ;
+import com.hp.hpl.jena.util.FileManager ;
 
 
 public class QueryEngineHTTP implements QueryExecution
 {
+    private static Logger log = LoggerFactory.getLogger(QueryEngineHTTP.class) ;
+    
     public static final String QUERY_MIME_TYPE = "application/sparql-query" ;
     String queryString ;
     String service ;
@@ -35,6 +51,12 @@ public class QueryEngineHTTP implements QueryExecution
     List<String> namedGraphURIs  = new ArrayList<String>() ;
     private String user = null ;
     private char[] password = null ;
+    
+    private boolean finished = false ;
+    
+    // Releasing HTTP input streams is important. We remember this for SELECT,
+    // and will close when the engine is closed
+    private InputStream retainedConnection = null;
     
     public QueryEngineHTTP(String serviceURI, Query query)
     { 
@@ -111,19 +133,31 @@ public class QueryEngineHTTP implements QueryExecution
     
     public ResultSet execSelect()
     {
+        
+        
         HttpQuery httpQuery = makeHttpQuery() ;
         // TODO Allow other content types.
         httpQuery.setAccept(HttpParams.contentTypeResultsXML) ;
         InputStream in = httpQuery.exec() ;
+        
+        if ( false )
+        {
+            byte b[] = IO.readWholeFile(in) ;
+            String str = new String(b) ;
+            System.out.println(str) ;
+            in = new ByteArrayInputStream(b) ; 
+        }
+        
         ResultSet rs = ResultSetFactory.fromXML(in) ;
+        retainedConnection = in; // This will be closed on close()
         return rs ;
     }
 
-    public Model execConstruct()             { return execConstruct(GraphUtils.makeJenaDefaultModel()) ; }
+    public Model execConstruct()             { return execConstruct(GraphFactory.makeJenaDefaultModel()) ; }
     
     public Model execConstruct(Model model)  { return execModel(model) ; }
 
-    public Model execDescribe()              { return execDescribe(GraphUtils.makeJenaDefaultModel()) ; }
+    public Model execDescribe()              { return execDescribe(GraphFactory.makeJenaDefaultModel()) ; }
     
     public Model execDescribe(Model model)   { return execModel(model) ; }
 
@@ -141,13 +175,44 @@ public class QueryEngineHTTP implements QueryExecution
         HttpQuery httpQuery = makeHttpQuery() ;
         httpQuery.setAccept(HttpParams.contentTypeResultsXML) ;
         InputStream in = httpQuery.exec() ;
-        return XMLInput.booleanFromXML(in) ;
+        boolean result = XMLInput.booleanFromXML(in) ;
+        // Ensure connection is released
+        try { in.close(); }
+        catch (java.io.IOException e) { log.warn("Failed to close connection", e); }
+        return result;
     }
 
     public Context getContext() { return context ; }
     
+    public void setTimeout(long timeout)
+    {
+        throw new NotImplemented("Not implemented yet - please send a patch to the Apache Jena project : https://issues.apache.org/jira/browse/JENA-56") ;
+    }
+
+    public void setTimeout(long timeout1, long timeout2)
+    {
+        throw new NotImplemented("Not implemented yet - please send a patch to the Apache Jena project : https://issues.apache.org/jira/browse/JENA-56") ;
+    }
+
+
+    public void setTimeout(long timeout, TimeUnit timeoutUnits)
+    {
+        throw new NotImplemented("Not implemented yet - please send a patch to the Apache Jena project : https://issues.apache.org/jira/browse/JENA-56") ;
+    }
+
+    public void setTimeout(long timeout1, TimeUnit timeUnit1, long timeout2, TimeUnit timeUnit2)
+    {
+        throw new NotImplemented("Not implemented yet - please send a patch to the Apache Jena project : https://issues.apache.org/jira/browse/JENA-56") ;
+    }
+
+
+    
     private HttpQuery makeHttpQuery()
     {
+        // Also need to tie to ResultSet returned which is streamed back if StAX.
+        if ( finished )
+            throw new ARQException("HTTP execution already closed") ;
+        
         HttpQuery httpQuery = new HttpQuery(service) ;
         httpQuery.addParam(HttpParams.pQuery, queryString );
         
@@ -169,9 +234,18 @@ public class QueryEngineHTTP implements QueryExecution
         return httpQuery ;
     }
     
-    public void abort() { }
+    public void cancel() { finished = true ; }
+    
+    public void abort() { try { close() ; } catch (Exception ex) {} }
 
-    public void close() { }
+    public void close() {
+        finished = false ;
+        if (retainedConnection != null) {
+            try { retainedConnection.close(); }
+            catch (java.io.IOException e) { log.warn("Failed to close connection", e); }
+            finally { retainedConnection = null; }
+        }
+    }
 
 //    public boolean isActive() { return false ; }
     

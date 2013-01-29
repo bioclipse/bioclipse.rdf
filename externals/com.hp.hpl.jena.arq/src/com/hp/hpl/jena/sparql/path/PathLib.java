@@ -1,45 +1,45 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.path;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.op.OpBGP;
-import com.hp.hpl.jena.sparql.algebra.op.OpPath;
-import com.hp.hpl.jena.sparql.algebra.op.OpSequence;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.PathBlock;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.Binding1;
-import com.hp.hpl.jena.sparql.engine.binding.BindingUtils;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterConcat;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPlainWrapper;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunction;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionFactory;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionRegistry;
-import com.hp.hpl.jena.sparql.util.IterLib;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.op.OpBGP ;
+import com.hp.hpl.jena.sparql.algebra.op.OpPath ;
+import com.hp.hpl.jena.sparql.algebra.op.OpSequence ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.PathBlock ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingFactory ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterConcat ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterPlainWrapper ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterYieldN ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
+import com.hp.hpl.jena.sparql.pfunction.PropertyFunction ;
+import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionFactory ;
+import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionRegistry ;
+import com.hp.hpl.jena.sparql.util.graph.GraphUtils ;
 
 public class PathLib
 {
     /** Convert any paths of exactly one predicate to a triple pattern */ 
     public static Op pathToTriples(PathBlock pattern)
     {
-        //Step 2 : gather into OpBGP(BasicPatterns) or OpPath
         BasicPattern bp = null ;
         Op op = null ;
 
@@ -98,8 +98,13 @@ public class PathLib
     public static QueryIterator execTriplePath(Binding binding, TriplePath triplePath, ExecutionContext execCxt)
     {
         if ( triplePath.isTriple() )
-            // Could fake with P_Link, of BGP execution.
-            throw new ARQInternalErrorException("Attempt to execute a TriplePath which is a plain Triple") ;
+        {
+            // Fake it.  This happens only for API constructed situations. 
+            Path path = new P_Link(triplePath.getPredicate()) ;
+            triplePath = new TriplePath(triplePath.getSubject(),
+                                        path,
+                                        triplePath.getObject()) ;
+        }
         
         return execTriplePath(binding, 
                               triplePath.getSubject(),
@@ -112,6 +117,8 @@ public class PathLib
                                                Node s, Path path, Node o,
                                                ExecutionContext execCxt)
     {
+        Explain.explain(s, path, o, execCxt.getContext()) ;
+        
         s = Var.lookup(binding, s) ;
         o = Var.lookup(binding, o) ;
         Iterator<Node> iter = null ;
@@ -126,8 +133,8 @@ public class PathLib
         
         if ( Var.isVar(s) )
         {
-            // Var subject, concreate object - do backwards.
-            iter = PathEval.evalReverse(graph, o, path) ;
+            // Var subject, concrete object - do backwards.
+            iter = PathEval.evalInverse(graph, o, path) ;
             endNode = s ;
         } 
         else
@@ -153,7 +160,7 @@ public class PathLib
         for (; iter.hasNext();)
         {
             Node n = iter.next() ;
-            results.add(new Binding1(binding, var, n)) ;
+            results.add(BindingFactory.binding(binding, var, n)) ;
         }
         return new QueryIterPlainWrapper(results.iterator()) ;
     }
@@ -163,13 +170,17 @@ public class PathLib
                                               ExecutionContext execCxt)
     {
         Iterator<Node> iter = PathEval.eval(graph, subject, path) ;
+        // Now count the number of matches.
+        
+        int count = 0 ;
         for ( ; iter.hasNext() ; )
         {
             Node n = iter.next() ;
             if ( n.sameValueAs(object) )
-                return IterLib.result(binding, execCxt) ;        
+                count++ ;
         }
-        return IterLib.noResults(execCxt) ;
+        
+        return new QueryIterYieldN(count, binding) ;
     }
 
     // Brute force evaluation of a TriplePath where neither subject nor object are bound 
@@ -182,32 +193,18 @@ public class PathLib
         for ( ; iter.hasNext() ; )
         {
             Node n = iter.next() ;
-            Binding b2 = new Binding1(binding, sVar, n) ;
+            Binding b2 = BindingFactory.binding(binding, sVar, n) ;
             Iterator<Node> pathIter = PathEval.eval(graph, n, path) ;
             QueryIterator qIter = _execTriplePath(b2, pathIter, oVar, execCxt) ;
             qIterCat.add(qIter) ;
         }
         return qIterCat ;
     }
-
- 
-
-    public static TriplePath substitute(TriplePath triplePath, Binding binding)
-    {
-        if ( triplePath.isTriple() )
-            return new TriplePath(BindingUtils.substituteIntoTriple(triplePath.asTriple(), binding)) ;
-  
-        Node s = Var.lookup(binding, triplePath.getSubject()) ;
-        Node o = Var.lookup(binding, triplePath.getObject()) ;
-        return new TriplePath(s, triplePath.getPath(), o) ;
-    }
-    
-    
-    
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -9,19 +10,21 @@ package com.hp.hpl.jena.tdb.store;
 
 import java.util.Iterator ;
 
-import atlas.iterator.NullIterator ;
-import atlas.iterator.Transform ;
-import atlas.lib.Tuple ;
+import org.openjena.atlas.iterator.NullIterator ;
+import org.openjena.atlas.iterator.Transform ;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.atlas.lib.Tuple ;
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.graph.Triple ;
-import com.hp.hpl.jena.sparql.core.Closeable ;
 import com.hp.hpl.jena.sparql.core.Quad ;
 import com.hp.hpl.jena.tdb.index.TupleIndex ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
 import com.hp.hpl.jena.tdb.lib.TupleLib ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTableConcrete ;
+import com.hp.hpl.jena.tdb.sys.ConcurrencyPolicy ;
 
 
 /** Quad table - a collection of TupleIndexes for 4-tuples
@@ -32,35 +35,48 @@ public class QuadTable implements Sync, Closeable
 {
     final NodeTupleTable table ;
     
-    public QuadTable(TupleIndex[] indexes, NodeTable nodeTable)
+    public QuadTable(TupleIndex[] indexes, NodeTable nodeTable, ConcurrencyPolicy policy)
     {
-        table = new NodeTupleTable(4, indexes, nodeTable);
+        table = new NodeTupleTableConcrete(4, indexes, nodeTable, policy);
     }
 
     /** Add a quad - return true if it was added, false if it already existed */
     public boolean add( Quad quad ) 
     { 
-        return table.addRow(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ;
+        return add(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ;
     }
 
     /** Add a quad (as graph node and triple) - return true if it was added, false if it already existed */
-    public boolean add( Node gn, Triple triple ) 
+    public boolean add(Node gn, Triple triple ) 
     { 
-        return table.addRow(gn, triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
+        return add(gn, triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
+    }
+    
+    /** Add a quad - return true if it was added, false if it already existed */
+    public boolean add(Node g, Node s, Node p, Node o) 
+    { 
+        return table.addRow(g,s,p,o) ;
     }
     
     /** Delete a quad - return true if it was deleted, false if it didn't exist */
     public boolean delete( Quad quad ) 
     { 
-        return table.deleteRow(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ;
+        return delete(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ;
     }
 
     /** Delete a quad (as graph node and triple) - return true if it was deleted, false if it didn't exist */
     public boolean delete( Node gn, Triple triple ) 
     { 
-        return table.deleteRow(gn, triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
+        return delete(gn, triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
     }
 
+    /** Delete a quad - return true if it was deleted, false if it didn't exist */
+    public boolean delete(Node g, Node s, Node p, Node o) 
+    { 
+        return table.deleteRow(g, s, p, o) ;
+    }
+
+    
     /** Find matching quads */
     public Iterator<Quad> find(Node g, Node s, Node p, Node o)
     {
@@ -82,16 +98,29 @@ public class QuadTable implements Sync, Closeable
     public NodeTupleTable getNodeTupleTable() { return table ; }
 
     //@Override
-    public void sync(boolean force)
-    { table.sync(force) ; }
+    public void sync()              { table.sync() ; }
 
+    public boolean isEmpty()        { return table.isEmpty() ; }
+    
     //@Override
     public void close()
     { table.close() ; }
+
+    /** Clear - does not clear the associated node tuple table */
+    public void clearQuads()
+    { table.clear() ; }
+
+//    /** Clear - including the associated node tuple table */
+//    public void clear()
+//    { 
+//        table.getTupleTable().clear() ;
+//        table.getNodeTable().clear() ;
+//    }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,30 +6,29 @@
 
 package com.hp.hpl.jena.sparql.engine.optimizer;
 
-import static com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternElements.*;
+import static com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternElements.* ;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.PrintStream ;
+import java.util.ArrayList ;
+import java.util.HashMap ;
+import java.util.List ;
+import java.util.Map ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternTriple;
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.ItemException;
-import com.hp.hpl.jena.sparql.sse.ItemList;
-import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.optimizer.reorder.PatternTriple ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.ItemException ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
+import com.hp.hpl.jena.sparql.sse.SSE ;
+import org.openjena.atlas.logging.Log ;
 
 /** Stats format:<pre>(stats
  *    (meta ...)
@@ -79,7 +78,7 @@ public final class StatsMatcher
             Item stats = SSE.readFile(filename) ;
             if ( stats.isNil() )
             {
-                ALog.warn(this, "Empty stats file: "+filename) ;
+                Log.warn(this, "Empty stats file: "+filename) ;
                 return ;
             }
             if ( !stats.isTagged(STATS) )

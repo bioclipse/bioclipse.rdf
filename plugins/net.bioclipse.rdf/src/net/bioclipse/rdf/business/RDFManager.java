@@ -27,7 +27,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +36,7 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.Activator;
+import net.bioclipse.rdf.StringMatrixHelper;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -48,7 +48,6 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -109,16 +108,40 @@ public class RDFManager implements IBioclipseManager {
         return store;
     }
 
+    public IRDFStore importFromString(IRDFStore store, String rdfContent,
+            String format, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	InputStream input = new ByteArrayInputStream(rdfContent.getBytes());
+    	return importFromStream(store, input, format, monitor);
+    }
+
+    
+	
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
             throws IOException, BioclipseException, CoreException {
-        URL realURL = new URL(url);
+    	return importURL(store, url, null, monitor);
+    }
+    
+    public IRDFStore importURL(IRDFStore store, String url,
+    		Map<String, String> extraHeaders, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException {
+        	URL realURL = new URL(url);
         URLConnection connection = realURL.openConnection();
-        connection.setConnectTimeout(Activator.TIME_OUT);
+        connection.setConnectTimeout(Activator.CONNECT_TIME_OUT);
+        connection.setReadTimeout(Activator.READ_TIME_OUT);
         connection.setRequestProperty(
             "Accept",
             "application/xml, application/rdf+xml"
         );
-        importFromStream(store, connection.getInputStream(), null, monitor);
+        // set the extra headers
+        if (extraHeaders != null) {
+        	for (String key : extraHeaders.keySet()) {
+        		connection.setRequestProperty(key, extraHeaders.get(key));
+        	}
+        }
+        InputStream stream = connection.getInputStream();
+        importFromStream(store, stream, null, monitor);
+        stream.close();
         return store;
     }
 
@@ -160,59 +183,9 @@ public class RDFManager implements IBioclipseManager {
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
             ResultSet results = qexec.execSelect();
-            table = convertIntoTable(prefixMap, results);
+            table = StringMatrixHelper.convertIntoTable(prefixMap, results);
         } finally {
             qexec.close();
-        }
-        return table;
-    }
-
-    private StringMatrix convertIntoTable(
-            PrefixMapping prefixMap, ResultSet results) {
-    	StringMatrix table = new StringMatrix();
-    	int rowCount = 0;
-        while (results.hasNext()) {
-        	rowCount++;
-            QuerySolution soln = results.nextSolution();
-            Iterator<String> varNames = soln.varNames();
-            while (varNames.hasNext()) {
-            	String varName = varNames.next();
-            	int colCount = -1;
-            	if (table.hasColumn(varName)) {
-            		colCount = table.getColumnNumber(varName);
-            	} else {
-            		colCount = table.getColumnCount() + 1;
-            		table.setColumnName(colCount, varName);
-            	}
-                RDFNode node = soln.get(varName);
-                if (node != null) {
-                    String nodeStr = node.toString();
-                    if (node.isResource()) {
-                        Resource resource = (Resource)node;
-                        // the resource.getLocalName() is not accurate, so I
-                        // use some custom code
-                        String[] uriLocalSplit = split(prefixMap, resource);
-                        if (uriLocalSplit[0] == null) {
-                        	if (resource.getURI() != null) {
-                        		table.set(rowCount, colCount, resource.getURI());
-                        	} else {
-                        		// anonymous node
-                        		table.set(rowCount, colCount, "" + resource.hashCode());
-                        	}
-                        } else {
-                        	table.set(rowCount, colCount,
-                                uriLocalSplit[0] + ":" + uriLocalSplit[1]
-                            );
-                        }
-                    } else {
-                    	if (nodeStr.endsWith("@en"))
-                    		nodeStr = nodeStr.substring(
-                    			0, nodeStr.lastIndexOf('@')
-                    		);
-                    	table.set(rowCount, colCount, nodeStr);
-                    }
-                }
-            }
         }
         return table;
     }
@@ -226,23 +199,7 @@ public class RDFManager implements IBioclipseManager {
      * @param resource
      */
     public static String[] split(PrefixMapping prefixMap, Resource resource) {
-        String uri = resource.getURI();
-        if (uri == null) {
-            return new String[] {null, null};
-        }
-        Map<String,String> prefixMapMap = prefixMap.getNsPrefixMap();
-        Set<String> prefixes = prefixMapMap.keySet();
-        String[] split = { null, null };
-        for (String key : prefixes){
-            String ns = prefixMapMap.get(key);
-            if (uri.startsWith(ns)) {
-                split[0] = key;
-                split[1] = uri.substring(ns.length());
-                return split;
-            }
-        }
-        split[1] = uri;
-        return split;
+        return StringMatrixHelper.split(prefixMap, resource);
     }
 
     public IRDFStore createInMemoryStore() {
@@ -277,6 +234,34 @@ public class RDFManager implements IBioclipseManager {
         Resource subjectRes = model.createResource(subject);
         Property propertyRes = model.createProperty(property);
         model.add(subjectRes, propertyRes, value);
+    }
+
+    public void addTypedDataProperty(IRDFStore store,
+            String subject, String property, String value,
+            String dataType)
+            throws BioclipseException {
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        model.add(subjectRes, propertyRes, model.createTypedLiteral(value, dataType));
+    }
+
+    public void addPropertyInLanguage(IRDFStore store,
+            String subject, String property, String value,
+            String language)
+            throws BioclipseException {
+        if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+        Resource subjectRes = model.createResource(subject);
+        Property propertyRes = model.createProperty(property);
+        model.add(subjectRes, propertyRes, value, language);
     }
 
     public long size(IRDFStore store) throws BioclipseException {
@@ -319,8 +304,21 @@ public class RDFManager implements IBioclipseManager {
 
     public String asRDFN3(IRDFStore store, IProgressMonitor monitor)
     throws BioclipseException {
-    	String type = "N3";
+    	return asRDF(store, "N3", monitor);
+    }
 
+    public String asTurtle(IRDFStore store)
+    throws BioclipseException {
+        return asTurtle(store, null);
+    };
+
+    public String asTurtle(IRDFStore store, IProgressMonitor monitor)
+    throws BioclipseException {
+    	return asRDF(store, "TURTLE", monitor);
+    }
+
+    private String asRDF(IRDFStore store, String type, IProgressMonitor monitor)
+    throws BioclipseException {
     	if (monitor == null)
     		monitor = new NullProgressMonitor();
     	monitor.beginTask("Converting into N3", 1);
@@ -437,14 +435,14 @@ public class RDFManager implements IBioclipseManager {
         Query query = QueryFactory.create(sparqlQueryString);
         monitor.worked(20);
         QueryEngineHTTP qexec = (QueryEngineHTTP)QueryExecutionFactory.sparqlService(serviceURL, query);
-        qexec.addParam("timeout", "" + Activator.TIME_OUT);
+        qexec.addParam("timeout", "" + Activator.CONNECT_TIME_OUT);
         PrefixMapping prefixMap = query.getPrefixMapping();
         monitor.worked(60);
 
         StringMatrix table = null;
         try {
             ResultSet results = qexec.execSelect();
-            table = convertIntoTable(prefixMap, results);
+            table = StringMatrixHelper.convertIntoTable(prefixMap, results);
         } finally {
             qexec.close();
         }
@@ -536,6 +534,28 @@ public class RDFManager implements IBioclipseManager {
 		}
     }
 
+    public List<String> getForPredicate(IRDFStore store, String resourceURI, String predicate) throws BioclipseException {
+    	try {
+			StringMatrix results = sparql(store,
+				"SELECT DISTINCT ?object WHERE {" +
+				" <" + resourceURI + "> <" + predicate + "> ?object" +
+				"}"
+			);
+			if (results.getRowCount() == 0) return Collections.emptyList();
+			return results.getColumn("object");
+		} catch (IOException exception) {
+			throw new BioclipseException(
+			    "Could not query to store: " + exception.getMessage(),
+			    exception
+			);
+		} catch (CoreException exception) {
+			throw new BioclipseException(
+				"Could not query to store: " + exception.getMessage(),
+				exception
+			);
+		}
+    }
+
     public List<String> allOwlSameAs(IRDFStore store, String resourceURI)
     throws IOException, BioclipseException, CoreException {
     	Set<String> resources = new HashSet<String>();
@@ -565,6 +585,35 @@ public class RDFManager implements IBioclipseManager {
     	return finalList;
     }
     
+    public List<String> allOwlEquivalentClass(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException {
+    	Set<String> resources = new HashSet<String>();
+    	resources.add(resourceURI);
+    	// implements a non-reasoning owl:equivalentClass reasoner:
+    	// keep looking up equivalentClass relations, until we find no new ones
+    	List<String> newLeads = allOwlEquivalentClassOneDown(store, resourceURI);
+    	newLeads.removeAll(resources); //
+    	while (newLeads.size() > 0) {
+    		List<String> newResources = new ArrayList<String>();
+        	for (String resource : newLeads) {
+        		System.out.println("Trying: " + resource);
+        		if (!resources.contains(resource)) {
+        			System.out.println("New: " + resource);
+        			resources.add(resource);
+        			newResources.addAll(
+        				allOwlEquivalentClassOneDown(store, resource)
+        			);
+        		}
+        	}
+        	newResources.removeAll(resources);
+			newLeads = newResources;
+    	}
+    	List<String> finalList = new ArrayList<String>();
+    	finalList.addAll(resources);
+    	finalList.remove(resourceURI); // remove the source resource
+    	return finalList;
+    }
+    
     public List<String> allOwlSameAsOneDown(IRDFStore store, String resourceURI)
     throws IOException, BioclipseException, CoreException {
     	// got no reasoner, so need implement inverse relation manually
@@ -580,6 +629,28 @@ public class RDFManager implements IBioclipseManager {
     		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
     		"SELECT ?resource WHERE {" +
     		"  ?resource  owl:sameAs <" + resourceURI + ">." +
+    		"}";
+    	results = sparql(store, sparql);
+    	if (results.getRowCount() == 0) return resources;
+    	resources.addAll(results.getColumn("resource"));
+    	return resources;
+    }
+
+    public List<String> allOwlEquivalentClassOneDown(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException {
+    	// got no reasoner, so need implement inverse relation manually
+    	String sparql =
+    		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+    		"SELECT ?resource WHERE {" +
+    		"  <" + resourceURI + "> owl:equivalentClass ?resource ." +
+    		"}";
+    	StringMatrix results = sparql(store, sparql);
+    	if (results.getRowCount() == 0) return Collections.emptyList();
+    	List<String> resources = results.getColumn("resource");
+    	sparql =
+    		"PREFIX owl: <http://www.w3.org/2002/07/owl#> " +
+    		"SELECT ?resource WHERE {" +
+    		"  ?resource  owl:equivalentClass <" + resourceURI + ">." +
     		"}";
     	results = sparql(store, sparql);
     	if (results.getRowCount() == 0) return resources;

@@ -6,15 +6,19 @@
 
 package arq.cmdline;
 
-import java.io.IOException;
+import java.io.IOException ;
 
-import arq.cmd.CmdException;
-import arq.cmd.TerminationException;
+import arq.cmd.CmdException ;
+import arq.cmd.TerminationException ;
 
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.util.FileUtils;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.query.QueryFactory ;
+import com.hp.hpl.jena.query.QueryParseException ;
+import com.hp.hpl.jena.query.Syntax ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 public class ModQueryIn implements ArgModuleGeneral
 {
@@ -51,7 +55,7 @@ public class ModQueryIn implements ArgModuleGeneral
         if ( cmdline.contains(queryFileDecl) )
         {
             queryFilename = cmdline.getValue(queryFileDecl) ;
-            querySyntax = Syntax.guessQueryFileSyntax(queryFilename) ;
+            querySyntax = Syntax.guessFileSyntax(queryFilename) ;
         }
         
         if ( cmdline.getNumPositional() == 0 && queryFilename == null )
@@ -69,7 +73,7 @@ public class ModQueryIn implements ArgModuleGeneral
             // One positional argument.
             String qs = cmdline.getPositionalArg(0) ;
             if ( cmdline.matchesIndirect(qs) ) 
-                querySyntax = Syntax.guessQueryFileSyntax(qs) ;
+                querySyntax = Syntax.guessFileSyntax(qs) ;
             
             queryString = cmdline.indirect(qs) ;
         }

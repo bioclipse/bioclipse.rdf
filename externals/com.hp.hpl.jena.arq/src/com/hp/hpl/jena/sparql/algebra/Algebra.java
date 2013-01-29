@@ -1,46 +1,42 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.shared.PrefixMapping;
-
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.Plan;
-import com.hp.hpl.jena.sparql.engine.QueryEngineFactory;
-import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.engine.binding.BindingRoot;
-import com.hp.hpl.jena.sparql.algebra.opt.Optimize;
-import com.hp.hpl.jena.sparql.algebra.opt.TransformFilterEquality;
-import com.hp.hpl.jena.sparql.engine.ref.QueryEngineRef;
-import com.hp.hpl.jena.sparql.sse.Item;
-import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.sparql.sse.builders.BuilderOp;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.util.Context;
-
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.algebra.optimize.Optimize ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.Plan ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineFactory ;
+import com.hp.hpl.jena.sparql.engine.QueryEngineRegistry ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingRoot ;
+import com.hp.hpl.jena.sparql.engine.ref.QueryEngineRef ;
+import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.sse.SSE ;
+import com.hp.hpl.jena.sparql.sse.builders.BuilderOp ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** Utilities to produce SPARQL algebra */
 public class Algebra
 {
-    private static Transform optimization() { return new TransformFilterEquality() ; }
-    
     // -------- Optimize
     
     /** Apply static transformations to a query to optimize it */
@@ -75,12 +71,19 @@ public class Algebra
         return new AlgebraGenerator().compile(elt) ;
     }
 
+    /** Turn an algebra expression into quad form */
     public static Op toQuadForm(Op op)
     {
         return AlgebraQuad.quadize(op) ;
     }
     
-    // -------- SSE
+    /** Transform an algebra expression so that default graph is union of the named graphs. */
+    public static Op unionDefaultGraph(Op op)
+    {
+        return TransformUnionQuery.transform(op) ;
+    }
+    
+    // -------- SSE uses these operations ...
     
     static public Op read(String filename)
     {
@@ -121,7 +124,7 @@ public class Algebra
 
     static public QueryIterator exec(Op op, Graph graph)
     {
-        return exec(op, new DataSourceGraphImpl(graph)) ;
+        return exec(op, DatasetGraphFactory.createOneGraph(graph)) ;
     }
 
     static public QueryIterator exec(Op op, DatasetGraph ds)
@@ -145,7 +148,7 @@ public class Algebra
 
     static public QueryIterator execRef(Op op, Graph graph)
     {
-        return execRef(op, new DataSourceGraphImpl(graph)) ;
+        return execRef(op, DatasetGraphFactory.createOneGraph(graph)) ;
     }
 
     static public QueryIterator execRef(Op op, DatasetGraph ds)
@@ -189,10 +192,23 @@ public class Algebra
         }
         return true ;
     }
+    
+    public static boolean disjoint(Binding binding1, Binding binding2)
+    {
+        Iterator<Var> iterVar1 = binding1.vars() ;
+        for ( ; iterVar1.hasNext() ; )
+        {
+            Var v = iterVar1.next() ; 
+            if ( binding2.contains(v) )
+                return false ;
+        }
+        return true ;
+    }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

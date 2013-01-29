@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,13 +9,14 @@ package com.hp.hpl.jena.tdb.nodetable;
 
 import java.util.Iterator ;
 
-import atlas.lib.Cache ;
-import atlas.lib.CacheFactory ;
-import atlas.lib.CacheSet ;
-import atlas.lib.Pair ;
+import org.openjena.atlas.lib.Cache ;
+import org.openjena.atlas.lib.CacheFactory ;
+import org.openjena.atlas.lib.CacheSet ;
+import org.openjena.atlas.lib.Pair ;
+import org.openjena.atlas.logging.Log ;
+
 
 import com.hp.hpl.jena.graph.Node ;
-import com.hp.hpl.jena.sparql.util.ALog ;
 import com.hp.hpl.jena.tdb.store.NodeId ;
 
 /** Cache wrapper around a NodeTable.  Assumes all access goes through this wrapper */
@@ -147,7 +149,7 @@ public class NodeTableCache implements NodeTable
         
         if ( id == NodeId.NodeIdAny )
         {
-            ALog.warn(this, "Attempt to cache NodeIdAny - ignored") ;
+            Log.warn(this, "Attempt to cache NodeIdAny - ignored") ;
             return ;
         }
         
@@ -176,11 +178,8 @@ public class NodeTableCache implements NodeTable
     }
 
     //@Override
-    public synchronized void sync(boolean force)
-    {
-        baseTable.sync(force) ;
-    }
-
+    public void sync() { baseTable.sync() ; }
+    
     public Iterator<Pair<NodeId, Node>> all()
     {
         return baseTable.all() ;
@@ -188,6 +187,7 @@ public class NodeTableCache implements NodeTable
 }
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

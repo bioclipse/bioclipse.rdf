@@ -6,16 +6,16 @@
 
 package com.hp.hpl.jena.sparql.engine.main;
 
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.Substitute;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriples;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterBlockTriples ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterSingleton ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 public class QC
 {
@@ -42,7 +42,7 @@ public class QC
     
     public static QueryIterator execute(Op op, Binding binding, ExecutionContext execCxt)
     {
-        QueryIterator qIter = new QueryIterSingleton(binding, execCxt) ;
+        QueryIterator qIter = QueryIterSingleton.create(binding, execCxt) ;
         return OpExecutor.execute(op, qIter, execCxt) ;
     }
     

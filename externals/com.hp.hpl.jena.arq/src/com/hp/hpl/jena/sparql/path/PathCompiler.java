@@ -6,19 +6,19 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.PathBlock;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.VarAlloc;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.core.PathBlock ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.VarAlloc ;
 
 public class PathCompiler
 {
     // Convert to work on OpPath.
     // Need pre (and post) BGPs.
     
-    VarAlloc varAlloc = new VarAlloc(ARQConstants.allocVarAnonMarker+"P") ;
+    private static VarAlloc varAlloc = new VarAlloc(ARQConstants.allocVarAnonMarker+"P") ;
     
     // Move to AlgebraCompiler and have a per-transaction scoped var generator 
     
@@ -89,30 +89,89 @@ public class PathCompiler
             return ;
         }
 
-        if ( path instanceof P_Reverse )
+        if ( path instanceof P_Inverse )
         {
-            reduce(x, varAlloc, endNode, ((P_Reverse)path).getSubPath(), startNode) ;
+            reduce(x, varAlloc, endNode, ((P_Inverse)path).getSubPath(), startNode) ;
             return ;
         }
 
+        if ( path instanceof P_FixedLength )
+        {
+            P_FixedLength pFixed = (P_FixedLength)path ;
+            long N = pFixed.getCount() ;
+            if ( N > 0 )
+            {
+                // Don't do {0}
+                Node stepStart = startNode ;
+    
+                for ( long i = 0 ; i < N-1 ; i++ )
+                {
+                    Node v = varAlloc.allocVar() ;
+                    reduce(x, varAlloc, stepStart, pFixed.getSubPath(), v) ;
+                    stepStart = v ;
+                }
+                reduce(x, varAlloc, stepStart, pFixed.getSubPath(), endNode) ;
+                return ;
+            }
+        }
+        
         if ( path instanceof P_Mod )
         {
             P_Mod pMod = (P_Mod)path ;
             if ( pMod.isFixedLength() && pMod.getFixedLength() > 0 )
             {
                 long N = pMod.getFixedLength() ;
-                Node stepStart = startNode ;
-
-                for ( long i = 0 ; i < N-1 ; i++ )
+                if ( N > 0 )
                 {
-                    Node v = varAlloc.allocVar() ;
-                    reduce(x, varAlloc, stepStart, pMod.getSubPath(), v) ;
-                    stepStart = v ;
+                    Node stepStart = startNode ;
+
+                    for ( long i = 0 ; i < N-1 ; i++ )
+                    {
+                        Node v = varAlloc.allocVar() ;
+                        reduce(x, varAlloc, stepStart, pMod.getSubPath(), v) ;
+                        stepStart = v ;
+                    }
+                    reduce(x, varAlloc, stepStart, pMod.getSubPath(), endNode) ;
+                    return ;
                 }
-                reduce(x, varAlloc, stepStart, pMod.getSubPath(), endNode) ;
+            }
+
+            // This is the rewrite of 
+            //    "x {N,} y" to "x :p{N} ?V . ?V :p* y"
+            //    "x {N,M} y" to "x :p{N} ?V . ?V {0,M} y"
+            if ( pMod.getMin() > 0 )
+            {
+                Path p1 = PathFactory.pathFixedLength(pMod.getSubPath(), pMod.getMin()) ;
+                Path p2 ;
+                
+                if ( pMod.getMax() < 0 )
+                    p2 = PathFactory.pathZeroOrMore(pMod.getSubPath()) ;
+                else
+                {
+                    long len2 = pMod.getMax()-pMod.getMin() ;
+                    if ( len2 < 0 ) len2 = 0 ;
+                    p2 = PathFactory.pathMod(pMod.getSubPath(),0, len2) ;
+                }
+                
+                Node v = varAlloc.allocVar() ;
+                
+                // Start at the fixed end.
+                if ( ! startNode.isVariable() || endNode.isVariable() )
+                {
+                    reduce(x, varAlloc, startNode, p1, v) ;
+                    reduce(x, varAlloc, v, p2, endNode) ;
+                }
+                else
+                {
+                    // endNode fixed, start node not.
+                    reduce(x, varAlloc, v, p2, endNode) ;
+                    reduce(x, varAlloc, startNode, p1, v) ;
+                }
                 return ;
             }
-            // Not fixed - drop through, including zero length paths.
+            
+            
+            // Else drop through
         }
         
         // Nothing can be done.

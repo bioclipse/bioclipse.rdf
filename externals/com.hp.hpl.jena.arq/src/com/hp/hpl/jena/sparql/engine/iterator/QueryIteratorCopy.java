@@ -1,25 +1,27 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software License (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Collections ;
+import java.util.List ;
 
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
 
 /** A QueryIterator that copies an iterator.
- *  Can get a QueryIterator over the copy.
+ *  @see QueryIter#materialize
  */  
 
-public 
 class QueryIteratorCopy extends QueryIteratorBase
 {
     // Not tracked.
@@ -27,7 +29,6 @@ class QueryIteratorCopy extends QueryIteratorBase
     QueryIterator iterator ;
     
     QueryIterator original ;        // Keep for debugging - This is closed as it is copied.
-    
     
     public QueryIteratorCopy(QueryIterator qIter)
     {
@@ -66,6 +67,10 @@ class QueryIteratorCopy extends QueryIteratorBase
     @Override
     protected void closeIterator()
     { iterator.close() ; }
+    
+    @Override
+    protected void requestCancel()
+    { iterator.cancel() ; }
 
     @Override
     protected boolean hasNextBinding()
@@ -76,6 +81,7 @@ class QueryIteratorCopy extends QueryIteratorBase
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

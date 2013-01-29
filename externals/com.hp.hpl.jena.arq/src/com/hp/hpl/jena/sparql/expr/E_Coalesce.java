@@ -1,16 +1,18 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import java.util.List ;
 
-/** SPARQL coalesce special form.
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+
+/** SPARQL coalesce special form. */
 
 public class E_Coalesce extends ExprFunctionN
 {
@@ -22,7 +24,7 @@ public class E_Coalesce extends ExprFunctionN
     }
 
     @Override
-    public NodeValue eval(Binding binding, FunctionEnv env)
+    public NodeValue evalSpecial(Binding binding, FunctionEnv env)
     {
         for ( Expr expr : super.getArgs() )
         {
@@ -31,7 +33,7 @@ public class E_Coalesce extends ExprFunctionN
                 return nv ;
             } catch (ExprEvalException ex) {}
         }
-        return null ;
+        throw new ExprEvalException("COALESCE: no value") ;
     }
     
     @Override
@@ -39,11 +41,16 @@ public class E_Coalesce extends ExprFunctionN
     {
         return new E_Coalesce(newArgs) ;
     }
+
+    @Override
+    protected NodeValue eval(List<NodeValue> args)
+    { throw new ARQInternalErrorException() ; }
 }
 
 /*
- *  (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
- *  All rights reserved.
+ * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

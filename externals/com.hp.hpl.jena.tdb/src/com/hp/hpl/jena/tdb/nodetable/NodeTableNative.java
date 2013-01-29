@@ -8,11 +8,12 @@ package com.hp.hpl.jena.tdb.nodetable;
 
 import static com.hp.hpl.jena.tdb.lib.NodeLib.setHash ;
 
+import java.nio.ByteBuffer ;
 import java.util.Iterator ;
 
-import atlas.iterator.Iter ;
-import atlas.iterator.Transform ;
-import atlas.lib.Pair ;
+import org.openjena.atlas.iterator.Iter ;
+import org.openjena.atlas.iterator.Transform ;
+import org.openjena.atlas.lib.Pair ;
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.tdb.TDBException ;
@@ -66,8 +67,15 @@ public class NodeTableNative implements NodeTable
     public NodeId getAllocateNodeId(Node node)  { return _idForNode(node, true) ; }
 
     // ---- The worker functions
+    // Synchronization:
+    // Cache around this class further out in NodeTableCache are synchronized
+    // to maintain cache validatity which indirectly sync access to the NodeTable.
+    // But to be sure, we provide MRSW guarantees on this class.
+    // (otherwise if no cache => disaster)
+    // synchonization happens in accessIndex() and readNodeByNodeId
     
-    private Node _retrieveNodeByNodeId(NodeId id)
+    // NodeId to Node worker.
+    private synchronized Node _retrieveNodeByNodeId(NodeId id)
     {
         if ( NodeId.doesNotExist(id) )
             return null ;
@@ -76,23 +84,6 @@ public class NodeTableNative implements NodeTable
         
         Node n = readNodeByNodeId(id) ;
         return n ;
-//        
-//        // Inline?
-//        Node n = NodeId.extract(id) ;
-//        if ( n != null )
-//            return n ; 
-//        
-//        synchronized (this)
-//        {
-//            n = cacheLookup(id) ;   // Includes known to not exist
-//            if ( n != null )
-//                return n ; 
-//
-//            n = readNodeByNodeId(id) ;
-//            cacheUpdate(n, id) ;
-//            return n ;
-//            
-//        }
     }
 
     // ----------------
@@ -104,50 +95,45 @@ public class NodeTableNative implements NodeTable
         if ( node == Node.ANY )
             return NodeId.NodeIdAny ;
         
-        // Inline?
-        NodeId nodeId = NodeId.inline(node) ;
-        if ( nodeId != null )
-            return nodeId ;
-
-        nodeId = accessIndex(node, allocate) ;
+        NodeId nodeId = accessIndex(node, allocate) ;
         return nodeId ;
     }
     
-    // Access the node->NodeId index.
-    // Synchronized further out.
-    protected NodeId accessIndex(Node node, boolean create)
+    protected final NodeId accessIndex(Node node, boolean create)
     {
         Hash hash = new Hash(nodeHashToId.getRecordFactory().keyLength()) ;
         setHash(hash, node) ;
         byte k[] = hash.getBytes() ;        
         // Key only.
         Record r = nodeHashToId.getRecordFactory().create(k) ;
-
-        // Key and value, or null
-        Record r2 = nodeHashToId.find(r) ;
-        if ( r2 != null )
+        
+        synchronized (this)  // Pair to readNodeByNodeId
         {
-            // Found.  Get the NodeId.
-            NodeId id = NodeId.create(r2.getValue(), 0) ;
+            // Key and value, or null
+            Record r2 = nodeHashToId.find(r) ;
+            if ( r2 != null )
+            {
+                // Found.  Get the NodeId.
+                NodeId id = NodeId.create(r2.getValue(), 0) ;
+                return id ;
+            }
+
+            // Not found.
+            if ( ! create )
+                return NodeId.NodeDoesNotExist ;
+
+            // Write the node, which allocates an id for it.
+            NodeId id = writeNodeToTable(node) ;
+
+            // Update the r record with the new id.
+            // r.value := id bytes ; 
+            id.toBytes(r.getValue(), 0) ;
+
+            // Put in index - may appear because of concurrency
+            if ( ! nodeHashToId.add(r) )
+                throw new TDBException("NodeTableBase::nodeToId - record mysteriously appeared") ;
             return id ;
         }
-
-        // Not found.
-        if ( ! create )
-            return NodeId.NodeDoesNotExist ;
-
-        // Write the node, which allocates an id for it.
-        NodeId id = writeNodeToTable(node) ;
-
-        // Update the r record with the new id.
-        // r.valkue := id bytes ; 
-        id.toBytes(r.getValue(), 0) ;
-
-        // Put in index - may appear because of concurrency
-        if ( ! nodeHashToId.add(r) )
-            throw new TDBException("NodeTableBase::nodeToId - record mysteriously appeared") ;
-
-        return id ;
     }
     
     // -------- NodeId<->Node
@@ -155,17 +141,22 @@ public class NodeTableNative implements NodeTable
     // Assumes synchronized (the caches will be updated consistently)
     
     // Only places for accessing the StringFile.
+    // 
     
-    protected final NodeId writeNodeToTable(Node node)
+    private final NodeId writeNodeToTable(Node node)
     {
+        // Synchroized in accessIndex
         long x = NodeLib.encodeStore(node, getObjects()) ;
         return NodeId.create(x);
     }
     
 
-    protected final Node readNodeByNodeId(NodeId id)
+    private final Node readNodeByNodeId(NodeId id)
     {
-        return NodeLib.fetchDecode(id.getId(), getObjects()) ;
+        synchronized (this) // Pair to accessIndex
+        {
+            return NodeLib.fetchDecode(id.getId(), getObjects()) ;
+        }
     }
     // -------- NodeId<->Node
 
@@ -185,7 +176,11 @@ public class NodeTableNative implements NodeTable
         }
     }
 
-    public Iterator<Pair<NodeId, Node>> all()
+    // Not synchronized
+    public Iterator<Pair<NodeId, Node>> all() { return all2() ; }
+    
+    private Iterator<Pair<NodeId, Node>> all1()
+    
     {
         // Could be quicker by hoping down the objects files.
         Iterator<Record> iter = nodeHashToId.iterator() ; ;
@@ -199,14 +194,33 @@ public class NodeTableNative implements NodeTable
             }};
         return Iter.map(iter, transform) ;
     }
+
+    private Iterator<Pair<NodeId, Node>> all2()
+    {
+        Iterator<Pair<Long, ByteBuffer>> objs = objects.all() ; 
+        
+        Transform<Pair<Long, ByteBuffer>, Pair<NodeId, Node>> transform = new Transform<Pair<Long, ByteBuffer>, Pair<NodeId, Node>>() {
+            public Pair<NodeId, Node> convert(Pair<Long, ByteBuffer> item)
+            {
+                NodeId id = NodeId.create(item.car().longValue()) ;
+                ByteBuffer bb = item.cdr();
+                Node n = NodeLib.decode(bb) ;
+                return new Pair<NodeId, Node>(id, n) ;
+            }
+        };
+        return Iter.map(objs, transform) ;
+    }
+
+    //@Override
+    public void sync() { sync(true) ; } 
     
     //@Override
     public synchronized void sync(boolean force)
     {
         if ( nodeHashToId != null )
-            nodeHashToId.sync(force) ;
+            nodeHashToId.sync() ;
         if ( getObjects() != null )
-            getObjects().sync(force) ;
+            getObjects().sync() ;
     }
 
     public ObjectFile getObjects()

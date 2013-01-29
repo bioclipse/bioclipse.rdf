@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.bioinformatics.rdf_feature"
       label="RDF Bioinformatics Integration Feature"
-      version="2.4.1.20110201"
+      version="2.6.0.vqualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.bioinformatics.rdf">
 
@@ -16,10 +16,10 @@ Eclipse Public License.
    </copyright>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" version="2.4.0.20100709" match="greaterOrEqual"/>
-      <import feature="net.bioclipse.rdf.ui_feature" version="2.4.1.20110201"/>
-      <import feature="net.bioclipse.rdf_feature" version="2.4.1.20110201"/>
-      <import feature="net.bioclipse.bioinformatics_feature" version="2.4.0.20100709"/>
+      <import feature="net.bioclipse.core_feature" />
+      <import feature="net.bioclipse.rdf.ui_feature" />
+      <import feature="net.bioclipse.rdf_feature" />
+      <import feature="net.bioclipse.bioinformatics_feature" />
    </requires>
 
    <plugin

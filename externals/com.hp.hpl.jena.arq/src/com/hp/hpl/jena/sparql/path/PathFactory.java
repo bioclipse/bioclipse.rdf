@@ -1,20 +1,36 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.path;
 
+import com.hp.hpl.jena.graph.Node ;
+
 public class PathFactory
 {
-    public static Path modZeroOrMode(Path p)    { return new P_Mod(p, 0, P_Mod.INF) ; }
-    public static Path modZeroOrOne(Path p)     { return new P_Mod(p, 0, 1) ; }
-    public static Path modOneOrMore(Path p)     { return new P_Mod(p, 1, P_Mod.INF) ; }
+    public static final long UNSET = P_Mod.UNSET ;
+    
+    public static Path pathLink(Node property)          { return new P_Link(property) ; }
+
+    public static Path pathInverse(Path path)           { return new P_Inverse(path) ; }
+    public static Path pathMod(Path path, long min, long max)   { return new P_Mod(path, min, max) ; }
+    public static Path pathFixedLength(Path path, long count)   { return new P_FixedLength(path, count) ; }
+    
+
+    public static Path pathAlt(Path path1, Path path2)  { return new P_Alt(path1, path2) ; }
+    public static Path pathSeq(Path path1, Path path2)  { return new P_Seq(path1, path2) ; }
+    
+    public static Path pathZeroOrMore(Path path)        { return new P_ZeroOrMore(path) ; }
+    public static Path pathZeroOrOne(Path path)         { return new P_ZeroOrOne(path) ; }
+    public static Path pathOneOrMore(Path path)         { return new P_OneOrMore(path) ; }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

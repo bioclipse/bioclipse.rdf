@@ -6,15 +6,12 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import java.io.OutputStream;
+import java.io.OutputStream ;
 
-import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSet ;
 
 /** 
- * Interface for all formatters of result sets.
- * 
- * @author Andy Seaborne
- */
+ * Interface for all formatters of result sets. */
 
 public interface OutputFormatter
 {

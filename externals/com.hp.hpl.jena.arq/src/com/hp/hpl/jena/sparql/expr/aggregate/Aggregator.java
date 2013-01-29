@@ -1,35 +1,49 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd
+ * (c) Copyright 2010 Epimorphics Ltd
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingKey;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingKey ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
 
 /** An Aggregator is the processor for the whole result stream.
- *  BindingKeys identify which section of a group we're in. 
- * @author Andy Seaborne
- */ 
+ *  BindingKeys identify which section of a group we're in. */ 
 
 public interface Aggregator
 {
+    //-- Aggregator - per query (strictly, one per SELECT level), unique even if mentioned several times.
+    //-- Accumulator - per group per key section processors (from AggregatorBase)
+
     public void accumulate(BindingKey key, Binding b, FunctionEnv functionEnv) ;
     public Node getValue(BindingKey key) ;
     /** Value if there are no elements in any group : return null for no result */
     public Node getValueEmpty() ;
     public String toPrefixString()  ;
-    // Key to identify an aggregator as synatx for duplictae use in a query.
+    // Key to identify an aggregator as syntax for duplicate use in a query.
     public String key() ;           
-    public boolean equalsAsExpr(Aggregator other) ;
+    
+    /** Get the expression - may be null (e.g COUNT(*)) ; */ 
+    public Expr getExpr() ;
+    public Aggregator copy(Expr expr) ;
+    public Aggregator copyTransform(NodeTransform transform) ;
+    
+    public int hashCode() ;
+    public boolean equals(Object other) ;
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd
+ * (c) Copyright 2010 Epimorphics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

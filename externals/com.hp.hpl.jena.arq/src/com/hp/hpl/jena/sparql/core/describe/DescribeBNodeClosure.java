@@ -6,19 +6,16 @@
 
 package com.hp.hpl.jena.sparql.core.describe;
 
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.util.Closure;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.query.* ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.util.Closure ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** DescribeHandler that calculates the bNode closure.
  *  Takes all the statements of this resource, and for every object that is
- *  a bNode, it recursively includes its statements.
- * 
- * @author Andy Seaborne
- */
+ *  a bNode, it recursively includes its statements. */
 
 public class DescribeBNodeClosure implements DescribeHandler
 {
@@ -33,7 +30,8 @@ public class DescribeBNodeClosure implements DescribeHandler
         this.dataset = (Dataset)cxt.get(ARQConstants.sysCurrentDataset) ;
     }
 
-    private static Query query = QueryFactory.create("SELECT ?g { GRAPH ?g { ?s ?p ?o } }") ; 
+    // DISTINCT - we only need each ?g once. 
+    private static Query query = QueryFactory.create("SELECT DISTINCT ?g { GRAPH ?g { ?s ?p ?o } }") ; 
     
     // Check all named graphs
     public void describe(Resource r)

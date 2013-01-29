@@ -6,14 +6,11 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.RDFNode ;
 
-/** A class to walk a result set.
- * 
- * @author Andy Seaborne
- */
+/** A class to walk a result set. */
 
 public class ResultSetApply
 {

@@ -11,7 +11,6 @@
 package net.bioclipse.pellet.business;
 
 import java.io.IOException;
-import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -19,6 +18,7 @@ import net.bioclipse.core.Recorded;
 import net.bioclipse.core.TestClasses;
 import net.bioclipse.core.TestMethods;
 import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.domain.StringMatrix;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.rdf.business.IRDFStore;
 
@@ -62,7 +62,7 @@ public interface IPelletManager extends IBioclipseManager {
             " the Pellet reasoner"
     )
     @TestMethods("testReason")
-    public List<List<String>> reason(IRDFStore store, String query)
+    public StringMatrix reason(IRDFStore store, String query)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
@@ -81,7 +81,7 @@ public interface IPelletManager extends IBioclipseManager {
         methodSummary = "Returns the Objects that are of the given rdf:type."
     )
     @TestMethods("testIsRDFType")
-    public List<String> isRDFType(IRDFStore store, String type)
+    public StringMatrix isRDFType(IRDFStore store, String type)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
@@ -91,6 +91,6 @@ public interface IPelletManager extends IBioclipseManager {
         		"identifier."
     )
     @TestMethods("testAllAbout")
-    public List<List<String>> allAbout(IRDFStore store, String identifier)
+    public StringMatrix allAbout(IRDFStore store, String identifier)
         throws BioclipseException, IOException, CoreException;
 }

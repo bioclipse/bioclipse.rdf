@@ -6,12 +6,13 @@
 
 package com.hp.hpl.jena.sparql.util;
 
-import java.util.* ;
+import java.util.ArrayList ;
+import java.util.Collection ;
+import java.util.Iterator ;
+import java.util.List ;
 
+import org.openjena.atlas.logging.Log ;
 
-/** 
- * @author Andy Seaborne
- */
 
 public class CollectionUtils
 {
@@ -32,7 +33,7 @@ public class CollectionUtils
     {
         if ( c.size() > 5 )
         {
-            ALog.warn(CollectionUtils.class, "Attempt to permute more than 5 items - think again") ;
+            Log.warn(CollectionUtils.class, "Attempt to permute more than 5 items - think again") ;
             return null ;
         }
         

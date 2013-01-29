@@ -5,19 +5,17 @@
  */
 
 package com.hp.hpl.jena.sparql.function;
-import java.util.*;
+import java.util.HashMap ;
+import java.util.HashSet ;
+import java.util.Iterator ;
+import java.util.Map ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.MappedLoader;
-
-import com.hp.hpl.jena.query.ARQ;
-
-/** 
- * 
- * @author Andy Seaborne
- */
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.MappedLoader ;
 
 public class FunctionRegistry //extends HashMap<String, Function>
 {
@@ -75,7 +73,7 @@ public class FunctionRegistry //extends HashMap<String, Function>
     { 
         if ( ! Function.class.isAssignableFrom(funcClass) )
         {
-            ALog.warn(this, "Class "+funcClass.getName()+" is not a Function" );
+            Log.warn(this, "Class "+funcClass.getName()+" is not a Function" );
             return ; 
         }
         

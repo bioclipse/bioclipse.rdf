@@ -6,17 +6,19 @@
 
 package com.hp.hpl.jena.sparql.util.graph;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collection ;
+import java.util.SortedMap ;
+import java.util.TreeMap ;
+import java.util.regex.Matcher ;
+import java.util.regex.Pattern ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import org.openjena.atlas.logging.Log ;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator ;
+import com.hp.hpl.jena.vocabulary.RDF ;
 
 
 public class GraphContainerUtils
@@ -84,18 +86,18 @@ public class GraphContainerUtils
     {
         if ( graph == null )
         {
-            ALog.warn(GraphContainerUtils.class, "containerMember called with null graph") ;
+            Log.warn(GraphContainerUtils.class, "containerMember called with null graph") ;
             return 0 ;
         }
         
         if ( container == null )
         {
-            ALog.warn(GraphContainerUtils.class, "containerMember called with null list") ;
+            Log.warn(GraphContainerUtils.class, "containerMember called with null list") ;
             return 0 ;
         }
         if ( member == null )
         {
-            ALog.warn(GraphContainerUtils.class, "containerMember called with null member") ;
+            Log.warn(GraphContainerUtils.class, "containerMember called with null member") ;
             return 0 ;
         }
         

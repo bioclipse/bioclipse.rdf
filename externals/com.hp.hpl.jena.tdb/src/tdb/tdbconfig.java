@@ -10,22 +10,23 @@ package tdb;
 import java.util.List ;
 import java.util.Map ;
 
+import org.openjena.atlas.io.IndentedWriter ;
 import tdb.cmdline.CmdSub ;
 import tdb.cmdline.CmdTDB ;
 import arq.cmdline.CmdARQ ;
 import arq.cmdline.ModVersion ;
-import atlas.io.IndentedWriter ;
 
 import com.hp.hpl.jena.shared.PrefixMapping ;
-import com.hp.hpl.jena.sparql.sse.Item ;
+import com.hp.hpl.jena.sparql.core.DatasetPrefixStorage ;
 import com.hp.hpl.jena.sparql.util.Utils ;
 import com.hp.hpl.jena.tdb.TDB ;
 import com.hp.hpl.jena.tdb.base.file.FileFactory ;
 import com.hp.hpl.jena.tdb.base.file.Location ;
 import com.hp.hpl.jena.tdb.base.objectfile.StringFile ;
-import com.hp.hpl.jena.tdb.graph.DatasetPrefixStorage ;
+import com.hp.hpl.jena.tdb.solver.stats.Stats ;
 import com.hp.hpl.jena.tdb.solver.stats.StatsCollector ;
 import com.hp.hpl.jena.tdb.store.GraphTDB ;
+import com.hp.hpl.jena.tdb.sys.ConcurrencyPolicyNone ;
 import com.hp.hpl.jena.tdb.sys.SetupTDB ;
 
 /** Tools to manage a TDB store.  Subcommand based. */
@@ -85,7 +86,7 @@ public class tdbconfig extends CmdSub
         protected void exec()
         {
             Location location = getLocation() ;
-            DatasetPrefixStorage prefixes = SetupTDB.makePrefixes(location, SetupTDB.globalConfig) ; 
+            DatasetPrefixStorage prefixes = SetupTDB.makePrefixes(location, SetupTDB.globalConfig, new ConcurrencyPolicyNone()) ;
             for ( String gn : prefixes.graphNames() )
             {
                 System.out.println("Graph: "+gn) ;
@@ -152,8 +153,8 @@ public class tdbconfig extends CmdSub
         protected void exec()
         {
             GraphTDB graph = getGraph() ;
-            Item item = StatsCollector.gatherTDB(graph) ;
-            System.out.println(item) ;
+            StatsCollector stats = Stats.gatherTDB(graph) ;
+            Stats.write(System.out, stats) ;
         }
 
         @Override

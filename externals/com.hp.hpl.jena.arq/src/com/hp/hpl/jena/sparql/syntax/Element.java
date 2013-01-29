@@ -6,19 +6,20 @@
 
 package com.hp.hpl.jena.sparql.syntax;
 
-import java.util.*;
+import java.util.LinkedHashSet ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.serializer.FormatterElement;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.serializer.FormatterElement ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
 
-/** Element - abstract class for all pattern elements 
- * 
- * @author Andy Seaborne
- */
+/** Element - abstract class for all pattern elements */
 
 public abstract class Element
 {
+    /** @deprecated Use {@link PatternVars#vars} */
+    @Deprecated
+    
     public Set<Var> varsMentioned()
     {
         // Binding variables -- in patterns, not in filters and not in EXISTS

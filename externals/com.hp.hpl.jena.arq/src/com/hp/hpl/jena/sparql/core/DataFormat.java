@@ -6,9 +6,9 @@
 
 package com.hp.hpl.jena.sparql.core;
 
-import com.hp.hpl.jena.sparql.util.Symbol;
-import com.hp.hpl.jena.sparql.util.TranslationTable;
-import com.hp.hpl.jena.util.FileUtils;
+import com.hp.hpl.jena.sparql.util.Symbol ;
+import com.hp.hpl.jena.sparql.util.TranslationTable ;
+import com.hp.hpl.jena.util.FileUtils ;
 
 
 public class DataFormat extends Symbol
@@ -28,7 +28,7 @@ public class DataFormat extends Symbol
     public static final DataFormat langN3
                     = new DataFormat(FileUtils.langN3 ) ;
 
-    public static TranslationTable dataSyntaxNames = new TranslationTable(true) ;
+    public static TranslationTable<DataFormat> dataSyntaxNames = new TranslationTable<DataFormat>(true) ;
     static {
         dataSyntaxNames.put("nt",           langNTriples ) ;
         dataSyntaxNames.put("n3",           langN3 ) ;
@@ -48,7 +48,7 @@ public class DataFormat extends Symbol
      */
     public static DataFormat lookup(String s)
     {
-        return (DataFormat)dataSyntaxNames.lookup(s) ;
+        return dataSyntaxNames.lookup(s) ;
     }
 }
 

@@ -6,26 +6,29 @@
 
 package arq.cmdline;
 
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.List ;
 
-import arq.cmd.CmdException;
+import org.openjena.riot.Lang ;
+import org.openjena.riot.RiotLoader ;
 
-import com.hp.hpl.jena.query.DataSource;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.query.LabelExistsException;
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.sparql.core.DataFormat;
-import com.hp.hpl.jena.sparql.util.DatasetUtils;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.util.LocationMapper;
+import arq.cmd.CmdException ;
+
+import com.hp.hpl.jena.query.DataSource ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.query.DatasetFactory ;
+import com.hp.hpl.jena.query.LabelExistsException ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.sparql.core.DataFormat ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
+import com.hp.hpl.jena.sparql.util.DatasetUtils ;
+import com.hp.hpl.jena.util.FileManager ;
+import com.hp.hpl.jena.util.LocationMapper ;
 
 /** ModDataset: arguments to build a dataset - 
- * see also ModAssembler which extends ModDataset
- * with a description parameter.
- * 
- * @author Andy Seaborne
- */ 
+ * see also ModDatasetAssembler which extends ModDataset
+ * with a description parameter. */ 
 
 public class ModDatasetGeneral extends ModDataset
 {
@@ -78,7 +81,9 @@ public class ModDatasetGeneral extends ModDataset
               (namedGraphURLs == null || namedGraphURLs.size() == 0 ) )
             return null ;
         
-        DataSource ds = DatasetFactory.create() ;
+        // This can auto-add graphs.
+        DatasetGraph dsg = DatasetGraphFactory.createMem() ;
+        DataSource ds = DatasetFactory.create(dsg) ;
         addGraphs(ds) ;
         dataset = ds ;
         return dataset ;
@@ -88,8 +93,27 @@ public class ModDatasetGeneral extends ModDataset
     {
         try {
             if ( (graphURLs != null) || (namedGraphURLs != null) )
+            {
+                // Do quads
+                List<String> triples = new ArrayList<String>() ;
+                List<String> quads = new ArrayList<String>() ;
+                
+                for ( String fn : graphURLs )
+                {
+                    if ( Lang.guess(fn).isQuads() )
+                        quads.add(fn) ;
+                    else
+                        triples.add(fn) ;
+                }
+                
+                for ( String fn : quads )
+                    RiotLoader.read(fn, ds.asDatasetGraph()) ;
+                
                 dataset = 
-                    DatasetUtils.addInGraphs(ds, graphURLs, namedGraphURLs, fileManager, null) ;
+                    DatasetUtils.addInGraphs(ds, triples, namedGraphURLs, fileManager, null) ;
+            }
+                
+                
         } 
         catch (LabelExistsException ex)
         { throw new CmdException(ex.getMessage()) ; }

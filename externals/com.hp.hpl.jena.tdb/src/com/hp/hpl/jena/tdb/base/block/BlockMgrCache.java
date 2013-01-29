@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -9,16 +10,19 @@ package com.hp.hpl.jena.tdb.base.block;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
-import atlas.lib.ActionKeyValue;
-import atlas.lib.Cache;
-import atlas.lib.CacheFactory;
 
+import org.openjena.atlas.lib.ActionKeyValue ;
+import org.openjena.atlas.lib.Cache ;
+import org.openjena.atlas.lib.CacheFactory ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Caching block manager - this is an LRU cache */
 public class BlockMgrCache extends BlockMgrSync
 {
+    // The overridden public operations are sync'ed.
+    // As syn is on "this", it also covers all the other operations via BlockMgrSync
+    
     private static Logger log = LoggerFactory.getLogger(BlockMgrCache.class) ;
     // Read cache
     Cache<Integer, ByteBuffer> readCache = null ;
@@ -41,7 +45,6 @@ public class BlockMgrCache extends BlockMgrSync
         
         // Caches are related so we can't use a Getter for cache management.
         readCache = CacheFactory.createCache(readSlots) ;
-        
         if ( writeSlots > 0 )
         {
             writeCache = CacheFactory.createCache(writeSlots) ;
@@ -49,27 +52,23 @@ public class BlockMgrCache extends BlockMgrSync
                 //@Override
                 public void apply(Integer id, ByteBuffer bb)
                 { 
+                    // We're inside a synchronized operation at this point.
                     log("Cache spill: write block: %d", id) ;
-                    expelEntry(id) ;
+                    if (bb == null)
+                    {
+                        log.warn("Write cache: " + id + " dropping an entry that isn't there") ;
+                        return ;
+                    }
+                    // Put in read cache.
+                    readCache.put(id, bb) ;
+                    // Force the block to be writtern
+                    // by sending it to the wrapped BlockMgr
+                    BlockMgrCache.super.put(id, bb) ;
                 }
             }) ;
         }
     }
     
-    // Write out when flushed.
-    private void expelEntry(Integer id)
-    {
-        ByteBuffer bb = writeCache.get(id) ;
-        if ( bb == null )
-        {
-            log.error("Write cache: "+id+" expeling entry that isn't there") ;
-            return ;
-        }
-        log("Drop (write cache): %d", id) ;
-        super.put(id, bb) ;
-        writeCache.remove(id) ;
-    }
-
     // Pool?
 //    @Override
 //    public ByteBuffer allocateBuffer(int id)
@@ -119,9 +118,6 @@ public class BlockMgrCache extends BlockMgrSync
             writeCache.put(id, block) ;
         else
             super.put(id, block) ;
-
-        // ????
-        readCache.put(id, block) ;
     }
     
     @Override
@@ -143,7 +139,7 @@ public class BlockMgrCache extends BlockMgrSync
 
     @Override
     synchronized
-    public void sync(boolean force)
+    public void sync()
     {
         if ( true )
         {
@@ -157,13 +153,10 @@ public class BlockMgrCache extends BlockMgrSync
             log("sync (%d blocks)", writeCache.size()) ;
         else
             log("sync") ;
-        boolean somethingWritten = syncFlush(force) ;
+        boolean somethingWritten = syncFlush() ;
         // Sync the wrapped object
         if ( somethingWritten ) 
-        {
             log("sync underlying BlockMgr") ;
-            super.sync(force) ;
-        }
         else
             log("Empty sync") ;
         
@@ -184,36 +177,33 @@ public class BlockMgrCache extends BlockMgrSync
     {
         if ( writeCache != null )
             log("close ("+writeCache.size()+" blocks)") ;
-        syncFlush(true) ;
+        syncFlush() ;
         super.close() ;
     }
 
-    private boolean syncFlush(boolean all)
+    private boolean syncFlush()
     {
         boolean didSync = false ;
+
         if ( writeCache != null )
         {
             log("Flush (write cache)") ;
-            
+
             long N = writeCache.size() ;
             Integer[] ids = new Integer[(int)N] ;
 
-            // Choose ... and it's in order.
             // Single writer (sync is a write operation MRSW)
             // Iterating is safe.
-            
+
             Iterator<Integer> iter = writeCache.keys() ;
             if ( iter.hasNext() )
                 didSync = true ;
-            // Find all 
+
+            // Need to get all then delete else concurrent modification exception. 
             for ( int i = 0 ; iter.hasNext() ; i++ )
                 ids[i] = iter.next() ;
-            
-            // Flush entries.
-            long limit = 3*N/4 ;
-            if ( all ) limit = N ;
-            
-            for ( int i = 0 ; i < (int)limit ; i++ )
+
+            for ( int i = 0 ; i < N ; i++ )
             {
                 Integer id = ids[i] ;
                 expelEntry(id) ;
@@ -221,10 +211,33 @@ public class BlockMgrCache extends BlockMgrSync
         }
         return didSync ;
     }
+    
+    // Write out when flushed.
+    // Do not call from drop handler.
+    private void expelEntry(Integer id)
+    {
+        ByteBuffer bb = writeCache.get(id) ;
+        if ( bb == null )
+        {
+            log.warn("Write cache: "+id+" expelling entry that isn't there") ;
+            return ;
+        }
+        log("Expel (write cache): %d", id) ;
+        // This pushes the block to the BlockMgr being cached.
+        super.put(id, bb) ;
+        writeCache.remove(id) ;
+
+        // Move it into the readCache because it's often read after writing
+        // and the read cache is often larger.
+        readCache.put(id, bb) ;
+    }
+
+
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

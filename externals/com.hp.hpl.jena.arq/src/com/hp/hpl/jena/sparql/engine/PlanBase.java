@@ -6,18 +6,17 @@
 
 package com.hp.hpl.jena.sparql.engine;
 
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.Closeable;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.PrintSerializableBase;
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.lib.Closeable ;
+
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.PrintSerializableBase ;
 
 public abstract class PlanBase extends PrintSerializableBase implements Plan
 {
-    // Merge with PlanOp?
-    // Enforces "use once"
     private Op op = null ;
     protected Closeable closeable = null ;
     protected boolean closed = false ;

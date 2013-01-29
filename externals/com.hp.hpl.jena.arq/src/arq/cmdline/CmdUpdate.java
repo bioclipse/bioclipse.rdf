@@ -6,18 +6,37 @@
 
 package arq.cmdline;
 
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.query.Syntax ;
+import com.hp.hpl.jena.rdf.model.ModelFactory ;
+import com.hp.hpl.jena.update.GraphStore ;
 
 public abstract class CmdUpdate extends CmdARQ
 {
     protected ModGraphStore modGraphStore = new ModGraphStore() ;
-    
+    protected Syntax updateSyntax = Syntax.defaultUpdateSyntax ;
+
     protected CmdUpdate(String[] argv)
     {
         super(argv) ;
+        modGraphStore = setModGraphStore() ;
         addModule(modGraphStore) ;
+        
     }
+    
+    protected ModGraphStore setModGraphStore()
+    {
+        return new ModGraphStore() ;
+    }
+    
+
+    @Override
+    protected void processModulesAndArgs()
+    {
+        super.processModulesAndArgs() ;
+        if ( super.cmdStrictMode )
+            updateSyntax = Syntax.syntaxSPARQL_11 ;
+    }
+    
     
     @Override
     protected final void exec()

@@ -6,8 +6,8 @@
 
 package com.hp.hpl.jena.sparql.resultset;
 
-import com.hp.hpl.jena.sparql.util.Symbol;
-import com.hp.hpl.jena.sparql.util.TranslationTable;
+import com.hp.hpl.jena.sparql.util.Symbol ;
+import com.hp.hpl.jena.sparql.util.TranslationTable ;
 
 public class ResultsFormat extends Symbol
 {
@@ -19,6 +19,7 @@ public class ResultsFormat extends Symbol
     public final static ResultsFormat FMT_RS_JSON  = new ResultsFormat("rs/json") ;   /** Format of result set as JSON */
     public final static ResultsFormat FMT_RS_SSE   = new ResultsFormat("rs/sse") ;    /** Format of result set as SSE */ 
     public final static ResultsFormat FMT_RS_CSV   = new ResultsFormat("rs/csv") ;
+    public final static ResultsFormat FMT_RS_TSV   = new ResultsFormat("rs/tsv") ;
 
     public final static ResultsFormat FMT_NONE     = new ResultsFormat("none") ;       /** No output */
     public final static ResultsFormat FMT_TEXT     = new ResultsFormat("rs/text") ;   /** Any kind of text */
@@ -37,53 +38,57 @@ public class ResultsFormat extends Symbol
     
     public final static ResultsFormat FMT_UNKNOWN   = new ResultsFormat("unknown") ;
     
-    static TranslationTable resultFormats =  new TranslationTable(true) ;
+    static TranslationTable<ResultsFormat> resultFormats =  new TranslationTable<ResultsFormat>(true) ;
     
     static {
         // Mapping of names to symbols.
         // Common names.
         
-        resultFormats.put("rs/text",   ResultsFormat.FMT_TEXT ) ;
-        resultFormats.put("text" ,     ResultsFormat.FMT_TEXT ) ;
-        resultFormats.put("rs/raw",    ResultsFormat.FMT_TEXT ) ;
+        resultFormats.put("rs/text",   FMT_TEXT ) ;
+        resultFormats.put("text" ,     FMT_TEXT ) ;
+        resultFormats.put("rs/raw",    FMT_TEXT ) ;
 
-        resultFormats.put("none" ,     ResultsFormat.FMT_NONE ) ;
-        resultFormats.put("count" ,    ResultsFormat.FMT_COUNT ) ;
+        resultFormats.put("none" ,     FMT_NONE ) ;
+        resultFormats.put("count" ,    FMT_COUNT ) ;
         
         // result set - XML result
-        resultFormats.put("rs/xml",    ResultsFormat.FMT_RS_XML ) ;
-        resultFormats.put("rs",        ResultsFormat.FMT_RS_XML ) ;
-        resultFormats.put("srx",       ResultsFormat.FMT_RS_XML ) ;
-        resultFormats.put("xml" ,      ResultsFormat.FMT_RS_XML ) ;
+        resultFormats.put("rs/xml",    FMT_RS_XML ) ;
+        resultFormats.put("rs",        FMT_RS_XML ) ;
+        resultFormats.put("srx",       FMT_RS_XML ) ;
+        resultFormats.put("xml" ,      FMT_RS_XML ) ;
         
         // result set - JSON tables
-        resultFormats.put("rs/json",   ResultsFormat.FMT_RS_JSON ) ;
-        resultFormats.put("srj",       ResultsFormat.FMT_RS_JSON ) ;
-        resultFormats.put("json",      ResultsFormat.FMT_RS_JSON ) ;
+        resultFormats.put("rs/json",   FMT_RS_JSON ) ;
+        resultFormats.put("srj",       FMT_RS_JSON ) ;
+        resultFormats.put("json",      FMT_RS_JSON ) ;
 
         // result set - SSE tables
-        resultFormats.put("rs/sse",    ResultsFormat.FMT_RS_SSE ) ;
-        resultFormats.put("sse",       ResultsFormat.FMT_RS_SSE ) ;
+        resultFormats.put("rs/sse",    FMT_RS_SSE ) ;
+        resultFormats.put("sse",       FMT_RS_SSE ) ;
 
-        resultFormats.put("rs/csv",    ResultsFormat.FMT_RS_CSV ) ;
-        resultFormats.put("csv",       ResultsFormat.FMT_RS_CSV ) ;
+        resultFormats.put("rs/csv",    FMT_RS_CSV ) ;
+        resultFormats.put("csv",       FMT_RS_CSV ) ;
+
+        resultFormats.put("rs/tsv",    FMT_RS_TSV ) ;
+        resultFormats.put("tsv",       FMT_RS_TSV ) ;
+
         
         // Dump!
-        resultFormats.put("tuples",    ResultsFormat.FMT_TUPLES ) ;
-        resultFormats.put("dump",      ResultsFormat.FMT_TUPLES ) ;
-        resultFormats.put("debug",     ResultsFormat.FMT_TUPLES ) ;
+        resultFormats.put("tuples",    FMT_TUPLES ) ;
+        resultFormats.put("dump",      FMT_TUPLES ) ;
+        resultFormats.put("debug",     FMT_TUPLES ) ;
 
         // result set - graph
-        resultFormats.put("rs/graph",  ResultsFormat.FMT_RS_RDF ) ;
-        resultFormats.put("rs/rdf",    ResultsFormat.FMT_RS_RDF ) ;
-        resultFormats.put("graph",     ResultsFormat.FMT_RS_RDF ) ;
-        resultFormats.put("rs/n3",     ResultsFormat.FMT_RDF_N3 ) ;
+        resultFormats.put("rs/graph",  FMT_RS_RDF ) ;
+        resultFormats.put("rs/rdf",    FMT_RS_RDF ) ;
+        resultFormats.put("graph",     FMT_RS_RDF ) ;
+        resultFormats.put("rs/n3",     FMT_RDF_N3 ) ;
 
-        resultFormats.put("rdf",       ResultsFormat.FMT_RDF_XML ) ;
-        resultFormats.put("rdf/xml",   ResultsFormat.FMT_RDF_XML ) ;
-        resultFormats.put("n3",        ResultsFormat.FMT_RDF_N3 ) ;
-        resultFormats.put("ttl",       ResultsFormat.FMT_RDF_TTL ) ;
-        resultFormats.put("n-triples", ResultsFormat.FMT_RDF_NT ) ;
+        resultFormats.put("rdf",       FMT_RDF_XML ) ;
+        resultFormats.put("rdf/xml",   FMT_RDF_XML ) ;
+        resultFormats.put("n3",        FMT_RDF_N3 ) ;
+        resultFormats.put("ttl",       FMT_RDF_TTL ) ;
+        resultFormats.put("n-triples", FMT_RDF_NT ) ;
     }
     
     /** Short name to proper name (symbol)
@@ -91,7 +96,7 @@ public class ResultsFormat extends Symbol
      */
     public static ResultsFormat lookup(String s)
     {
-        return (ResultsFormat)resultFormats.lookup(s) ;
+        return resultFormats.lookup(s) ;
     }
     
     protected ResultsFormat(String s) { super(s) ; }

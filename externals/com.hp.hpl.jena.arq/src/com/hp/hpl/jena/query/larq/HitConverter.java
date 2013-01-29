@@ -6,17 +6,14 @@
 
 package com.hp.hpl.jena.query.larq;
 
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.binding.BindingMap;
-import com.hp.hpl.jena.sparql.util.NodeFactory;
-import com.hp.hpl.jena.util.iterator.Map1;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.binding.BindingMap ;
+import com.hp.hpl.jena.sparql.util.NodeFactory ;
+import com.hp.hpl.jena.util.iterator.Map1 ;
 
 /** Convert Lucene search hits to LARQ form (node and score)
- *  Hides the Lucene classes from the rest of ARQ.
- *  
- * @author Andy Seaborne
- */ 
+ *  Hides the Lucene classes from the rest of ARQ. */ 
 
 class HitConverter implements Map1<HitLARQ,Binding>
 {

@@ -5,13 +5,15 @@
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
 
 /** An expression that is a variable in an expression. */
  
@@ -36,31 +38,49 @@ public class ExprVar extends ExprNode
     @Override
     public NodeValue eval(Binding binding, FunctionEnv env)
     {
-        if ( binding == null )
-            throw new VariableNotBoundException("Not bound: (no binding): "+varNode) ;
-        Node v = binding.get(varNode) ;
-        if ( v == null )
-            throw new VariableNotBoundException("Not bound: variable "+varNode) ;
-        // Wrap as a NodeValue.
-        return NodeValue.makeNode(v) ;
+        return eval(varNode, binding, env) ;
     }
 
+    static NodeValue eval(Var v, Binding binding, FunctionEnv env)
+    {
+        if ( binding == null )
+            throw new VariableNotBoundException("Not bound: (no binding): "+v) ;
+        Node nv = binding.get(v) ;
+        if ( nv == null )
+            throw new VariableNotBoundException("Not bound: variable "+v) ;
+        // Wrap as a NodeValue.
+        return NodeValue.makeNode(nv) ;
+    }
+    
     @Override
     public Expr copySubstitute(Binding binding, boolean foldConstants)
     {
+        Var v = varNode ;  
         if ( binding == null || !binding.contains(varNode) )
-            return copy() ;
+            return new ExprVar(v) ;
         return eval(binding, null) ;
 //        catch (VariableNotBoundException ex)
 //        {
-//            ALog.warn(this, "Failed to eval bound variable (was bound earlier!)");
+//            Log.warn(this, "Failed to eval bound variable (was bound earlier!)");
 //            throw ex ;
 //        }
     }
     
-    public Expr copy()  { return new ExprVar(varNode) ; }
+    @Override
+    public Expr applyNodeTransform(NodeTransform transform)
+    {
+        Node node = transform.convert(varNode) ;
+        if ( Var.isVar(node))
+            return new ExprVar(Var.alloc(node)) ;
+        return NodeValue.makeNode(node) ;
+    }
+    
+    public Expr copy(Var v)  { return new ExprVar(v) ; }
+    
     
     public void visit(ExprVisitor visitor) { visitor.visit(this) ; }
+    
+    public Expr apply(ExprTransform transform)  { return transform.transform(this) ; }
     
     public void format(Query query, IndentedWriter out)
     {
@@ -98,8 +118,9 @@ public class ExprVar extends ExprNode
     // As an expression (aggregators override this).
     public String asSparqlExpr()    { return  varNode.toString() ; }
 
-//    // ??? Just use format?
-//    public String toString()        { return varNode.toString() ; }
+    // ??? Just use format?
+    @Override
+    public String toString()        { return varNode.toString() ; }
 }
 
 /*

@@ -5,25 +5,23 @@
 
 package com.hp.hpl.jena.sparql.engine.binding;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.lib.iterator.SingletonIterator;
+import org.openjena.atlas.iterator.Iter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.core.Var ;
 
 
-/** Special purpose binding for adding just one name/value slot. 
- * 
- * @author   Andy Seaborne
- */
+/** Special purpose binding for adding just one name/value slot. */
 
 
 public class Binding1 extends BindingBase
 {
-    Var var ;
-    Node value ;
+    private final Var var ;
+    private final Node value ;
     
-    public Binding1(Binding parent, Var _var, Node _node)
+    /*package*/ Binding1(Binding parent, Var _var, Node _node)
     { 
         super(parent) ;
         checkAdd1(_var, _node) ;
@@ -48,7 +46,7 @@ public class Binding1 extends BindingBase
     @Override
     public Iterator<Var> vars1() 
     {
-        return new SingletonIterator<Var>(var) ;
+        return Iter.singleton(var) ;
     }
     
     @Override

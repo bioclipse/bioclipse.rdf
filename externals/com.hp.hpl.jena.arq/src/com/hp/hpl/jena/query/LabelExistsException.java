@@ -5,11 +5,9 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.shared.JenaException ;
 
-/** LabelExists in a named composite data source 
- * @author		Andy Seaborne
- */
+/** LabelExists in a named composite data source */
 
 
 public class LabelExistsException extends JenaException

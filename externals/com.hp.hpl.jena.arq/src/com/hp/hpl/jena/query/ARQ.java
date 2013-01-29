@@ -6,24 +6,79 @@
 
 package com.hp.hpl.jena.query;
 
-import com.hp.hpl.jena.assembler.assemblers.AssemblerGroup;
-import com.hp.hpl.jena.sparql.ARQConstants;
-import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils;
-import com.hp.hpl.jena.sparql.engine.main.StageBuilder;
-import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp;
-import com.hp.hpl.jena.sparql.lib.Metadata;
-import com.hp.hpl.jena.sparql.mgt.ARQMgt ;
-import com.hp.hpl.jena.sparql.util.Context;
-import com.hp.hpl.jena.sparql.util.Symbol;
+import org.openjena.riot.RIOT ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
+import com.hp.hpl.jena.Jena ;
+import com.hp.hpl.jena.assembler.assemblers.AssemblerGroup ;
+import com.hp.hpl.jena.sparql.ARQConstants ;
+import com.hp.hpl.jena.sparql.SystemARQ ;
+import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils ;
+import com.hp.hpl.jena.sparql.engine.main.StageBuilder ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp ;
+import com.hp.hpl.jena.sparql.lib.Metadata ;
+import com.hp.hpl.jena.sparql.mgt.ARQMgt ;
+import com.hp.hpl.jena.sparql.mgt.Explain ;
+import com.hp.hpl.jena.sparql.mgt.Explain.InfoLevel ;
+import com.hp.hpl.jena.sparql.mgt.SystemInfo ;
+import com.hp.hpl.jena.sparql.util.Context ;
+import com.hp.hpl.jena.sparql.util.Symbol ;
 
 /** ARQ - miscellaneous settings
- * 
- * @author Andy Seaborne
  */
 
 public class ARQ
 {
+    /** Name of the execution logger */
+    public static final String logExecName = "com.hp.hpl.jena.arq.exec" ;
+    
+    /** Name of the information logger */
+    public static final String logInfoName = "com.hp.hpl.jena.arq.info" ;
+    
+    /** Name of the logger for remote HTTP requests */
+    public static final String logHttpRequestName = "com.hp.hpl.jena.arq.service" ;
+    
+    private static final Logger logExec = LoggerFactory.getLogger(logExecName) ;
+    private static final Logger logInfo = LoggerFactory.getLogger(logInfoName) ;
+    private static final Logger logHttpRequest = LoggerFactory.getLogger(logHttpRequestName) ;
+
+    /** The execution logger */
+    public static Logger getExecLogger() { return logExec ; }
+    
+    /** The information logger */
+    public static Logger getInfoLogger() { return logInfo ; }
+    
+    /** The HTTP Request logger */
+    public static Logger getHttpRequestLogger() { return logHttpRequest ; }
+
+    /** Symbol to enable logging of execution.  
+     * Must also set log4j, or other logging system,
+     * for logger "com.hp.hpl.jena.sparql.exec"
+     * e.g. log4j.properties -- log4j.logger.com.hp.hpl.jena.sparql.exec=INFO
+     * See the <a href="http://openjena.org/ARQ/Logging">ARQ Logging Documentation</a>.
+     */
+    public static final Symbol symLogExec           = ARQConstants.allocSymbol("logExec") ;
+    
+    /** Get the currentl global execution logging setting */  
+    public static Explain.InfoLevel getExecutionLogging() { return (Explain.InfoLevel)ARQ.getContext().get(ARQ.symLogExec) ; }
+    
+    /** Set execution logging - logging is to logger "com.hp.hpl.jena.arq.exec" at level INFO.
+     * An appropriate logging configuration is also required.
+     */
+    public static void setExecutionLogging(Explain.InfoLevel infoLevel)
+    {
+        if ( InfoLevel.NONE.equals(infoLevel) )
+        {
+            ARQ.getContext().unset(ARQ.symLogExec) ;
+            return ;
+        }
+        
+        ARQ.getContext().set(ARQ.symLogExec, infoLevel) ;
+        if ( ! getExecLogger().isInfoEnabled() )
+            getExecLogger().warn("Attempt to enable execution logging but the logger '"+logExecName+"' is not logging at level INFO") ;
+    }
+
     /** IRI for ARQ */  
     public static final String arqIRI = "http://jena.hpl.hp.com/#arq" ;
 
@@ -81,8 +136,8 @@ public class ARQ
     
     /** Turn on/off processing of blank node labels in queries */  
     public static void enableBlankNodeResultLabels(boolean val)
-    {
-        Boolean b = val ? Boolean.TRUE : Boolean.FALSE ;
+    { 
+        Boolean b = Boolean.valueOf(val) ;
         globalContext.set(inputGraphBNodeLabels, b) ;
         globalContext.set(outputGraphBNodeLabels, b) ;
     }
@@ -109,6 +164,12 @@ public class ARQ
      * before giving the ResultSet to the calling application.
      */
     public static final Symbol useSAX = ARQConstants.allocSymbol("useSAX") ;
+    
+    /** 
+     * Indicate whether duplicate select and groupby variables are allowed. 
+     * If false, duplicates are silently supressed; it's not an error.  
+     */
+    public static final boolean allowDuplicateSelectColumns = false ;
 
     /**
      * Determine which regular expression system to use.
@@ -126,12 +187,86 @@ public class ARQ
     /** Symbol to name the Xerces-J regular expression engine */ 
     public static final Symbol xercesRegex =  ARQConstants.allocSymbol("xercesRegex") ;
     
+    // Optimizer controls.
+    
+    /** 
+     *  Globally switch the default optimizer on and off : 
+     *  Note that storage subsystems may also be applying 
+     *  separately controlled optimizations.
+     */
+    
+    public static void enableOptimizer(boolean state) 
+    {
+        enableOptimizer(ARQ.getContext(), state) ;
+    }
+    
+    /** 
+     *  Switch the default optimizer on and off for a specific Context. 
+     *  Note that storage subsystems may also be applying 
+     *  separately controlled optimizations.
+     */
+    public static void enableOptimizer(Context context, boolean state) 
+    {
+        context.set(ARQ.optimization, state) ;
+    }
+    
+    /** 
+     *  Context key controlling whether the main query engine applies the
+     *  default optimization transformations.
+     */  
+    public static final Symbol optimization = ARQConstants.allocSymbol("optimization") ;
+    
     /** 
      *  Context key controlling whether the main query engine moves filters to the "best" place.
      *  Default is "true" - filter placement is done.
      */  
-    public static final Symbol filterPlacement = ARQConstants.allocSymbol("filterPlacement") ;
-   
+    public static final Symbol optFilterPlacement = ARQConstants.allocSymbol("optFilterPlacement") ;
+    
+    @Deprecated
+    /** @deprecated Use optFilterPlacement */
+    public static final Symbol filterPlacement = optFilterPlacement ;
+    
+    /** 
+     *  Context key controlling whether the standard optimizer applies
+     *  optimizations to equalities in FILTERs.
+     *  This optimization is conservative - it does not take place if
+     *  there is a potential risk of changing query semantics. 
+     */  
+    public static final Symbol optFilterEquality = ARQConstants.allocSymbol("optFilterEquality") ;
+
+    /** 
+     *  Context key for a declaration that xsd:strings and simple literals are
+     *  different in the storage.  They are the same value in a memory store.
+     *  When in doubt, xsd:strings are assuned to be the same value as simple literals   
+     */  
+    public static final Symbol optTermStrings = ARQConstants.allocSymbol("optTermStrings") ;
+
+    /** 
+     *  Context key controlling whether the standard optimizer applies
+     *  optimizations to conjunctions (&&) in filters.
+     */  
+    public static final Symbol optFilterConjunction = ARQConstants.allocSymbol("optFilterConjunction") ;
+
+    /** 
+     *  Context key controlling whether the standard optimizer applies
+     *  optimizations to IN and NOT IN.
+     */  
+    public static final Symbol optFilterExpandOneOf = ARQConstants.allocSymbol("optFilterExpandOneOf") ;
+
+    /** 
+     *  Context key controlling whether the standard optimizer applies
+     *  optimizations to disjunctions (||) in filters.
+     */  
+    public static final Symbol optFilterDisjunction = ARQConstants.allocSymbol("optFilterDisjunction") ;
+    
+    /** 
+     *  Context key controlling whether the main query engine 
+     *  
+     */  
+    public static final Symbol propertyFunctions = ARQConstants.allocSymbol("propertyFunctions") ;
+    
+    
+    
     /**
      * Use a simple (and non-scalable) graph implementation that does no
      * value testing.  Needed for DAWG tests where matching is exact
@@ -159,6 +294,7 @@ public class ARQ
     public static void setStrictMode(Context context)
     {
         XSDFuncOp.strictDateTimeFO = true ;
+        context.set(optimization,           false) ;
         
         context.set(hideNonDistiguishedVariables, true) ;
         context.set(strictGraph,                true) ;
@@ -168,7 +304,7 @@ public class ARQ
         context.set(enablePropertyFunctions,    false) ;
         context.set(generateToList,             true) ;
         context.set(regexImpl,                  xercesRegex) ;
-        context.set(filterPlacement,            false) ;
+        //context.set(filterPlacement,            false) ;
 //        XSDFuncOp.strictDateTimeFO = false ;
     }
     
@@ -179,6 +315,7 @@ public class ARQ
     public static void setNormalMode(Context context)
     {
         XSDFuncOp.strictDateTimeFO = false ;
+        context.unset(optimization) ;
 
         //context.set(hideNonDistiguishedVariables, true) ;
         context.set(strictSPARQL,                  "false") ; 
@@ -192,7 +329,6 @@ public class ARQ
         context.set(regexImpl,                     javaRegex) ;
 //        if (  getContext().isTrue(romanNumeralsAsFirstClassDatatypes) )
 //            RomanNumeralDatatype.enableAsFirstClassDatatype() ; // Wires into the TypeMapper.
-        context.set(filterPlacement,                true) ;
     }
     
     // ----------------------------------
@@ -230,7 +366,21 @@ public class ARQ
         globalContext = defaultSettings() ;
         StageBuilder.init() ;
         ARQMgt.init() ;         // After context and after PATH/NAME/VERSION/BUILD_DATE are set
+        
+        // This is the pattern for any subsystem to register. 
+        String NS = ARQ.PATH ;
+        
+        SystemInfo sysInfo = new SystemInfo(ARQ.arqIRI, ARQ.VERSION, ARQ.BUILD_DATE) ;
+        ARQMgt.register(NS+".system:type=SystemInfo", sysInfo) ;
+        SystemARQ.registerSubSystem(sysInfo) ;
+        
+        SystemInfo sysInfo2 = new SystemInfo("http://openjena.org/#jena", Jena.VERSION, Jena.BUILD_DATE) ;
+        ARQMgt.register(NS+".system:type=SystemInfo", sysInfo2) ;
+        SystemARQ.registerSubSystem(sysInfo2) ;
+        
+        RIOT.init() ;
     }
+    
     // Force a call
     static { init() ; }
     

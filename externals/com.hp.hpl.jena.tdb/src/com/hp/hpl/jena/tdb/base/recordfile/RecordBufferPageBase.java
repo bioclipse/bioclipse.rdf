@@ -9,7 +9,8 @@ package com.hp.hpl.jena.tdb.base.recordfile;
 
 import java.nio.ByteBuffer;
 
-import atlas.io.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
 
 import com.hp.hpl.jena.tdb.base.buffer.RecordBuffer;
 import com.hp.hpl.jena.tdb.base.page.PageBase;
@@ -26,7 +27,8 @@ public class RecordBufferPageBase extends PageBase //implements Page
 {
     // Field offsets
     final public static int COUNT           = 0 ;
-    final private static int FIELD_LENGTH   = SystemTDB.SizeOfInt ;
+    // Length due to this class - subclasses may use more overhead.
+    final private static int FIELD_LENGTH   = SystemTDB.SizeOfInt ;     
     
     protected final int headerLength ;
 

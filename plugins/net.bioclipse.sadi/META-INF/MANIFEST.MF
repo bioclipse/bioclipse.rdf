@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SADI Client Plugin
+Bundle-SymbolicName: net.bioclipse.sadi; singleton:=true
+Bundle-Version: 2.6.0.vqualifier
+Bundle-Activator: net.bioclipse.sadi.Activator
+Export-Package: net.bioclipse.sadi, net.bioclipse.sadi.business
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.bioclipse.core,
+ net.bioclipse.scripting,
+ org.springframework.bundle.spring.aop,
+ net.sf.cglib,
+ org.springframework.osgi.aopalliance.osgi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.log4j
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: libs/sadi-client-0.3.0-SNAPSHOT-jar-with-dependencies.jar,
+ .

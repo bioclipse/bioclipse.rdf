@@ -2,21 +2,23 @@
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class QueryIterBlockTriples extends QueryIter1
 {
@@ -39,7 +41,6 @@ public class QueryIterBlockTriples extends QueryIter1
         this.pattern = pattern ;
         graph = execContext.getActiveGraph() ;
         // Create a chain of triple iterators.
-        // This code is elsewhere (Group? build serial?)
         QueryIterator chain = getInput() ;
         for (Triple triple : pattern)
             chain = new QueryIterTriplePattern(chain, triple, execContext) ;
@@ -64,6 +65,13 @@ public class QueryIterBlockTriples extends QueryIter1
         if ( output != null )
             output.close() ;
         output = null ;
+    }
+    
+    @Override
+    protected void requestSubCancel()
+    {
+        if ( output != null )
+            output.cancel();
     }
 
     @Override

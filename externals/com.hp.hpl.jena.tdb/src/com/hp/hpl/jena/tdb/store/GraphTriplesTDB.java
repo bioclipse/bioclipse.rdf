@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,19 +9,20 @@ package com.hp.hpl.jena.tdb.store;
 
 import java.util.Iterator;
 
+import org.openjena.atlas.lib.Tuple ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import atlas.lib.Tuple;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
 import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.tdb.graph.DatasetPrefixStorage;
-import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable;
+import com.hp.hpl.jena.sparql.core.DatasetPrefixStorage ;
+import com.hp.hpl.jena.sparql.util.Utils ;
+import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
-/** A graph implementation that uses a triple table - free-standing graph or deafult graph of dataset */
+/** A graph implementation that uses a triple table - free-standing graph or default graph of dataset */
 public class GraphTriplesTDB extends GraphTDBBase
 {
     private static Logger log = LoggerFactory.getLogger(GraphTriplesTDB.class) ;
@@ -38,17 +40,19 @@ public class GraphTriplesTDB extends GraphTDBBase
     }
     
     @Override
-    public void performAdd( Triple t ) 
+    protected boolean _performAdd( Triple t ) 
     { 
         boolean changed = tripleTable.add(t) ;
         if ( ! changed )
             duplicate(t) ;
+        return changed ;
     }
 
     @Override
-    public void performDelete( Triple t ) 
+    protected boolean _performDelete( Triple t ) 
     { 
         boolean changed = tripleTable.delete(t) ;
+        return changed ;
     }
     
     @Override
@@ -60,13 +64,6 @@ public class GraphTriplesTDB extends GraphTDBBase
 //    @Override
 //    public boolean isEmpty()        { return tripleTable.isEmpty() ; }
     
-    // B+Trees don't (yet) have a proper size
-//    @Override
-//    public int graphBaseSize()
-//    {
-//        return (int)tripleTable.size() ;
-//    }
-        
     @Override
     protected final Logger getLog() { return log ; }
 
@@ -79,7 +76,7 @@ public class GraphTriplesTDB extends GraphTDBBase
     @Override
     protected Iterator<Tuple<NodeId>> countThis()
     {
-        return tripleTable.getNodeTupleTable().getTupleTable().getIndex(0).all() ;
+        return tripleTable.getNodeTupleTable().findAll() ;
     }
 
     //@Override
@@ -98,7 +95,7 @@ public class GraphTriplesTDB extends GraphTDBBase
         {
             // Part of a dataset which may be cached and so "close" is meaningless.
             // At least sync it to flush data to disk.
-            sync(true) ;
+            sync() ;
         }
         else            
         {
@@ -110,20 +107,24 @@ public class GraphTriplesTDB extends GraphTDBBase
     }
     
     @Override
-    public void sync(boolean force)
+    public void sync()
     {
         if ( dataset != null )
-            dataset.sync(force) ;
+            dataset.sync() ;
         else
         {
-            prefixes.sync(force) ;
-            tripleTable.sync(force);
+            prefixes.sync() ;
+            tripleTable.sync();
         }
     }
+    
+    @Override
+    public String toString() { return Utils.className(this) ; }
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,17 +6,18 @@
 
 package com.hp.hpl.jena.sparql.sse.writers;
 
-import java.util.Iterator;
+import java.util.Iterator ;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 public class WriterGraph
 {
@@ -102,18 +103,18 @@ public class WriterGraph
             return ;
         }
         
-        out.println() ;
-        out.incIndent() ;
+//        out.println() ;
+//        out.incIndent() ;
         boolean first = true ; 
         for ( ; iter.hasNext() ; )
         {
-            if ( ! first )
+//            if ( ! first )
                 out.println();
             first = false ;
             Triple triple = iter.next();
             WriterNode.output(out, triple, naming) ;
         }
-        out.decIndent() ;
+//        out.decIndent() ;
         if ( ! first ) out.println();
         WriterLib.finish(out, Tags.tagGraph) ;
     }

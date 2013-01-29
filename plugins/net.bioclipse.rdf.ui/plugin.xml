@@ -16,6 +16,9 @@
          <contentTypeBinding
                contentTypeId="net.bioclipse.contenttypes.rdf.n3">
          </contentTypeBinding>
+         <contentTypeBinding
+               contentTypeId="net.bioclipse.contenttypes.rdf.xml">
+         </contentTypeBinding>
       </editor>
    </extension>
 

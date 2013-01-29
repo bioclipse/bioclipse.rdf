@@ -1,23 +1,31 @@
 /*
- * (c) Copyright 2009 Talis Information Ltd
+ * (c) Copyright 2009 Talis Systems Ltd
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.tdb.lib;
 
+import java.io.PrintStream ;
+import java.nio.ByteBuffer ;
+import java.util.Arrays ;
 import java.util.HashSet ;
 import java.util.Iterator ;
 import java.util.Set ;
 
+import org.openjena.atlas.io.IndentedWriter ;
+import org.openjena.atlas.lib.ByteBufferLib ;
+import org.openjena.atlas.lib.Pair ;
+import org.openjena.atlas.lib.Tuple ;
+
 import arq.cmd.CmdException ;
-import atlas.lib.Pair ;
-import atlas.lib.Tuple ;
 
 import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.tdb.base.block.BlockMgr ;
 import com.hp.hpl.jena.tdb.index.TupleIndex ;
 import com.hp.hpl.jena.tdb.index.TupleTable ;
+import com.hp.hpl.jena.tdb.index.bplustree.BPlusTree ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTable ;
 import com.hp.hpl.jena.tdb.nodetable.NodeTupleTable ;
 import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
@@ -114,14 +122,44 @@ public class DumpOps
             System.out.print("\n") ;
         }
     }
+    
+    public static void dumpBlockMgr(PrintStream out, BlockMgr blkMgr)
+    {
+        try {
+            for ( int id = 0 ; id < 9999999 ; id++)
+            {
+                if ( ! blkMgr.valid(id) ) break ;
+                ByteBuffer bb = blkMgr.get(id) ;
+                ByteBufferLib.print(out, bb) ;
+            }
+        } catch (Exception ex) { 
+            ex.printStackTrace() ;
+        }
+    }
+    
+    public static void dumpBPlusTree(PrintStream out, BPlusTree bpt)
+    {
+        IndentedWriter iw = new IndentedWriter(out) ;
+        bpt.dump(iw) ;
+    }
+    
+    
+    public static void dumpBPlusTreeBlocks(BPlusTree bpt)
+    {
+        System.out.println("Data blocks");
+        DumpOps.dumpBlockMgr(System.out, bpt.getRecordsMgr().getBlockMgr()) ;
+        System.out.println("Node blocks");
+        DumpOps.dumpBlockMgr(System.out, bpt.getRecordsMgr().getBlockMgr()) ;
+    }    
+
 
     public static void dumpNodeTupleTable(TupleTable tupleTable)
     {
         int N = tupleTable.getTupleLen() ;
-
-        Tuple<NodeId> t = Tuple.blankTuple(N) ;
-        for ( int i = 0 ; i < N ; i++ )
-            t.tuple()[i] = NodeId.NodeIdAny ;
+        NodeId[] nodeIds = new NodeId[N] ;
+        Arrays.fill(nodeIds, NodeId.NodeIdAny) ;
+        
+        Tuple<NodeId> t = Tuple.create(nodeIds) ;
 
         Iterator<Tuple<NodeId>> iter = tupleTable.find(t) ;
         for ( ; iter.hasNext() ; )
@@ -134,7 +172,7 @@ public class DumpOps
 }
 
 /*
- * (c) Copyright 2009 Talis Information Ltd
+ * (c) Copyright 2009 Talis Systems Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

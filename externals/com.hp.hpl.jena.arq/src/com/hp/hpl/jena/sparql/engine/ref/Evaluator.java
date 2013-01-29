@@ -1,26 +1,25 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd. 
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.engine.ref;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-
-import com.hp.hpl.jena.sparql.algebra.Table;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.core.VarExprList;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.expr.E_Aggregator;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-
-import com.hp.hpl.jena.query.SortCondition;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.SortCondition ;
+import com.hp.hpl.jena.sparql.algebra.Table ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.core.VarExprList ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.expr.ExprAggregator ;
+import com.hp.hpl.jena.sparql.expr.ExprList ;
+import com.hp.hpl.jena.sparql.pfunction.PropFuncArg ;
 
 public interface Evaluator
 {
@@ -33,10 +32,14 @@ public interface Evaluator
     // Two forms that provide custom code evaluation
     public Table procedure(Table table, Node procId, ExprList args) ;
     public Table propertyFunction(Table table, Node procId, PropFuncArg subjArgs, PropFuncArg objArgs) ;
+
+    public Table assign(Table table, VarExprList exprs) ;
+    public Table extend(Table table, VarExprList exprs) ;
     
     public Table join(Table tableLeft, Table tableRight) ;
     public Table leftJoin(Table tableLeft, Table tableRight, ExprList expr) ;
     public Table diff(Table tableLeft, Table tableRight) ;
+    public Table minus(Table left, Table right) ;
     public Table union(Table tableLeft, Table tableRight) ;
     public Table condition(Table left, Table right) ;
 
@@ -46,16 +49,16 @@ public interface Evaluator
     public Table list(Table table) ;
     
     public Table order(Table table, List<SortCondition> conditions) ;
-    public Table groupBy(Table table, VarExprList groupVars, List<E_Aggregator> aggregators) ;
+    public Table groupBy(Table table, VarExprList groupVars, List<ExprAggregator> aggregators) ;
     public Table project(Table table, List<Var> projectVars) ; 
     public Table distinct(Table table) ;
     public Table reduced(Table table) ;
     public Table slice(Table table, long start, long length) ;
-    public Table assign(Table table, VarExprList exprs) ;
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd. 
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -1,20 +1,23 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import org.openjena.atlas.lib.Lib ;
+
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.function.FunctionEnvBase ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
 
 /** A function that has a single argument */
  
 public abstract class ExprFunction1 extends ExprFunction
 {
-    Expr expr = null ;
-    String opSymbol ;
-    String opName ;
+    protected final Expr expr ;
 
     protected ExprFunction1(Expr expr, String fName) { this(expr, fName, null) ; }
     
@@ -37,8 +40,7 @@ public abstract class ExprFunction1 extends ExprFunction
     @Override
     public int hashCode()
     {
-        return getFunctionSymbol().hashCode() ^
-               getArg().hashCode() ;
+        return getFunctionSymbol().hashCode() ^ Lib.hashCodeObject(expr) ;
     }
 
     @Override
@@ -53,10 +55,12 @@ public abstract class ExprFunction1 extends ExprFunction
         if ( s != null )
             return s ;
         
-        NodeValue x = expr.eval(binding, env) ;
-        return eval(x) ;
+        NodeValue x = eval(binding, env, expr) ;
+        return eval(x, env) ;
     }
     
+    // Ideally, we would only have the FunctionEnv form but that break compatibility. 
+    public NodeValue eval(NodeValue v, FunctionEnv env) { return eval(v) ; }
     public abstract NodeValue eval(NodeValue v) ;
     
     // Allow special cases.
@@ -65,23 +69,34 @@ public abstract class ExprFunction1 extends ExprFunction
     @Override
     final public Expr copySubstitute(Binding binding, boolean foldConstants)
     {
-        Expr e = expr.copySubstitute(binding, foldConstants) ;
+        Expr e = (expr == null ? null : expr.copySubstitute(binding, foldConstants)) ;
         
         if ( foldConstants)
         {
             try {
-                if ( e.isConstant() )
-                    return eval(e.getConstant()) ;
+                if ( e != null && e.isConstant() )
+                    return eval(e.getConstant(), new FunctionEnvBase()) ;
             } catch (ExprEvalException ex) { /* Drop through */ }
         }
         return copy(e) ;
     }
 
+    @Override
+    final public Expr applyNodeTransform(NodeTransform transform)
+    {
+        Expr e = (expr == null ? null : expr.applyNodeTransform(transform)) ;
+        return copy(e) ;
+    }
+    
     public abstract Expr copy(Expr expr) ;
+    
+    public void visit(ExprVisitor visitor) { visitor.visit(this) ; }
+    public Expr apply(ExprTransform transform, Expr sub) { return transform.transform(this, sub) ; }
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

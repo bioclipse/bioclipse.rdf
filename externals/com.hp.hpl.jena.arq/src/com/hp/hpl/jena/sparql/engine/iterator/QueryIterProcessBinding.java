@@ -2,22 +2,20 @@
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
-/** An iterator that applying a condition.
- * 
- * @author Andy Seaborne
- */
+/** An iterator that applying a condition. */
 
 public abstract class QueryIterProcessBinding extends QueryIter1
 {
@@ -78,6 +76,9 @@ public abstract class QueryIterProcessBinding extends QueryIter1
     
     @Override
     protected void closeSubIterator() {}
+    
+    @Override
+    protected void requestSubCancel() {}
 }
 
 /*

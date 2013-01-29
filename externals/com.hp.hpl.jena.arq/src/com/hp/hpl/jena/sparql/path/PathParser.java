@@ -6,19 +6,17 @@
 
 package com.hp.hpl.jena.sparql.path;
 
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.Reader ;
+import java.io.StringReader ;
 
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.lang.arq.ARQParser;
-import com.hp.hpl.jena.sparql.util.ALog;
-
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryException;
-import com.hp.hpl.jena.query.QueryParseException;
+import com.hp.hpl.jena.query.Query ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.query.QueryParseException ;
+import com.hp.hpl.jena.shared.JenaException ;
+import com.hp.hpl.jena.shared.PrefixMapping ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.lang.arq.ARQParser ;
+import org.openjena.atlas.logging.Log ;
 
 public class PathParser
 {
@@ -57,7 +55,7 @@ public class PathParser
         }
         catch (Throwable th)
         {
-            ALog.warn(PathParser.class, "Unexpected throwable: ",th) ;
+            Log.warn(PathParser.class, "Unexpected throwable: ",th) ;
             throw new QueryException(th.getMessage(), th) ;
         }
     }

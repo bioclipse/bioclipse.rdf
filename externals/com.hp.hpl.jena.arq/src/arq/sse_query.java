@@ -1,5 +1,6 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) 2010 Talis Systems Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -7,23 +8,28 @@
 package arq;
 
 
-import arq.cmd.CmdException;
-import arq.cmd.TerminationException;
-import arq.cmdline.*;
+import org.openjena.atlas.io.IndentedWriter ;
+import arq.cmd.CmdException ;
+import arq.cmd.TerminationException ;
+import arq.cmdline.ArgDecl ;
+import arq.cmdline.CmdARQ ;
+import arq.cmdline.ModAlgebra ;
+import arq.cmdline.ModDataset ;
+import arq.cmdline.ModDatasetGeneralAssembler ;
+import arq.cmdline.ModEngine ;
+import arq.cmdline.ModResultsOut ;
+import arq.cmdline.ModTime ;
 
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DataSourceImpl;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.engine.Plan;
-import com.hp.hpl.jena.sparql.engine.PlanOp;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.QueryExecUtils;
-import com.hp.hpl.jena.sparql.util.Utils;
-
-import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.query.DatasetFactory ;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.engine.Plan ;
+import com.hp.hpl.jena.sparql.engine.PlanOp ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.util.QueryExecUtils ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 public class sse_query extends CmdARQ
 {
@@ -36,7 +42,7 @@ public class sse_query extends CmdARQ
     protected final ArgDecl printDecl  = new ArgDecl(ArgDecl.HasValue, "print") ;
     
     ModAlgebra    modAlgebra =  new ModAlgebra() ;
-    ModDataset    modDataset =  new ModDatasetAssembler() ;
+    ModDataset    modDataset =  new ModDatasetGeneralAssembler() ;
     ModResultsOut modResults =  new ModResultsOut() ;
     ModTime       modTime =     new ModTime() ;
     ModEngine     modEngine =   new ModEngine() ;
@@ -106,10 +112,10 @@ public class sse_query extends CmdARQ
         Dataset dataset = modDataset.getDataset() ;
         // Check there is a dataset.
         if ( dataset == null )
-            dataset = new DataSourceImpl();
+            dataset = DatasetFactory.create() ;
 
         modTime.startTimer() ;
-        DatasetGraph dsg = new DataSourceGraphImpl(dataset) ;
+        DatasetGraph dsg = dataset.asDatasetGraph() ;
 
         if ( printOp || printPlan )
         {
@@ -130,7 +136,7 @@ public class sse_query extends CmdARQ
                 plan.output(out) ;
                 out.flush();
             }
-            return ;
+            //return ;
         }
 
         // Do not optimize.  Execute as-is.
@@ -145,6 +151,7 @@ public class sse_query extends CmdARQ
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) 2010 Talis Systems Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -6,26 +6,22 @@
 
 package com.hp.hpl.jena.sparql.serializer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
+import org.openjena.atlas.io.IndentedLineBuffer ;
+import org.openjena.atlas.io.IndentedWriter ;
 
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.PathBlock;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.path.PathWriter;
-import com.hp.hpl.jena.sparql.syntax.*;
-import com.hp.hpl.jena.sparql.util.IndentedLineBuffer;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.BasicPattern ;
+import com.hp.hpl.jena.sparql.core.PathBlock ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.path.PathWriter ;
+import com.hp.hpl.jena.sparql.syntax.* ;
 
-
-/**
- * @author Andy Seaborne
- */
 
 public class FormatterElement extends FormatterBase
     implements ElementVisitor
@@ -88,7 +84,7 @@ public class FormatterElement extends FormatterBase
     {
         SerializationContext cxt = new SerializationContext() ;
         IndentedLineBuffer b = new IndentedLineBuffer() ;
-        FormatterElement.format(b.getIndentedWriter(), cxt, el) ;
+        FormatterElement.format(b, cxt, el) ;
         return b.toString() ;
     }
 
@@ -201,14 +197,31 @@ public class FormatterElement extends FormatterBase
         out.print(")") ;
     }
 
+    public void visit(ElementBind el)
+    {
+        out.print("BIND(") ;
+        FmtExpr v = new FmtExpr(out, context) ;
+        v.format(el.getExpr()) ;
+        out.print(" AS ") ;
+        out.print("?"+el.getVar().getVarName()) ;
+        out.print(")") ;
+    }
+
     public void visit(ElementUnion el)
     {
         if ( el.getElements().size() == 1 )
         {
             // If this is an element of just one, just do it inplace
             // Can't happen from a parsed query.
-            Element e = el.getElements().get(0) ;
-            visitAsGroup(e) ;
+            // Now can :-)
+            
+            // SPARQL 1.1 inline UNION.
+            // Same as OPTIONAL, MINUS
+            out.print("UNION") ;
+            out.incIndent(INDENT) ;
+            out.newline() ;
+            visitAsGroup(el.getElements().get(0)) ;
+            out.decIndent(INDENT) ;
             return ;
         }
 
@@ -296,6 +309,8 @@ public class FormatterElement extends FormatterBase
         int row2 = out.getRow() ;
         if ( row1 != row2 )
             out.newline() ;
+        else
+            out.print(' ') ;
         
         // Finally, close the group.
         out.print("}") ;
@@ -318,7 +333,10 @@ public class FormatterElement extends FormatterBase
 
     public void visit(ElementService el)
     {
-        visitNodePattern("SERVICE", el.getServiceNode(), el.getElement()) ;
+        String x = "SERVICE" ;
+        if ( el.getSilent() )
+            x = "SERVICE SILENT" ;
+        visitNodePattern(x, el.getServiceNode(), el.getElement()) ;
     }
 
     public void visit(ElementFetch el)
@@ -392,7 +410,14 @@ public class FormatterElement extends FormatterBase
         visitElement1("NOT EXISTS", el) ;
     }
     
-
+    public void visit(ElementMinus el)
+    {
+        out.print("MINUS") ;
+        out.incIndent(INDENT) ;
+        out.newline() ;
+        visitAsGroup(el.getMinusElement()) ;
+        out.decIndent(INDENT) ;
+    }
     
     public void visit(ElementSubQuery el)
     {

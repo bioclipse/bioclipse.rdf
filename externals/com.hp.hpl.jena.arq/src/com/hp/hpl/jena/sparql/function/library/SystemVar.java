@@ -8,19 +8,15 @@ package com.hp.hpl.jena.sparql.function.library;
 
 //import org.apache.commons.logging.*;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.ExprException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionBase0;
-import com.hp.hpl.jena.sparql.util.Symbol;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.ExprException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionBase0 ;
+import com.hp.hpl.jena.sparql.util.Symbol ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
-/** Function that returns the value of a system variable.
- *   
- * 
- * @author Andy Seaborne
- */
+/** Function that returns the value of a system variable. */
 
 public class SystemVar extends FunctionBase0
 {

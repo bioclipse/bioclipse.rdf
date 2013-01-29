@@ -6,11 +6,11 @@
 
 package com.hp.hpl.jena.sparql.function;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.util.Context;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.util.Context ;
 
 /** Environment passed to functions -- see also {@link com.hp.hpl.jena.sparql.engine.ExecutionContext} */
 
@@ -21,13 +21,13 @@ public class FunctionEnvBase implements FunctionEnv
     private DatasetGraph dataset ;
     private ExecutionContext execContext = null ;
 
-    /** Create an execution environment suitable for testing fucntions and expressions */ 
+    /** Create an execution environment suitable for testing functions and expressions */ 
     public static FunctionEnv createTest()
     {
         return new FunctionEnvBase(ARQ.getContext()) ;
     }
     
-    public FunctionEnvBase() { this(null, null, null) ; }
+    public FunctionEnvBase() { this(ARQ.getContext(), null, null) ; }
     
     public FunctionEnvBase(Context context) { this ( context, null, null) ; }
     
@@ -41,6 +41,7 @@ public class FunctionEnvBase implements FunctionEnv
     {
         this.context = context ;
         this.activeGraph = activeGraph ;
+        this.dataset = dataset ;
     }
 
     public Graph getActiveGraph()

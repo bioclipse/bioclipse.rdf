@@ -6,13 +6,14 @@
 
 package com.hp.hpl.jena.tdb.store;
 
-import atlas.lib.BitsLong;
+import org.openjena.atlas.lib.BitsLong ;
 
 public class IntegerNode
 {
     public static long pack(long v) 
     {
-        if ( Math.abs(v) < (1L<<47) )      // Absolute value must fit in 47 bits
+        // 56 bits of value, including sign bit.
+        if ( Math.abs(v) < (1L<<55) )
         {
             v = BitsLong.clear(v, 56, 64) ;
             v = NodeId.setType(v, NodeId.INTEGER) ;

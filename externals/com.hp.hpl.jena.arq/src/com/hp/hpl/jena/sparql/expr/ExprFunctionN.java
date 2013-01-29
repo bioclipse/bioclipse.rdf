@@ -1,20 +1,28 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import java.util.ArrayList ;
+import java.util.List ;
 
-/** A function in the expression hierarchy.
- *  Everything that is evaluable (i.e. not NodeValue, NodeVar) is a function.
- *  It is useful to distinguish between values, vars and functions.
- */
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
+
+/** A function which takes N arguments (N may be variable e.g. regex) */
  
 public abstract class ExprFunctionN extends ExprFunction
 {
     protected ExprList args = null ;
+    
+    protected ExprFunctionN(String fName, Expr... args)
+    {
+        this(fName, argList(args)) ;
+    }
     
     protected ExprFunctionN(String fName, ExprList args)
     {
@@ -22,11 +30,21 @@ public abstract class ExprFunctionN extends ExprFunction
         this.args = args ;
     }
 
+    private static ExprList argList(Expr[] args)
+    {
+        ExprList exprList = new ExprList() ;
+        for ( Expr e : args )
+            if ( e != null )
+                exprList.add(e) ;
+        return exprList ;
+    }
+
+
     @Override
     public Expr getArg(int i)
     {
         i = i-1 ;
-        if ( args.size() <= i )
+        if ( i >= args.size() )
             return null ;
         return args.get(i) ;
     }
@@ -34,7 +52,8 @@ public abstract class ExprFunctionN extends ExprFunction
     @Override
     public int numArgs() { return args.size() ; }
     
-    //public List getArgs() { return args.getList() ; }
+    @Override
+    public List<Expr> getArgs() { return args.getList() ; }
 
     @Override
     public Expr copySubstitute(Binding binding, boolean foldConstants)
@@ -49,11 +68,52 @@ public abstract class ExprFunctionN extends ExprFunction
         return copy(newArgs) ;
     }
 
+    @Override
+    public Expr applyNodeTransform(NodeTransform transform)
+    {
+        ExprList newArgs = new ExprList() ;
+        for ( int i = 1 ; i <= numArgs() ; i++ )
+        {
+            Expr e = getArg(i) ;
+            e = e.applyNodeTransform(transform) ;
+            newArgs.add(e) ;
+        }
+        return copy(newArgs) ;
+    }
+    
+    /** Special form evaluation (example, don't eval the arguments first) */
+    protected NodeValue evalSpecial(Binding binding, FunctionEnv env) { return null ; }
+
+    @Override
+    final public NodeValue eval(Binding binding, FunctionEnv env)
+    {
+        NodeValue s = evalSpecial(binding, env) ;
+        if ( s != null )
+            return s ;
+        
+        List<NodeValue> argsEval = new ArrayList<NodeValue>() ; 
+        for ( int i = 1 ; i <= numArgs() ; i++ )
+        {
+            NodeValue x = eval(binding, env, getArg(i)) ;
+            argsEval.add(x) ;
+        }
+        return eval(argsEval, env) ;
+    }
+    
+    public NodeValue eval(List<NodeValue> args, FunctionEnv env) { return eval(args) ; }
+
+    protected abstract NodeValue eval(List<NodeValue> args) ;
+
     protected abstract Expr copy(ExprList newArgs) ;
+    
+    public void visit(ExprVisitor visitor) { visitor.visit(this) ; }
+    public Expr apply(ExprTransform transform, ExprList exprList) { return transform.transform(this, exprList) ; }
+
 }
 
 /*
- *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

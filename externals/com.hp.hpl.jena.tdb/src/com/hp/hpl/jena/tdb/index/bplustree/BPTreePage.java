@@ -13,6 +13,9 @@ import com.hp.hpl.jena.tdb.base.record.Record;
 /** Abstraction of a B+Tree node - either an branch (BTreeNode) or leaf (BTreeLeaf - records)*/
 abstract public class BPTreePage implements Page
 {
+    // BPTreePageMgr to be superclass of BPTreeRecordsMgr and BPTreeNodeMgr 
+    //  Provides the commonn slots blockMgr, bpTree and their operations.
+    
     // Only "public" for external very low level tools in development to access this class.
     // Assume package access.
 
@@ -55,7 +58,6 @@ abstract public class BPTreePage implements Page
      */
     abstract BPTreePage merge(BPTreePage right, Record splitKey) ;
     
-    
 //    /** Rebalance records/pointers across this page and page other. 
 //     *  Can assume other is the same type as 'this'
 //     *  Can assume that other is the immediate left or immediate right of this page; 
@@ -67,8 +69,11 @@ abstract public class BPTreePage implements Page
     /** Test whether this page is full (has no space for a new element) - used in "insert" */
     abstract boolean isFull() ;
     
-    /**  Test whether this page is of minimum size (removing a record woudl violate the packing limits) - used in "delete" */
+    /**  Test whether this page is of minimum size (removing a record would violate the packing limits) - used in "delete" */
     abstract boolean isMinSize() ;
+    
+    /**  Test whether this page has any keys */
+    abstract boolean hasAnyKeys() ;
 
     /** Find a record; return null if not found */
     abstract Record internalSearch(Record rec) ;

@@ -8,12 +8,9 @@ package com.hp.hpl.jena.query;
 
 //import java.util.Iterator;
 
-import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Model ;
 
-/** A DataSource is a Dataset that has modification operations.
- * 
- * @author Andy Seaborne
- */
+/** A DataSource is a Dataset that has modification operations. */
 
 public interface DataSource extends Dataset
 {

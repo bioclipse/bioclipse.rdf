@@ -1,5 +1,6 @@
 /*
- * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP}
+ * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
@@ -8,6 +9,8 @@ package com.hp.hpl.jena.tdb;
 
 import java.util.Iterator ;
 
+import org.openjena.atlas.lib.Sync ;
+import org.openjena.riot.SysRIOT ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
 
@@ -16,28 +19,25 @@ import com.hp.hpl.jena.graph.Node ;
 import com.hp.hpl.jena.query.ARQ ;
 import com.hp.hpl.jena.query.Dataset ;
 import com.hp.hpl.jena.rdf.model.Model ;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl ;
-import com.hp.hpl.jena.riot.JenaReaderNTriples2 ;
-import com.hp.hpl.jena.riot.JenaReaderTurtle2 ;
+import com.hp.hpl.jena.sparql.SystemARQ ;
 import com.hp.hpl.jena.sparql.core.DatasetGraph ;
 import com.hp.hpl.jena.sparql.core.assembler.AssemblerUtils ;
 import com.hp.hpl.jena.sparql.engine.main.QC ;
 import com.hp.hpl.jena.sparql.engine.main.StageBuilder ;
 import com.hp.hpl.jena.sparql.engine.main.StageGenerator ;
 import com.hp.hpl.jena.sparql.lib.Metadata ;
-import com.hp.hpl.jena.sparql.mgt.ARQMgt;
-import com.hp.hpl.jena.sparql.mgt.SystemInfo;
+import com.hp.hpl.jena.sparql.mgt.ARQMgt ;
+import com.hp.hpl.jena.sparql.mgt.SystemInfo ;
 import com.hp.hpl.jena.sparql.util.Context ;
 import com.hp.hpl.jena.sparql.util.Symbol ;
-import com.hp.hpl.jena.tdb.assembler.VocabTDB ;
-import com.hp.hpl.jena.tdb.lib.Sync ;
-import com.hp.hpl.jena.tdb.modify.UpdateProcessorTDB ;
-import com.hp.hpl.jena.tdb.solver.Explain ;
+import com.hp.hpl.jena.tdb.assembler.AssemblerTDB ;
+import com.hp.hpl.jena.tdb.modify.UpdateEngineTDB ;
 import com.hp.hpl.jena.tdb.solver.OpExecutorTDB ;
 import com.hp.hpl.jena.tdb.solver.QueryEngineTDB ;
 import com.hp.hpl.jena.tdb.solver.StageGeneratorDirectTDB ;
-import com.hp.hpl.jena.tdb.solver.Explain.InfoLevel ;
 import com.hp.hpl.jena.tdb.store.DatasetGraphTDB ;
+import com.hp.hpl.jena.tdb.sys.EnvTDB ;
+import com.hp.hpl.jena.tdb.sys.SetupTDB ;
 import com.hp.hpl.jena.tdb.sys.SystemTDB ;
 import com.hp.hpl.jena.tdb.sys.TDBMaker ;
 
@@ -48,62 +48,37 @@ public class TDB
     
     // Internal logging
     private static final Logger log = LoggerFactory.getLogger(TDB.class) ;
-    
+
     /** Logger for general information */ 
-    public static final Logger logInfo = LoggerFactory.getLogger("com.hp.hpl.jena.tdb.info") ;
+    public static final String logInfoName = "com.hp.hpl.jena.tdb.info" ;
+    /** Logger for general information */ 
+    public static final Logger logInfo = LoggerFactory.getLogger(logInfoName) ;
     
-    /** Logger for execution information */
-    public static final Logger logExec = LoggerFactory.getLogger("com.hp.hpl.jena.tdb.exec") ;
+    /** Logger for loading information */
+    public static final String logLoaderName = "com.hp.hpl.jena.tdb.loader" ;
+    /** Logger for loading information */
+    public static final Logger logLoader = LoggerFactory.getLogger(logLoaderName) ;
+    
+//    /** Logger for execution information */
+//    public static final String logExecName = "com.hp.hpl.jena.tdb.exec" ;
+//    /** Logger for execution information */
+//    public static final Logger logExec = LoggerFactory.getLogger(logExecName) ;
     
     public final static String namespace = "http://jena.hpl.hp.com/2008/tdb#" ;
 
     /** Symbol to use the union of named graphs as the default graph of a query */ 
     public static final Symbol symUnionDefaultGraph          = SystemTDB.allocSymbol("unionDefaultGraph") ;
     
-    /** Symbol to enable logging of execution.  Must also set log4j, or other logging system,
-     * for logger "com.hp.hpl.jena.tdb.exec"
-     * e.g. log4j.properties -- log4j.logger.com.hp.hpl.jena.tdb.exec=INFO
-     */
-    public static final Symbol symLogExec           = SystemTDB.allocSymbol("logExec") ;
-
-    /** Set or unset execution logging - logging is to logger "com.hp.hpl.jena.tdb.exec" at level INFO.
-     * An appropriate logging configuration is also required.
-     * @deprecated Use setExecutionLogging(Explain.InfoLevel)}
+    /** Symbol to use the union of named graphs as the default graph of a query
+     * @deprecated Use ARQ.symLogExec instead.
      */
     @Deprecated
-    public static void setExecutionLogging(boolean state)
-    {
-        if ( ! state )
-        {
-            TDB.getContext().unset(TDB.symLogExec) ;
-            return ;
-        }
-        
-        TDB.getContext().set(TDB.symLogExec, state) ;
-        if ( ! logExec.isInfoEnabled() )
-            log.warn("Attempt to enable execution logging but the logger is not logging at level info") ;
-    }
+    public static final Symbol symLogExec          = ARQ.symLogExec ;
     
-    /** Set execution logging - logging is to logger "com.hp.hpl.jena.tdb.exec" at level INFO.
-     * An appropriate logging configuration is also required.
-     */
-    public static void setExecutionLogging(Explain.InfoLevel infoLevel)
-    {
-        if ( InfoLevel.NONE.equals(infoLevel) )
-        {
-            TDB.getContext().unset(TDB.symLogExec) ;
-            return ;
-        }
-        
-        TDB.getContext().set(TDB.symLogExec, infoLevel) ;
-        if ( ! logExec.isInfoEnabled() )
-            log.warn("Attempt to enable execution logging but the logger is not logging at level info") ;
-    }
-    
-
     public static Context getContext()     { return ARQ.getContext() ; }  
     
     // Called on assembler loading.
+    // Real initializtion happnes due to class static blocks.
     /** TDB System initialization - normally, this is not explicitly called because
      * all routes to use TDB will cause initialization to occur.  However, calling it
      * repeatedly is safe and low cost.
@@ -118,33 +93,42 @@ public class TDB
         TDBMaker.clearDatasetCache() ;
     }
     
-    /** Sync a TDB synchronizable object (model, graph dataset). Do nothing otherwise */
+    /** Set the global flag that control the "No BGP optimizer" warning.
+     * Set to false to silence the warning
+     */
+    public static void setOptimizerWarningFlag(boolean b)
+    { SetupTDB.setOptimizerWarningFlag(b) ; }
+    
+    // ** Call SystemARQ.sync 
+    
+    /** Sync a TDB-backed Model. Do nothing if not TDB-backed. */
     public static void sync(Model model)
     {
         sync(model.getGraph()) ;
     }
     
-    /** Sync a TDB synchronizable object (model, graph dataset). Do nothing otherwise */
+    /** Sync a TDB-backed Graph. Do nothing if not TDB-backed. */
     public static void sync(Graph graph)
     {
-        sync(graph, true) ;
+        syncObject(graph) ;
     }
 
-    /** Sync a TDB synchronizable object (model, graph dataset). Do nothing otherwise */
+    /** Sync a TDB-backed Dataset. Do nothing if not TDB-backed. */
     public static void sync(Dataset dataset)
     { 
         DatasetGraph ds = dataset.asDatasetGraph() ;
         sync(ds) ;
     }
     
-    /** Sync a TDB synchronizable object (model, graph daatset). Do nothing otherwise */
+    /** Sync a TDB-backed DatasetGraph. Do nothing if not TDB-backed. */
     public static void sync(DatasetGraph dataset)
     { 
+        // Should be: SystemARQ.sync(dataset) ;
         if ( dataset instanceof DatasetGraphTDB )
-            sync(dataset, true) ;
+            syncObject(dataset) ;
         else
         {
-            // May be a general purpose datsset with TDB objects in it.
+            // May be a general purpose dataset with TDB objects in it.
             Iterator<Node> iter = dataset.listGraphNodes() ;
             for ( ; iter.hasNext() ; )
             {
@@ -154,52 +138,49 @@ public class TDB
             }
         }
     }
-
     
-    /** Sync a TDB synchronizable object (model, graph daatset). 
+    /** Sync a TDB synchronizable object (model, graph, dataset). 
      *  If force is true, synchronize as much as possible (e.g. file metadata)
      *  else make a reasonable attenpt at synchronization but does not gauarantee disk state. 
-     * Do nothing otherwise */
-    private static void sync(Object object, boolean force)
+     * Do nothing otherwise 
+     */
+    private static void syncObject(Object object)
     {
         if ( object instanceof Sync )
-            ((Sync)object).sync(force) ;
+            ((Sync)object).sync() ;
     }
-    
-    static { initWorker() ; }
-    
+
     private static boolean initialized = false ;
-    private static synchronized void initWorker()
+    static { initialization1() ; }
+    
+    private static synchronized void initialization1()
     {
+        // Called at start.
         if ( initialized )
             return ;
         initialized = true ;
-        
+     
+        SysRIOT.wireIntoJena() ;
         SystemTDB.init() ;
         ARQ.init() ;
+        EnvTDB.processGlobalSystemProperties() ;
         
-        // Set management information.
-        // Needs ARQ > 2.8.0
-        String NS = TDB.PATH ;
-        ARQMgt.register(NS+".system:type=SystemInfo", new SystemInfo(TDB.tdbIRI, TDB.VERSION, TDB.BUILD_DATE)) ;
-
         AssemblerUtils.init() ;
-        VocabTDB.init();
+        AssemblerTDB.init();
         QueryEngineTDB.register() ;
-        UpdateProcessorTDB.register() ;
+        UpdateEngineTDB.register() ;
 
         wireIntoExecution() ;
         
-        // Override N-TRIPLES and Turtle with faster implementations.
-        String readerNT = JenaReaderNTriples2.class.getName() ;
-        RDFReaderFImpl.setBaseReaderClassName("N-TRIPLES", readerNT) ;
-        RDFReaderFImpl.setBaseReaderClassName("N-TRIPLE", readerNT) ;
-        
-        String readerTTL = JenaReaderTurtle2.class.getName() ;
-        RDFReaderFImpl.setBaseReaderClassName("N3", readerTTL) ;
-        RDFReaderFImpl.setBaseReaderClassName("TURTLE", readerTTL) ;
-        RDFReaderFImpl.setBaseReaderClassName("Turtle", readerTTL) ;
-        RDFReaderFImpl.setBaseReaderClassName("TTL", readerTTL) ;
+        // This does not work with the conncurrency policy
+        // Instead, assume all open files (direct and memory mapped) are sync'ed by the OS. 
+//        // Attempt to sync everything on exit.
+//        // This can not be guaranteed.
+//        Runnable runnable = new Runnable() {
+//            public void run()
+//            { try { TDBMaker.syncDatasetCache() ; } catch (Exception ex) {} }
+//        } ;
+//        Runtime.getRuntime().addShutdownHook(new Thread(runnable)) ;
         
         if ( log.isDebugEnabled() )
             log.debug("\n"+ARQ.getContext()) ;
@@ -208,7 +189,7 @@ public class TDB
     private static void wireIntoExecution()
     {
         // TDB does it itself.
-        TDB.getContext().set(ARQ.filterPlacement, false) ;
+        TDB.getContext().set(ARQ.optFilterPlacement, false) ;
         // Globally change the stage generator to intercept BGP on TDB
         StageGenerator orig = (StageGenerator)ARQ.getContext().get(ARQ.stageGenerator) ;
         
@@ -241,20 +222,26 @@ public class TDB
     /** The date and time at which this release was built */   
     public static final String BUILD_DATE = metadata.get(PATH+".build.datetime", "unset") ;
     
-    // Final initialization 
+    // Final initialization (in case any statics in this file are important). 
     static {
-        initlization2() ;
+        initialization2() ;
     }
 
-    private static void initlization2()
-    {
-        //TDB.logInfo.info("TDB: "+TDB.VERSION) ;
+    private static void initialization2()
+    { 
+        // Set management information.
+        // Needs ARQ > 2.8.0
+        String NS = TDB.PATH ;
+        SystemInfo systemInfo = new SystemInfo(TDB.tdbIRI, TDB.VERSION, TDB.BUILD_DATE) ;
+        ARQMgt.register(NS+".system:type=SystemInfo", systemInfo) ;
+        SystemARQ.registerSubSystem(systemInfo) ;
     }
-
+    
 }
 
 /*
  * (c) Copyright 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

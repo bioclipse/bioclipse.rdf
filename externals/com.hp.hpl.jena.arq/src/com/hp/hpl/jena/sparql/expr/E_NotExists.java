@@ -1,24 +1,26 @@
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr;
 
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.core.Substitute;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.syntax.Element;
+import com.hp.hpl.jena.sparql.algebra.Algebra ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.graph.NodeTransform ;
+import com.hp.hpl.jena.sparql.graph.NodeTransformLib ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
 
 public class E_NotExists extends ExprFunctionOp
 {
     // Translated to "(not (exists (...)))" 
     private static final String symbol = "notexists" ;
-    private Op op ;
 
     public E_NotExists(Op op)
     {
@@ -39,10 +41,17 @@ public class E_NotExists extends ExprFunctionOp
     public Expr copySubstitute(Binding binding, boolean foldConstants)
     {
         // Does not pass down fold constants.  Oh well.
-        Op op2 = Substitute.substitute(op, binding) ;
+        Op op2 = Substitute.substitute(getGraphPattern(), binding) ;
         return new E_NotExists(getElement(), op2) ;
     }
 
+    @Override
+    public Expr applyNodeTransform(NodeTransform nodeTransform)
+    {
+        Op op2 = NodeTransformLib.transform(nodeTransform, getGraphPattern()) ;
+        return new E_Exists(getElement(), op2) ;
+    }
+    
     @Override
     protected NodeValue eval(Binding binding, QueryIterator qIter, FunctionEnv env)
     {
@@ -53,7 +62,7 @@ public class E_NotExists extends ExprFunctionOp
     @Override
     public int hashCode()
     {
-        return symbol.hashCode() ^ getOp().hashCode() ;
+        return symbol.hashCode() ^ getGraphPattern().hashCode() ;
     }
     
     @Override
@@ -65,12 +74,17 @@ public class E_NotExists extends ExprFunctionOp
             return false ;
         
         E_NotExists ex = (E_NotExists)other ;
-        return this.getOp().equals(ex.getOp()) ;
+        return this.getGraphPattern().equals(ex.getGraphPattern()) ;
     }
+    
+    @Override
+    public ExprFunctionOp copy(ExprList args, Op x) { return new E_NotExists(x) ; }
+
 }
 
 /*
  * (c) Copyright 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

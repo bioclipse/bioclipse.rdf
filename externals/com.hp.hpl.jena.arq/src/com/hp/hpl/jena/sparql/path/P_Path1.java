@@ -8,9 +8,9 @@ package com.hp.hpl.jena.sparql.path;
 
 public abstract class P_Path1 extends PathBase
 {
-    Path path ;
+    private Path path ;
     
-    public P_Path1(Path p)
+    protected P_Path1(Path p)
     {
         this.path = p ;
     }

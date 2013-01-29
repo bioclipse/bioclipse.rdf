@@ -6,37 +6,33 @@
 
 package com.hp.hpl.jena.sparql.modify;
 
-import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.query.Dataset ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.DatasetGraphWrapper ;
+import com.hp.hpl.jena.sparql.core.DatasetImpl ;
+import com.hp.hpl.jena.update.GraphStore ;
 
-import com.hp.hpl.jena.sparql.core.DataSourceGraphImpl;
-import com.hp.hpl.jena.sparql.core.DataSourceImpl;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-
-import com.hp.hpl.jena.query.Dataset;
-
-import com.hp.hpl.jena.update.GraphStore;
-
-public class GraphStoreBasic extends DataSourceGraphImpl implements GraphStore
+public class GraphStoreBasic extends DatasetGraphWrapper implements GraphStore
 {
-    public GraphStoreBasic() { super.setDefaultGraph(GraphUtils.makeDefaultGraph()) ; }
-    
-    public GraphStoreBasic(Dataset ds) { super(ds) ; }
-    
-    public GraphStoreBasic(Graph graph)
-    {
-        super(graph) ;
+    public GraphStoreBasic(Dataset ds)
+    { 
+        super(ds.asDatasetGraph()) ;
     }
 
-    
-    
+    public GraphStoreBasic(DatasetGraph dsg)
+    { 
+        super(dsg) ;
+    }
+
     public Dataset toDataset()
     {
-        // This is a shallow structure copy.
-        return new DataSourceImpl(this) ;
+        return new DatasetImpl(getWrapped()) ;
     }
 
     public void startRequest()
     { GraphStoreUtils.sendToAll(this, GraphStoreEvents.RequestStartEvent) ; }
+
     public void finishRequest()
     { GraphStoreUtils.sendToAll(this, GraphStoreEvents.RequestFinishEvent) ; }
     

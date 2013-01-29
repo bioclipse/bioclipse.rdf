@@ -1,104 +1,96 @@
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.expr.aggregate;
 
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
+import com.hp.hpl.jena.sparql.sse.writers.WriterExpr ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
 
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.expr.nodevalue.XSDFuncOp;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.sse.writers.WriterExpr;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
-
-public class AggSum implements AggregateFactory
+public class AggSum  extends AggregatorBase
 {
-    // ---- SUM(?var)
-    
-    // ---- AggregatorFactory
+    // ---- SUM(expr)
+    private static final NodeValue noValuesToSum = NodeValue.nvZERO ; 
     private Expr expr ;
 
-    public AggSum(Expr var) { this.expr = var ; } 
+    public AggSum(Expr expr) { this.expr = expr ; } 
+    public Aggregator copy(Expr expr) { return new AggSum(expr) ; }
 
-    public Aggregator create()
-    {
-        // One per each time there is an aggregation.
-        return new AggSumWorker() ;
+    @Override
+    public String toString() { return "sum("+ExprUtils.fmtSPARQL(expr)+")" ; }
+    @Override
+    public String toPrefixString() { return "(sum "+WriterExpr.asString(expr)+")" ; }
+
+    @Override
+    protected Accumulator createAccumulator()
+    { 
+        return new AccSum(expr) ;
     }
-    
-    // XQuery/XPath Functions&Operators suggests zero
-    // SQL suggests null.
-    private static final NodeValue noValuesToSum = NodeValue.nvZERO ; // null 
-    
-    // ---- Aggregator
-    class AggSumWorker extends AggregatorBase
+
+    public Expr getExpr() { return expr ; }
+
+    @Override
+    public Node getValueEmpty()     { return null ; } //return NodeValue.toNode(noValuesToSum) ; } 
+
+    @Override
+    public int hashCode()   { return HC_AggSum ^ expr.hashCode() ; }
+    @Override
+    public boolean equals(Object other)
     {
-        public AggSumWorker()
-        {
-            super() ;
-        }
-
-        @Override
-        public String toString() { return "sum("+ExprUtils.fmtSPARQL(expr)+")" ; }
-        public String toPrefixString() { return "(sum "+WriterExpr.asString(expr)+")" ; }
-
-        @Override
-        protected Accumulator createAccumulator()
-        { 
-            return new AccSumVar() ;
-        }
-        
-        private final Expr getExpr() { return expr ; }
-        
-        public boolean equalsAsExpr(Aggregator other)
-        {
-            if ( ! ( other instanceof AggSumWorker ) )
-                return false ;
-            AggSumWorker agg = (AggSumWorker)other ;
-            return agg.getExpr().equals(getExpr()) ;
-        } 
-
-        
-        /* null is SQL-like.  NodeValue.nodeIntZERO is F&O like */ 
-        @Override
-        public Node getValueEmpty()     { return NodeValue.toNode(noValuesToSum) ; } 
-    }
+        if ( this == other ) return true ; 
+        if ( ! ( other instanceof AggSum ) )
+            return false ;
+        AggSum agg = (AggSum)other ;
+        return agg.getExpr().equals(getExpr()) ;
+    } 
 
     // ---- Accumulator
-    class AccSumVar implements Accumulator
+    private static class AccSum extends AccumulatorExpr
     {
         // Non-empty case but still can be nothing because the expression may be undefined.
-        private NodeValue total = noValuesToSum ;
-        
-        public AccSumVar() {}
+        private NodeValue total = null ;
 
-        public void accumulate(Binding binding, FunctionEnv functionEnv)
-        { 
-            try {
-                NodeValue nv = expr.eval(binding, functionEnv) ;
-                if ( nv.isNumber() )
-                {
-                    if ( total == noValuesToSum )
-                        total = nv ;
-                    else
-                        total = XSDFuncOp.add(nv, total) ;
-                }
-            } catch (ExprEvalException ex)
-            {}
+        public AccSum(Expr expr) { super(expr) ; }
+
+        @Override
+        protected void accumulate(NodeValue nv, Binding binding, FunctionEnv functionEnv)
+        {
+            if ( nv.isNumber() )
+            {
+                if ( total == null )
+                    total = nv ;
+                else
+                    total = XSDFuncOp.add(nv, total) ;
+            }
+            else
+                ARQ.getExecLogger().warn("Evaluation error: sum() on "+nv) ;
         }
-        public NodeValue getValue()
+
+        @Override
+        protected void accumulateError(Binding binding, FunctionEnv functionEnv)
+        {}
+
+        @Override
+        public NodeValue getAccValue()
         { return total ; }
     }
 }
 
 /*
  * (c) Copyright 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010 Talis Systems Ltd.
+ * (c) Copyright 2010 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

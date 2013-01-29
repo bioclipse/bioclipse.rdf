@@ -6,39 +6,34 @@
 
 package com.hp.hpl.jena.sparql.lang;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.HashSet ;
+import java.util.Set ;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.n3.JenaURIException;
-import com.hp.hpl.jena.query.ARQ;
-import com.hp.hpl.jena.query.QueryParseException;
-import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.core.NodeConst;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.expr.E_Exists;
-import com.hp.hpl.jena.sparql.expr.E_NotExists;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.path.P_Link;
-import com.hp.hpl.jena.sparql.path.Path;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.syntax.ElementGroup;
-import com.hp.hpl.jena.sparql.syntax.Template;
-import com.hp.hpl.jena.sparql.syntax.TripleCollector;
-import com.hp.hpl.jena.sparql.util.ExprUtils;
-import com.hp.hpl.jena.sparql.util.LabelToNodeMap;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.datatypes.RDFDatatype ;
+import com.hp.hpl.jena.datatypes.TypeMapper ;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.n3.JenaURIException ;
+import com.hp.hpl.jena.query.ARQ ;
+import com.hp.hpl.jena.query.QueryParseException ;
+import com.hp.hpl.jena.rdf.model.AnonId ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.core.Prologue ;
+import com.hp.hpl.jena.sparql.core.TriplePath ;
+import com.hp.hpl.jena.sparql.core.Var ;
+import com.hp.hpl.jena.sparql.expr.E_Exists ;
+import com.hp.hpl.jena.sparql.expr.E_NotExists ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.graph.NodeConst ;
+import com.hp.hpl.jena.sparql.modify.request.QuadAcc ;
+import com.hp.hpl.jena.sparql.path.Path ;
+import com.hp.hpl.jena.sparql.syntax.Element ;
+import com.hp.hpl.jena.sparql.syntax.ElementGroup ;
+import com.hp.hpl.jena.sparql.syntax.TripleCollector ;
+import com.hp.hpl.jena.sparql.util.ExprUtils ;
+import com.hp.hpl.jena.sparql.util.LabelToNodeMap ;
+import com.hp.hpl.jena.vocabulary.RDF ;
 
 /** Base class for RDF related parsers */ 
 public class ParserBase
@@ -58,7 +53,10 @@ public class ParserBase
     protected final Node nRDFobject     = RDF.Nodes.object ;
     
     // ----
-    protected boolean inConstructTemplate = false ;
+    // Graph patterns, true; in templates, false.
+    private boolean bNodesAreVariables = true ;
+    // In DELETE, false.
+    private boolean bNodesAreAllowed = true ;
     
     // label => bNode for construct templates patterns
     final LabelToNodeMap bNodeLabels = LabelToNodeMap.createBNodeMap() ;
@@ -85,13 +83,25 @@ public class ParserBase
     
     protected void setInConstructTemplate(boolean b)
     {
-        inConstructTemplate = b ;
-        if ( inConstructTemplate )
-            activeLabelMap = bNodeLabels ;
-        else 
-            activeLabelMap = anonVarLabels ;
+        setBNodesAreVariables(!b) ;
     }
     
+    protected boolean getBNodesAreVariables()   { return bNodesAreVariables ; }
+    protected void setBNodesAreVariables(boolean bNodesAreVariables)
+    {
+        this.bNodesAreVariables = bNodesAreVariables ;
+        if ( bNodesAreVariables )
+            activeLabelMap = anonVarLabels ;
+        else 
+            activeLabelMap = bNodeLabels  ;
+    }
+    
+    protected boolean getBNodesAreAllowed()   { return bNodesAreAllowed ; }
+    protected void setBNodesAreAllowed(boolean bNodesAreAllowed)
+    {
+        this.bNodesAreAllowed = bNodesAreAllowed ;
+    }
+
     protected Element compressGroupOfOneGroup(ElementGroup elg)
     {
         // remove group of one group.
@@ -288,14 +298,21 @@ public class ParserBase
 //    protected Node createListNode()
 //    { return listLabelMap.allocNode() ; }
     
-    protected Node createListNode() { return createBNode() ; }
+    protected Node createListNode(int line, int column) { return createBNode(line, column) ; }
 
     // Unlabelled bNode.
-    protected Node createBNode() { return activeLabelMap.allocNode() ; }
+    protected Node createBNode(int line, int column)
+    {
+        if ( ! bNodesAreAllowed )
+            throwParseException("Blank nodes not allowed in DELETE templates", line, column) ;
+        return activeLabelMap.allocNode() ;
+    }
     
     // Labelled bNode.
     protected Node createBNode(String label, int line, int column)
     { 
+        if ( ! bNodesAreAllowed )
+            throwParseException("Blank nodes not allowed in DELETE templates: "+label, line, column) ;
         if ( oldLabels.contains(label) )
             throwParseException("Blank node reused across basic graph patterns: "+label,
                                 line, column) ;
@@ -323,6 +340,11 @@ public class ParserBase
         return prefix ; 
     }
     
+    protected void setAccGraph(QuadAcc acc, Node gn)
+    {
+        acc.setGraph(gn) ;
+    }
+    
     protected void insert(TripleCollector acc, Node s, Node p, Node o)
     {
         acc.addTriple(new Triple(s, p, o)) ;
@@ -332,8 +354,6 @@ public class ParserBase
     {
         acc.addTriple(index, new Triple(s, p, o)) ;
     }
-    
-    // insert-with-path is used by both SPARQL and ARQ (extended SPARQL). 
     
     protected void insert(TripleCollector acc, Node s, Node p, Path path, Node o)
     {
@@ -351,13 +371,6 @@ public class ParserBase
             acc.addTriple(index, new Triple(s, p, o)) ;
     }
 
-    static Path fixPredicate(Node p)
-    {
-        if ( p.isURI() )
-            return new P_Link(p) ;
-        return null ;
-    }
-    
     protected Expr asExpr(Node n)
     {
         return ExprUtils.nodeToExpr(n) ;
@@ -369,24 +382,10 @@ public class ParserBase
         String lang = n.getLiteralLanguage() ;
         String dtURI = n.getLiteralDatatypeURI() ;
         n = createLiteral(lex, lang, dtURI) ;
-        
         return ExprUtils.nodeToExpr(n) ;
     }
 
     // Utilities to remove escapes
-    
-    // Testing interface
-    
-    // SPARQL/Update 
-    protected Graph convertTemplateToTriples(Template template, int line, int col)
-    {
-        List<Triple> acc = new ArrayList<Triple>() ;
-        TriplesDataCollector collector = new TriplesDataCollector(acc, line, col) ;
-        template.visit(collector) ;
-        Graph g = GraphUtils.makePlainGraph() ;
-        g.getBulkUpdateHandler().add(acc) ;
-        return g ;
-    }
     
     public static String unescapeStr(String s)
     { return unescape(s, '\\', false, 1, 1) ; }

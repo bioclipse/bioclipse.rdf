@@ -24,15 +24,17 @@ public class VocabTDB
     public static final Resource tDatasetTDB        = Vocab.type(NS, "DatasetTDB") ;
     public static final Resource tGraphTDB          = Vocab.type(NS, "GraphTDB") ;
     public static final Resource tGraphBDB          = Vocab.type(NS, "GraphBDB") ;
-    public static final Resource tTupleIndex        = Vocab.type(NS, "TupleIndex") ;
+//    public static final Resource tTupleIndex        = Vocab.type(NS, "TupleIndex") ;
     public static final Resource tNodeTable         = Vocab.type(NS, "NodeTable") ;
 
     public static final Property pLocation          = Vocab.property(NS, "location") ;
+    public static final Property pUnionDefaultGraph = Vocab.property(NS, "unionDefaultGraph") ;
     
     public static final Property pIndex             = Vocab.property(NS, "index") ;
     public static final Property pGraphName1        = Vocab.property(NS, "graphName") ;
     public static final Property pGraphName2        = Vocab.property(NS, "namedGraph") ;
     public static final Property pDataset           = Vocab.property(NS, "dataset") ;
+    
     public static final Property pNodes             = Vocab.property(NS, "nodes") ;
 
     // Indexes
@@ -73,11 +75,11 @@ public class VocabTDB
         assemblerClass(g, tNodeTable,         new NodeTableAssembler()) ;
     }
     
-    public static void assemblerClass(AssemblerGroup g, Resource r, Assembler a)
+    public static void assemblerClass(AssemblerGroup group, Resource r, Assembler a)
     {
-        if ( g == null )
-            g = Assembler.general ;
-        g.implementWith(r, a) ;
+        if ( group == null )
+            group = Assembler.general ;
+        group.implementWith(r, a) ;
         //assemblerAssertions.add(r, RDFS.subClassOf, JA.Object) ;
     }
 }

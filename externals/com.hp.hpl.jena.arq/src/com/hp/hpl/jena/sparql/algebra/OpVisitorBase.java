@@ -1,12 +1,13 @@
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
  */
 
 package com.hp.hpl.jena.sparql.algebra;
 
-import com.hp.hpl.jena.sparql.algebra.op.*;
+import com.hp.hpl.jena.sparql.algebra.op.* ;
 
 
 public class OpVisitorBase implements OpVisitor
@@ -45,6 +46,9 @@ public class OpVisitorBase implements OpVisitor
     public void visit(OpConditional opCond)
     {}
 
+    public void visit(OpMinus opMinus)
+    {}
+    
     public void visit(OpDiff opDiff)
     {}
     
@@ -78,6 +82,9 @@ public class OpVisitorBase implements OpVisitor
     public void visit(OpAssign opAssign)
     {}
 
+    public void visit(OpExtend opExtend)
+    {}
+
     public void visit(OpList opList)
     {}
 
@@ -96,12 +103,16 @@ public class OpVisitorBase implements OpVisitor
     public void visit(OpSlice opSlice)
     {}
 
-    public void visit(OpGroupAgg opGroupAgg)
+    public void visit(OpGroup opGroup)
+    {}
+    
+    public void visit(OpTopN opTop)
     {}
 }
 
 /*
  * (c) Copyright 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2010, 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

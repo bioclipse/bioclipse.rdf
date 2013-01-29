@@ -6,28 +6,26 @@
 
 package com.hp.hpl.jena.sparql.algebra.op;
 
-import com.hp.hpl.jena.rdf.model.Model;
+import org.openjena.atlas.io.IndentedWriter ;
 
-import com.hp.hpl.jena.util.FileManager;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-
-import com.hp.hpl.jena.sparql.algebra.ExtBuilder;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpExtRegistry;
-import com.hp.hpl.jena.sparql.core.DataSourceGraph;
-import com.hp.hpl.jena.sparql.core.Substitute;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.ItemList;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
-import com.hp.hpl.jena.sparql.util.IterLib;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import com.hp.hpl.jena.graph.Graph ;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.algebra.OpExtBuilder ;
+import com.hp.hpl.jena.sparql.algebra.Op ;
+import com.hp.hpl.jena.sparql.algebra.OpExtRegistry ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.Substitute ;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.engine.iterator.QueryIterRepeatApply ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.ItemList ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
+import com.hp.hpl.jena.sparql.util.IterLib ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
+import com.hp.hpl.jena.util.FileManager ;
 
 public class OpFetch extends OpExt
 {
@@ -39,9 +37,13 @@ public class OpFetch extends OpExt
         if ( enabled ) return ;
         enabled = true ;
         
-        OpExtRegistry.register(new ExtBuilder() {
-            public OpExt make(ItemList argList) { return new OpFetch(argList.get(0).getNode()) ; }
-            public String getTagName()           { return TagFetch ; }
+        OpExtRegistry.register(new OpExtBuilder() {
+            
+            public OpExt make(ItemList argList)
+            { return new OpFetch(argList.get(0).getNode()) ; }
+            
+            public String getTagName()
+            { return TagFetch ; }
         }) ;
     }
     // ----------------
@@ -77,7 +79,7 @@ public class OpFetch extends OpExt
         @Override
         protected QueryIterator nextStage(Binding binding)
         {
-            DataSourceGraph ds = (DataSourceGraph)super.getExecContext().getDataset() ;
+            DatasetGraph ds = super.getExecContext().getDataset() ;
             Node n = Substitute.substitute(node, binding) ;
             String uri = n.getURI();
             if ( ds.containsGraph(n) )

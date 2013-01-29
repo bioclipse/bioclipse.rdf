@@ -6,15 +6,16 @@
 
 package com.hp.hpl.jena.sparql.sse.writers;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.serializer.SerializationContext;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.IndentedWriter;
+import org.openjena.atlas.io.IndentedWriter ;
+
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.graph.Triple ;
+import com.hp.hpl.jena.sparql.core.Quad ;
+import com.hp.hpl.jena.sparql.serializer.SerializationContext ;
+import com.hp.hpl.jena.sparql.sse.Tags ;
+import com.hp.hpl.jena.sparql.util.FmtUtils ;
 
 public class WriterNode
 {
@@ -24,9 +25,9 @@ public class WriterNode
     
     public static void output(IndentedWriter out, Triple triple, SerializationContext naming)
     {
-        WriterLib.start(out, Tags.tagTriple, NoNL) ;
+        WriterLib.startOneLine(out, Tags.tagTriple) ;
         outputPlain(out, triple, naming) ;
-        WriterLib.finish(out, Tags.tagTriple) ;
+        WriterLib.finishOneLine(out, Tags.tagTriple) ;
     }
     
     public static void outputPlain(IndentedWriter out, Triple triple, SerializationContext naming)
@@ -41,9 +42,9 @@ public class WriterNode
     
     public static void output(IndentedWriter out, Quad qp, SerializationContext naming)
     {
-        WriterLib.start(out, Tags.tagQuad, NoNL) ;
+        WriterLib.startOneLine(out, Tags.tagQuad) ;
         outputPlain(out, qp, naming) ;
-        WriterLib.finish(out, Tags.tagQuad) ;
+        WriterLib.finishOneLine(out, Tags.tagQuad) ;
     }
     
     public static void outputPlain(IndentedWriter out, Quad qp, SerializationContext naming)

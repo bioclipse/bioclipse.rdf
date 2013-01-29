@@ -6,23 +6,20 @@
 
 package com.hp.hpl.jena.query;
 
-import java.util.List;
+import java.util.List ;
 
-import com.hp.hpl.jena.assembler.Assembler;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.assembler.Assembler ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.rdf.model.Resource ;
+import com.hp.hpl.jena.sparql.ARQException ;
+import com.hp.hpl.jena.sparql.core.DataSourceImpl ;
+import com.hp.hpl.jena.sparql.core.DatasetGraph ;
+import com.hp.hpl.jena.sparql.core.assembler.DataSourceAssembler ;
+import com.hp.hpl.jena.sparql.util.DatasetUtils ;
+import com.hp.hpl.jena.sparql.util.graph.GraphUtils ;
+import com.hp.hpl.jena.util.FileManager ;
 
-import com.hp.hpl.jena.sparql.ARQException;
-import com.hp.hpl.jena.sparql.core.DataSourceImpl;
-import com.hp.hpl.jena.sparql.core.assembler.DataSourceAssembler;
-import com.hp.hpl.jena.sparql.util.DatasetUtils;
-import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
-
-/** Make Datasets and DataSources in various ways   
- * 
- * @author Andy Seaborne
- */
+/** Make Datasets and DataSources in various ways */
 
 public class DatasetFactory
 {
@@ -30,9 +27,8 @@ public class DatasetFactory
      * 
      * @return DataSource
      */
-    
     public static DataSource create()
-    { return new DataSourceImpl() ; }
+    { return DataSourceImpl.createMem() ; }
 
     /** Create a dataset with the given model as the default graph
      * @param model
@@ -41,6 +37,19 @@ public class DatasetFactory
     public static DataSource create(Model model)
     { return new DataSourceImpl(model) ; }
 
+    /** Create a dataset
+     * @param dataset
+     * @return DataSource (Updateable Dataset) 
+     */ 
+    public static DataSource create(Dataset dataset)
+    { return new DataSourceImpl(dataset) ; }
+
+    /** Wrap a datasetgraph to make a mutable dataset
+     * @param dataset DatasetGraph
+     * @return DataSource (Updateable Dataset) 
+     */ 
+    public static DataSource create(DatasetGraph dataset)
+    { return DataSourceImpl.wrap(dataset) ; }
     
     /** Create a dataset based on a list of URIs : these are merged into the default graph of teh dataset.
      * 

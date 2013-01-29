@@ -6,17 +6,21 @@
 
 package com.hp.hpl.jena.sparql.core;
 
-import java.util.*;
+import java.util.ArrayList ;
+import java.util.HashMap ;
+import java.util.Iterator ;
+import java.util.List ;
+import java.util.Map ;
 
-import com.hp.hpl.jena.graph.Node;
+import org.openjena.atlas.lib.Lib ;
 
-import com.hp.hpl.jena.sparql.ARQInternalErrorException;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.graph.Node ;
+import com.hp.hpl.jena.sparql.ARQInternalErrorException ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.expr.Expr ;
+import com.hp.hpl.jena.sparql.expr.ExprEvalException ;
+import com.hp.hpl.jena.sparql.expr.NodeValue ;
+import com.hp.hpl.jena.sparql.function.FunctionEnv ;
 
 public class VarExprList
 {
@@ -62,19 +66,31 @@ public class VarExprList
                 return null ;
             return nv.asNode() ;
         } catch (ExprEvalException ex)
-        //{ ALog.warn(this, "Eval failure "+expr+": "+ex.getMessage()) ; }
+        //{ Log.warn(this, "Eval failure "+expr+": "+ex.getMessage()) ; }
         { }
         return null ;
     }
     
     public void add(Var var)
     {
-        if ( ! vars.contains(var) )
+        // Checking here controls whether duplicate variables are allowed.
+        // Duplicates with expressions are not allowed (add(Var, Expr))
+        // See ARQ.allowDuplicateSelectColumns
+
+        // Every should work either way round if this is enabled.
+        // Checking is done in Query for adding result vars, and group vars.
+        // if ( vars.contains(var) )
             vars.add(var) ;
     }
 
     public void add(Var var, Expr expr)
     {
+        if ( expr == null )
+        {
+            add(var) ;
+            return ;
+        }
+
         if ( var == null )
             throw new ARQInternalErrorException("Attempt to add a named expression with a null variable") ;
         if ( exprs.containsKey(var) )
@@ -100,8 +116,8 @@ public class VarExprList
     public int hashCode()
     { 
         int x = vars.hashCode() ^ exprs.hashCode() ;
-        
-        return vars.hashCode() ^ exprs.hashCode() ; }
+        return x ;
+    }
     
     @Override
     public boolean equals(Object other)
@@ -110,7 +126,7 @@ public class VarExprList
         if ( ! ( other instanceof VarExprList ) )
             return false ;
         VarExprList x = (VarExprList)other ;
-        return Utils.equals(vars, x.vars) &&  Utils.equals(exprs, x.exprs) ;
+        return Lib.equal(vars, x.vars) && Lib.equal(exprs, x.exprs) ;
     }
     
     @Override

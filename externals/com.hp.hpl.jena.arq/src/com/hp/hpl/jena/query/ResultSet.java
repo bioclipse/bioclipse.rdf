@@ -6,10 +6,11 @@
 
 package com.hp.hpl.jena.query;
 
-import java.util.* ;
+import java.util.Iterator ;
+import java.util.List ;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 
 /** Results from a query in a table-like manner for SELECT queries.
  *  Each row corresponds to a set of bindings which fulfil the conditions
@@ -18,9 +19,6 @@ import com.hp.hpl.jena.sparql.engine.binding.Binding;
  * @see Query
  * @see QueryExecution
  * @see QuerySolution
- * @see ResultSet
- * 
- * @author   Andy Seaborne
  */
 
 public interface ResultSet extends Iterator<QuerySolution>

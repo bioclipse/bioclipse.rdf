@@ -6,27 +6,27 @@
 
 package com.hp.hpl.jena.tdb.base.file;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Comparator;
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.io.ByteArrayOutputStream ;
+import java.io.File ;
+import java.io.FileNotFoundException ;
+import java.io.IOException ;
+import java.io.InputStream ;
+import java.io.PrintStream ;
+import java.util.Comparator ;
+import java.util.Properties ;
+import java.util.SortedSet ;
+import java.util.TreeSet ;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import atlas.lib.PropertiesSorted;
-import atlas.lib.PropertyUtils;
+import org.openjena.atlas.lib.Closeable ;
+import org.openjena.atlas.lib.Lib ;
+import org.openjena.atlas.lib.PropertiesSorted ;
+import org.openjena.atlas.lib.PropertyUtils ;
+import org.openjena.atlas.lib.Sync ;
+import org.slf4j.Logger ;
+import org.slf4j.LoggerFactory ;
 
-import com.hp.hpl.jena.sparql.core.Closeable;
-import com.hp.hpl.jena.sparql.util.Utils;
-import com.hp.hpl.jena.tdb.TDBException;
-import com.hp.hpl.jena.tdb.lib.Sync;
-import com.hp.hpl.jena.tdb.sys.Names;
+import com.hp.hpl.jena.tdb.TDBException ;
+import com.hp.hpl.jena.tdb.sys.Names ;
 
 /** Abstraction and many convenience operations on metadata. 
  * Metadata is recorded in Java properties style - not RDF - because it's relative to the file or context used.
@@ -153,7 +153,7 @@ public class MetaFile implements Sync, Closeable
     /** Test whether a property has a value.  Null tests equal to not present. */
     public boolean propertyEquals(String key, String value)
     {
-        return Utils.equals(getProperty(key), value) ;
+        return Lib.equal(getProperty(key), value) ;
     }
 
     /** Set property if not already set. */
@@ -194,7 +194,7 @@ public class MetaFile implements Sync, Closeable
     {
         String value = getProperty(key) ;
         
-        if ( ! Utils.equals(value, value) )
+        if ( ! Lib.equal(value, value) )
             inconsistent(key, value, expected) ;
     }
 
@@ -335,8 +335,10 @@ public class MetaFile implements Sync, Closeable
     }
 
     //@Override
-    public void sync(boolean force)
-    { flush() ; }
+    public void sync()                  { flush() ; }
+    
+    //@Override
+    public void sync(boolean force)     { flush() ; }
 
     //@Override
     public void close()

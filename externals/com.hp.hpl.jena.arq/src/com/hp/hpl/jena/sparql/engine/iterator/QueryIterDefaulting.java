@@ -1,35 +1,32 @@
 /*
  * (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ *  (c) Copyright 2011 Epimorphics Ltd.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software Licnese (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.Utils;
+import com.hp.hpl.jena.sparql.engine.ExecutionContext ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** An iterator that returns at least one element from another iterator
- *  or a default value (once) if the wrapped iterator returns nothing.
- * 
- * @author Andy Seaborne
- */ 
+ *  or a default value (once) if the wrapped iterator returns nothing. */ 
 
-public class QueryIterDefaulting extends QueryIter
+public class QueryIterDefaulting extends QueryIterSub
 {
     Binding defaultObject ;
-    QueryIterator cIter ;
     
     boolean returnDefaultObject = false ;
     boolean haveReturnedSomeObject = false ; 
 
     public QueryIterDefaulting(QueryIterator cIter, Binding _defaultObject, ExecutionContext qCxt) 
     {
-        super(qCxt) ;
-        this.cIter = cIter ;
+        super(cIter, qCxt) ;
         defaultObject = _defaultObject ;
     }
 
@@ -43,7 +40,7 @@ public class QueryIterDefaulting extends QueryIter
         if ( isFinished() )
             return false ;
 
-        if ( cIter != null && cIter.hasNext() )
+        if ( iter != null && iter.hasNext() )
             return true ;
         
         // Wrapped iterator has ended (or does not exist).  Have we returned anything yet? 
@@ -68,8 +65,8 @@ public class QueryIterDefaulting extends QueryIter
         }
 
         Binding binding = null ;
-        if ( cIter != null && cIter.hasNext() )
-            binding = cIter.next() ;
+        if ( iter != null && iter.hasNext() )
+            binding = iter.next() ;
         else
         {
             if ( haveReturnedSomeObject )
@@ -82,18 +79,17 @@ public class QueryIterDefaulting extends QueryIter
     }
 
     @Override
-    protected void closeIterator()
-    {
-        if ( cIter != null )
-        {
-            cIter.close() ;
-            cIter = null ;
-        }
-    }
+    protected void requestSubCancel()
+    {}
+
+    @Override
+    protected void closeSubIterator()
+    {}
 }
 
 /*
  *  (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ *  (c) Copyright 2011 Epimorphics Ltd.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

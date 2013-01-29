@@ -13,6 +13,7 @@ package net.bioclipse.rdf.business;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -26,8 +27,6 @@ import net.bioclipse.managers.business.IBioclipseManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-
-import com.hp.hpl.jena.rdf.model.Model;
 
 @PublishedClass("Contains RDF related methods")
 @TestClasses(
@@ -79,6 +78,17 @@ public interface IRDFManager extends IBioclipseManager {
         ) throws IOException, BioclipseException, CoreException;
 
     @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String rdfContent, String format",
+        methodSummary = "Loads triples from the String in the given format " +
+                "(\"RDF/XML\", \"N-TRIPLE\", \"TURTLE\" and \"N3\") into " +
+                "the given store"
+    )
+    public IRDFStore importFromString(
+            IRDFStore store, String rdfContent, String format
+        ) throws IOException, BioclipseException, CoreException;
+
+    @Recorded
     public IRDFStore importFile(IRDFStore store, IFile target, String format,
             IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
@@ -94,6 +104,20 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     public IRDFStore importURL(IRDFStore store, String url, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String url, Map<String, String> extraHeaders, ",
+        methodSummary = "Loads a RDF/XML file from the URL into the given store"
+    )
+    @TestMethods("testImportURL")
+    public IRDFStore importURL(IRDFStore store, Map<String, String> extraHeaders, String url)
+        throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    public IRDFStore importURL(IRDFStore store, String url,
+    		Map<String, String> extraHeaders, IProgressMonitor monitor)
         throws IOException, BioclipseException, CoreException;
 
     @Recorded
@@ -148,6 +172,30 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+                "String value, String dataType",
+        methodSummary = "Adds a triple to the given store"
+    )
+    @TestMethods("testAddTypedDataProperty")
+    public void addTypedDataProperty(IRDFStore store,
+        String subject, String predicate, String value,
+        String dataType)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String subject, String predicate, " +
+                "String value, Locale language",
+        methodSummary = "Adds a triple to the given store"
+    )
+    @TestMethods("testAddPropertyInLanguage")
+    public void addPropertyInLanguage(IRDFStore store,
+        String subject, String predicate, String value,
+        String language)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "IRDFStore store",
         methodSummary = "Returns the number of triples in the store"
     )
@@ -178,6 +226,14 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Returns a String with the N3 serialization."
     )
     public String asRDFN3(IRDFStore store)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store",
+        methodSummary = "Returns a String with the Turtle serialization."
+    )
+    public String asTurtle(IRDFStore store)
         throws BioclipseException;
 
     @Recorded
@@ -246,9 +302,26 @@ public interface IRDFManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(
         params = "IRDFStore store, String resourceURI",
+        methodSummary = "Lists all resources that are owl:equivalentClass as the " +
+        		"given resource."
+    )
+    public List<String> allOwlEquivalentClass(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String resourceURI",
         methodSummary = "Lists all resources that are owl:sameAs as the " +
         		"given resource."
     )
     public List<String> allOwlSameAs(IRDFStore store, String resourceURI)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String resourceURI, String predicate",
+        methodSummary = "Lists all resources or literals for the resource and predicate."
+    )
+    public List<String> getForPredicate(IRDFStore store, String resourceURI, String predicate)
     throws IOException, BioclipseException, CoreException;
 }

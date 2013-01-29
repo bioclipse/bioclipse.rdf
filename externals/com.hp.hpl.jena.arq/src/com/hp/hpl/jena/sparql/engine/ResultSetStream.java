@@ -5,22 +5,20 @@
 
 package com.hp.hpl.jena.sparql.engine;
 
-import java.util.*;
+import java.util.List ;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.* ;
-import com.hp.hpl.jena.sparql.core.ResultBinding;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import com.hp.hpl.jena.query.QuerySolution ;
+import com.hp.hpl.jena.query.ResultSet ;
+import com.hp.hpl.jena.rdf.model.Model ;
+import com.hp.hpl.jena.sparql.core.ResultBinding ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
 
 
 /** The main ResultSet implementation for returning results from queries.
  * This version is "use once" - you can not reset the result set because
  * the results of the query are not remembered so as not to consume potentially
- * large amounts of memory.
- * 
- * @author   Andy Seaborne
- */
+ * large amounts of memory. */
 
 public class ResultSetStream implements ResultSet
 {
@@ -30,9 +28,6 @@ public class ResultSetStream implements ResultSet
     private QuerySolution currentQuerySolution ;
     private int rowNumber ;
     private Model model ;
-    
-    private boolean ordered = false ; 
-    private boolean distinct = false ;
     
     public ResultSetStream(List<String> resultVars, Model m, QueryIterator iter)
     {

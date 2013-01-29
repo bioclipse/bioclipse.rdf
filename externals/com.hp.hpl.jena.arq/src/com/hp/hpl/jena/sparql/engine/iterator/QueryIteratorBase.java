@@ -1,40 +1,50 @@
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  * [See end of file]
+ * Includes software from the Apache Software Foundation - Apache Software License (JENA-29)
  */
 
 package com.hp.hpl.jena.sparql.engine.iterator;
 
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException ;
 
-import com.hp.hpl.jena.query.QueryException;
-import com.hp.hpl.jena.query.QueryFatalException;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.util.ALog;
-import com.hp.hpl.jena.sparql.util.PrintSerializableBase;
-import com.hp.hpl.jena.sparql.util.Utils;
+import org.openjena.atlas.logging.Log ;
+
+import com.hp.hpl.jena.query.QueryCancelledException ;
+import com.hp.hpl.jena.query.QueryException ;
+import com.hp.hpl.jena.query.QueryFatalException ;
+import com.hp.hpl.jena.sparql.engine.QueryIterator ;
+import com.hp.hpl.jena.sparql.engine.binding.Binding ;
+import com.hp.hpl.jena.sparql.util.PrintSerializableBase ;
+import com.hp.hpl.jena.sparql.util.Utils ;
 
 /**
  * This class provides the general machinary for iterators.  This includes:
  * <ul>
  * <li>autoclose when the iterator runs out</li>
  * <li>ensuring query iterators only contain Bindings</li>
- * </ul>
- * 
- * @author Andy Seaborne
- */
+ * </ul> */
 
 public abstract class QueryIteratorBase 
     extends PrintSerializableBase
     implements QueryIterator
 {
-    // Can this keep the next look ahead Binding
-    // so we have only "nextElement()" => null or Binding
     public static boolean traceIterators = false ; 
     private boolean finished = false ;
-    Throwable stackTrace = null ; 
+
+    // === Cancellation
+    // .cancel() can be called asynchronously with iterator execution.
+    // It causes notification to cancellation to be made, once, by calling .requestCancel()
+    // which is called synchronously with .cancel() and asynchronously with iterator execution.
+
+    /** In the process of requesting a cancel, or one has been done */  
+    private boolean requestingCancel = false;
+
+    /* If set, any hasNext/next throws QueryAbortedException */
+    private volatile boolean abortIterator = false ;
+    private Throwable stackTrace = null ; 
 
     public QueryIteratorBase()
     {
@@ -52,8 +62,11 @@ public abstract class QueryIteratorBase
         Does not need to call hasNext (can presume it is true) */
     protected abstract Binding moveToNextBinding() ;
     
-    /** Implement this, not close() */
+    /** Close the iterator. */
     protected abstract void closeIterator() ;
+   
+    /** Propagates the cancellation request - called asynchronously with the iterator itself */
+    protected abstract void requestCancel();
     
     // -------- The contract with the subclasses 
 
@@ -62,21 +75,26 @@ public abstract class QueryIteratorBase
     /** final - subclasses implement hasNextBinding() */
     public final boolean hasNext()
     {
-        try {
-            if ( finished )
-                return false ;
+        if ( finished )
+            // Even if aborted. Finished is finished.
+            return false ;
 
-            boolean r = hasNextBinding() ; 
-                
-            if ( r == false )
+        if ( abortIterator )
+            throw new QueryCancelledException() ;
+
+        // Handles exceptions
+        boolean r = hasNextBinding() ; 
+
+        if ( r == false )
+            try {
                 close() ;
+            } catch (QueryFatalException ex)
+            { 
+                Log.fatal(this, "Fatal exception: "+ex.getMessage() ) ;
+                abort() ;       // Abort this iterator.
+                throw ex ;      // And pass on up the exception.
+            }
             return r ;
-        } catch (QueryFatalException ex)
-        { 
-            ALog.fatal(this, "Fatal exception: "+ex.getMessage() ) ;
-            abort() ;       // Abort this iterator.
-            throw ex ;      // And pass on up the exception.
-        }
     }
     
     /** final - autoclose and registration relies on it - implement moveToNextBinding() */
@@ -85,12 +103,19 @@ public abstract class QueryIteratorBase
         return nextBinding() ;
     }
 
-    /** final - implement moveToNextBinding() instead */
+    /** final - subclasses implement moveToNextBinding() */
     public final Binding nextBinding()
     {
         try {
+            if ( abortIterator )
+                throw new QueryCancelledException() ;
             if ( finished )
+            {
+                // If abortIterator set after finished.
+                if ( abortIterator )
+                    throw new QueryCancelledException() ;
                 throw new NoSuchElementException(Utils.className(this)) ;
+            }
             
             if ( ! hasNextBinding() )
                 throw new NoSuchElementException(Utils.className(this)) ;
@@ -98,19 +123,26 @@ public abstract class QueryIteratorBase
             Binding obj = moveToNextBinding() ;
             if ( obj == null )
                 throw new NoSuchElementException(Utils.className(this)) ;
+            
+            if ( requestingCancel && ! finished ) 
+            {
+                // But .cancel sets both requestingCancel and abortIterator
+                // This only happens with a continuing iterator.
+        		close() ;
+        	}
+            
             return obj ;
         } catch (QueryFatalException ex)
         { 
-            ALog.fatal(this, "QueryFatalException", ex) ; 
+            Log.fatal(this, "QueryFatalException", ex) ; 
             abort() ;
             throw ex ; 
         }
-
     }
     
     public final void remove()
     {
-        ALog.warn(this, "Call to QueryIterator.remove() : "+Utils.className(this)+".remove") ;
+        Log.warn(this, "Call to QueryIterator.remove() : "+Utils.className(this)+".remove") ;
         throw new UnsupportedOperationException(Utils.className(this)+".remove") ;
     }
     
@@ -120,10 +152,11 @@ public abstract class QueryIteratorBase
             return ;
         try { closeIterator() ; }
         catch (QueryException ex)
-        { ALog.warn(this, "QueryException in close()", ex) ; } 
+        { Log.warn(this, "QueryException in close()", ex) ; } 
         finished = true ;
     }
     
+    @Deprecated
     public void abort()
     {
         if ( finished )
@@ -134,7 +167,50 @@ public abstract class QueryIteratorBase
         finished = true ;
     }
     
-    public String debug()
+    /** Cancel this iterator */
+    public final void cancel() {
+        // Call requestCancel() once.
+    	if (!this.requestingCancel) {
+    	    synchronized (this)
+    	    {
+    	        this.requestCancel() ;
+    	        this.requestingCancel = true;
+    	        this.abortIterator = true ;
+            }
+    	}
+    }
+
+    /** Cancel this iterator but allow it to continue servicing hasNext/next.
+     *  Wrong answers are possible(e.g. partial ORDER BY and LIMIT).
+     *  May be useful for debugging. 
+     */
+    public final void cancelAllowContinue() {
+        // Call requestCancel() once.
+        if (!this.requestingCancel) {
+            synchronized (this)
+            {
+                this.requestCancel() ;
+                this.requestingCancel = true;
+                //this.abortIterator = true ;
+            }
+        }
+    }
+
+    /** close an iterator */
+    protected static void performClose(QueryIterator iter)
+    {
+        if ( iter == null ) return ;
+        iter.close() ;
+    }
+    
+    /** cancel an iterator */
+    protected static void performRequestCancel(QueryIterator iter)
+    {
+        if ( iter == null ) return ;
+        iter.cancel() ;
+    }
+    
+	public String debug()
     {
         String s = "" ;
         if ( stackTrace != null )
@@ -161,6 +237,7 @@ public abstract class QueryIteratorBase
 
 /*
  * (c) Copyright 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP
+ * (c) Copyright 2011 Epimorphics Ltd.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
