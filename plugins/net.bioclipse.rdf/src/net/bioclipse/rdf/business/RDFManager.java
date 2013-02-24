@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -139,9 +140,15 @@ public class RDFManager implements IBioclipseManager {
         		connection.setRequestProperty(key, extraHeaders.get(key));
         	}
         }
-        InputStream stream = connection.getInputStream();
-        importFromStream(store, stream, null, monitor);
-        stream.close();
+        try {
+            InputStream stream = connection.getInputStream();
+            importFromStream(store, stream, null, monitor);
+            stream.close();
+        } catch (UnknownHostException exception) {
+            throw new BioclipseException(
+                "Unknown or unresponsive host: " + realURL.getHost(), exception
+            );
+        }
         return store;
     }
 
