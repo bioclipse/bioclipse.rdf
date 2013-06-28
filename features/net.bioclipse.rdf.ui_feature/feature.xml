@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf.ui_feature"
       label="RDF UI Feature"
-      version="2.6.0.vqualifier"
+      version="2.6.1.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.rdf.ui">
 
