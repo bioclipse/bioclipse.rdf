@@ -17,7 +17,6 @@ Eclipse Public License.
 
    <requires>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="net.bioclipse.cdk.business" version="2.2.0" match="greaterOrEqual"/>
       <import plugin="net.bioclipse.core" version="2.2.0" match="greaterOrEqual"/>
       <import plugin="com.hp.hpl.jena" version="2.6.2" match="greaterOrEqual"/>
       <import plugin="net.bioclipse.rdf.ui" version="2.3.0" match="greaterOrEqual"/>
