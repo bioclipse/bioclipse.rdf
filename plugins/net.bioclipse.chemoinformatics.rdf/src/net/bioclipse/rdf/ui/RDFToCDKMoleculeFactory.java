@@ -4,12 +4,15 @@
  |  All rights reserved. This program and the accompanying materials         |
  *  are made available under the terms of the Eclipse Public License v1.0    *
  |  which accompanies this distribution, and is available at                 |
- *  www.eclipse.orgÑepl-v10.html <http://www.eclipse.org/legal/epl-v10.html> *
+ *  www.eclipse.orgï¿½epl-v10.html <http://www.eclipse.org/legal/epl-v10.html> *
  |                                                                           |
  *  Contact: http://www.bioclipse.net/                                       *
  |                                                                           |
  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 package net.bioclipse.rdf.ui;
+
+import net.bioclipse.core.domain.IBioObject;
+import net.bioclipse.core.domain.SMILESMolecule;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
@@ -17,13 +20,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
-import net.bioclipse.cdk.business.Activator;
-import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.core.domain.IBioObject;
-import net.bioclipse.core.util.LogUtils;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -66,14 +63,7 @@ public class RDFToCDKMoleculeFactory
             if (smileses.hasNext()) {
                 Literal smiles = (Literal)smileses.next();
                 // just take the first
-                try {
-                    return Activator.getDefault()
-                                    .getJavaCDKManager()
-                                    .fromSMILES( smiles.getString() );
-                }
-                catch ( BioclipseException e ) {
-                    LogUtils.handleException( e, logger );
-                }
+                return new SMILESMolecule(smiles.getString());
             }
         }
         return null;

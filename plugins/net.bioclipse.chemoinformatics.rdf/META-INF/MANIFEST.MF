@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bioclipse.chemoinformatics.rdf;singleton:=true
 Bundle-Version: 2.6.1.qualifier
 Bundle-Activator: net.bioclipse.chemoinformatics.rdf.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bioclipse.cdk.business,
  net.bioclipse.core,
  com.hp.hpl.jena;bundle-version="2.6.2",
  net.bioclipse.rdf.ui,
