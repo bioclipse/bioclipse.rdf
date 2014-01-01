@@ -18,6 +18,7 @@
 package net.bioclipse.rdf;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,10 +49,11 @@ public class StringMatrixHelper {
             PrefixMapping prefixMap, ResultSet results) {
     	StringMatrix table = new StringMatrix();
     	int rowCount = 0;
+    	List<String> resultVarNames = results.getResultVars();
         while (results.hasNext()) {
         	rowCount++;
             QuerySolution soln = results.nextSolution();
-            Iterator<String> varNames = soln.varNames();
+            Iterator<String> varNames = resultVarNames.iterator();
             while (varNames.hasNext()) {
             	String varName = varNames.next();
             	int colCount = -1;
