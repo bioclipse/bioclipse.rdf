@@ -66,7 +66,10 @@ public class StringMatrixHelper {
                 RDFNode node = soln.get(varName);
                 if (node != null) {
                     String nodeStr = node.toString();
-                    if (node.isResource()) {
+                    if (node.isAnon()) {
+                    	Resource resource = (Resource)node;
+                    	table.set(rowCount, colCount, resource.getId().getLabelString());
+                    } else if (node.isResource()) {
                         Resource resource = (Resource)node;
                         // the resource.getLocalName() is not accurate, so I
                         // use some custom code
