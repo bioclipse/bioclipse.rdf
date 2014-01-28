@@ -27,6 +27,9 @@ public class JenaModel implements IJenaStore {
 
     public JenaModel( Model jenaTypeModel ) {
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
         model = ModelFactory.createOntologyModel();
         model.add( jenaTypeModel );
     }
