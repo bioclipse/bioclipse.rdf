@@ -12,19 +12,21 @@ package net.bioclipse.rdf.business;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class JenaModel implements IJenaStore {
 
     private Model model;
     
     public JenaModel() {
-    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
         model = ModelFactory.createOntologyModel();
     }
 
     public JenaModel( Model jenaTypeModel ) {
-    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
         model = ModelFactory.createOntologyModel();
         model.add( jenaTypeModel );
     }
