@@ -10,5 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="jars/slf4j-log4j12-1.6.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/httpclient-4.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/httpcore-4.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-arq-2.11.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-tdb-1.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
