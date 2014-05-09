@@ -8,9 +8,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.bioclipse.rdf.tests,
  net.bioclipse.pellet.tests,
- com.hp.hpl.jena,
- com.hp.hpl.jena.arq,
- com.hp.hpl.jena.tdb
+ com.hp.hpl.jena
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.junit,

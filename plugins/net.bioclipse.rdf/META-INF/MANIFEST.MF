@@ -14,9 +14,7 @@ Require-Bundle: net.bioclipse.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.ui,
- com.hp.hpl.jena;bundle-version="2.5.6",
  net.bioclipse.scripting.ui,
- com.hp.hpl.jena.arq;bundle-version="2.8.2",
- com.hp.hpl.jena.tdb;bundle-version="0.8.4",
- org.eclipse.ui.views;bundle-version="3.4.1"
+ org.eclipse.ui.views;bundle-version="3.4.1",
+ com.hp.hpl.jena;bundle-version="2.11.1"
 Bundle-ClassPath: .
