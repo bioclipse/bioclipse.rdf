@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OWLAPI Plugin
+Bundle-SymbolicName: net.bioclipse.owlapi.business;singleton:=true
+Bundle-Version: 2.6.2.qualifier
+Bundle-Activator: net.bioclipse.owlapi.business.Activator
+Export-Package: net.bioclipse.owlapi.business
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.bioclipse.core,
+ net.bioclipse.scripting,
+ org.springframework.bundle.spring.aop,
+ net.sf.cglib,
+ org.springframework.osgi.aopalliance.osgi,
+ org.eclipse.core.resources,
+ net.bioclipse.business
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.apache.log4j
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ libs/owlapi-distribution-3.5.0.jar
