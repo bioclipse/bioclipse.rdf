@@ -10,6 +10,8 @@
 package net.bioclipse.owlapi.business;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.bioclipse.business.BioclipsePlatformManager;
@@ -22,9 +24,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.profiles.OWL2DLProfile;
+import org.semanticweb.owlapi.profiles.OWLProfileReport;
+import org.semanticweb.owlapi.profiles.OWLProfileViolation;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
 public class OWLAPIManager implements IBioclipseManager {
@@ -94,4 +100,38 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list.toString();
 	}
 
+	public String checkVioloations(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		StringBuffer list = new StringBuffer();
+		OWL2DLProfile profile = new OWL2DLProfile();
+		OWLProfileReport report = profile.checkOntology(ontology);
+		for(OWLProfileViolation v:report.getViolations()) {
+			list.append(v).append('\n');
+		}
+		return list.toString();
+	}
+
+	public String showClasses(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		StringBuffer list = new StringBuffer();
+		for (OWLClass cls : ontology.getClassesInSignature()) {
+			list.append(cls.toString()).append('\n');
+		}
+		return list.toString();
+	}
+
+	public List<OWLOntology> getImportedOntologies(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		List<OWLOntology> list = new ArrayList<>();
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			list.add(importedOntology);
+		}
+		return list;
+	}
 }

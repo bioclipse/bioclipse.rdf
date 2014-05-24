@@ -11,6 +11,7 @@
 package net.bioclipse.owlapi.business;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -53,6 +54,30 @@ public interface IOWLAPIManager extends IBioclipseManager {
         methodSummary = "Lists the mappings defined by this mapper."
     )
     public String listMappings(IRIMapper mapper)
+        throws IOException, BioclipseException, CoreException;
+
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology",
+        methodSummary = "Checks for OWL DL profile violations."
+    )
+    public String checkVioloations(OWLOntology ontology)
+        throws IOException, BioclipseException, CoreException;
+
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology",
+        methodSummary = "Shows the (non-asserted) OWL classes."
+    )
+    public String showClasses(OWLOntology ontology)
+        throws IOException, BioclipseException, CoreException;
+
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology",
+        methodSummary = "Lists the imported ontologies."
+    )
+	public List<OWLOntology> getImportedOntologies(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 }
