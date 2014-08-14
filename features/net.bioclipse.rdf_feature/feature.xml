@@ -114,4 +114,11 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="net.bioclipse.owlapi.business"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
