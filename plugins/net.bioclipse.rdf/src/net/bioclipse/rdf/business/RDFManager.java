@@ -45,6 +45,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import com.hp.hpl.jena.n3.turtle.TurtleParseException;
+import com.hp.hpl.jena.ontology.OntTools;
+import com.hp.hpl.jena.ontology.OntTools.Path;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -60,6 +62,7 @@ import com.hp.hpl.jena.shared.NoReaderForLangException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.SyntaxError;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+import com.hp.hpl.jena.util.iterator.Filter;
 
 public class RDFManager implements IBioclipseManager {
 
@@ -699,5 +702,79 @@ public class RDFManager implements IBioclipseManager {
     	if (results.getRowCount() == 0) return resources;
     	resources.addAll(results.getColumn("resource"));
     	return resources;
+    }
+
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+    	Path path = OntTools.findShortestPath(
+    		model,
+    		model.createResource(firstNode),
+    		model.createResource(secondNode),
+    		new Filter<Statement>() {
+				@Override
+				public boolean accept(Statement arg0) {
+					return true; // any predicate in the path is fine
+				}
+			}
+    	);
+    	if (path == null) return Collections.emptyList();
+
+    	List<String> uriList = new ArrayList<String>();
+    	Resource lastNode = null;
+    	for (Statement statement : path) {
+    		System.out.println(
+        		statement.getSubject() + " -> " +
+    			statement.getPredicate() + " -> " +
+    			statement.getObject()
+    	    );
+    		uriList.add(statement.getSubject().getURI());
+    		uriList.add(statement.getPredicate().getURI());
+    		lastNode = statement.getObject().asResource();
+		}
+    	uriList.add(lastNode.getURI());
+    	return uriList;
+    }
+
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode, final String predicate)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+    	Path path = OntTools.findShortestPath(
+    		model,
+    		model.createResource(firstNode),
+    		model.createResource(secondNode),
+    		new Filter<Statement>() {
+				@Override
+				public boolean accept(Statement arg0) {
+					return arg0.getPredicate().hasURI(predicate);
+				}
+			}
+    	);
+    	if (path == null) return Collections.emptyList();
+
+    	List<String> uriList = new ArrayList<String>();
+    	Resource lastNode = null;
+    	for (Statement statement : path) {
+    		System.out.println(
+        		statement.getSubject() + " -> " +
+    			statement.getPredicate() + " -> " +
+    			statement.getObject()
+    	    );
+    		uriList.add(statement.getSubject().getURI());
+    		uriList.add(statement.getPredicate().getURI());
+    		lastNode = statement.getObject().asResource();
+		}
+    	uriList.add(lastNode.getURI());
+    	return uriList;
     }
 }

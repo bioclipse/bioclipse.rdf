@@ -348,4 +348,20 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public IRDFStore difference(IRDFStore first, IRDFStore second)
     throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String firstNode, String secondNode",
+        methodSummary = "The shortest path between two nodes."
+    )
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String firstNode, String secondNode, String predicate",
+        methodSummary = "The shortest path between two nodes, following only one specific predicate."
+    )
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode, String predicate)
+    throws IOException, BioclipseException, CoreException;
 }
