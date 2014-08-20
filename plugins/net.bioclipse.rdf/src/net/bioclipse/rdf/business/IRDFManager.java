@@ -324,4 +324,28 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public List<String> getForPredicate(IRDFStore store, String resourceURI, String predicate)
     throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the union of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore union(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the intersection of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore intersection(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the difference of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore difference(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
 }

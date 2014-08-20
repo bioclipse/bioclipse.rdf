@@ -424,6 +424,42 @@ public class RDFManager implements IBioclipseManager {
         );
     }
 
+    public IRDFStore union(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().union(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
+    }
+
+    public IRDFStore intersection(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().intersection(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
+    }
+
+    public IRDFStore difference(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().difference(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
+    }
+
     public void addPrefix(IRDFStore store, String prefix, String namespace)
         throws BioclipseException {
         if (!(store instanceof IJenaStore)) {
