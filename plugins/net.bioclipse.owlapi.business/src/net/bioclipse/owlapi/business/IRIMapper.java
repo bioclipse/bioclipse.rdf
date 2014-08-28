@@ -22,7 +22,7 @@ import org.semanticweb.owlapi.model.IRI;
  */
 public class IRIMapper {
 
-	private Map<IRI,IRI> iriMappings = new HashMap<>();
+    private Map<IRI, IRI> iriMappings = new HashMap<IRI, IRI>();
 	
 	public void addMapping(String owlIRI, String realIRI) {
 		iriMappings.put(IRI.create(owlIRI), IRI.create(realIRI));

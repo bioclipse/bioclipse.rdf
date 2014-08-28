@@ -128,7 +128,7 @@ public class OWLAPIManager implements IBioclipseManager {
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
-		List<OWLOntology> list = new ArrayList<>();
+        List<OWLOntology> list = new ArrayList<OWLOntology>();
 		for (OWLOntology importedOntology : ontology.getImports()) {
 			list.add(importedOntology);
 		}
