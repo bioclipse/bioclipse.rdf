@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="net.bioclipse.ldf_feature"
+      label="Linked Data Fragments Feature"
+      version="2.6.2.qualifier"
+      provider-name="Bioclipse Team"
+      plugin="net.bioclipse.ldf">
+
+   <description>
+      Linked Data Fragments support for Bioclipse.
+   </description>
+
+   <copyright>
+      Copyright (c) 2015  Egon Willighagen
+Eclipse Public License.
+
+This feature includes the Linked Data Fragments library, which is MIT licensed.
+   </copyright>
+
+   <url>
+      <discovery label="Linked Data Fragments Website" url="http://linkeddatafragments.org/"/>
+   </url>
+
+   <includes
+         id="net.bioclipse.bioinformatics.rdf_feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="log4j.over.slf4j"/>
+      <import plugin="net.bioclipse.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="net.bioclipse.scripting.ui"/>
+      <import plugin="org.eclipse.ui.views" version="3.4.1" match="greaterOrEqual"/>
+      <import plugin="slf4j.api"/>
+      <import plugin="org.eclipse.osgi"/>
+   </requires>
+
+   <plugin
+         id="net.bioclipse.ldf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
