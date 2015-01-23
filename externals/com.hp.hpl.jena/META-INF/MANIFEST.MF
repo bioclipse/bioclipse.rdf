@@ -6,8 +6,6 @@ Bundle-Version: 2.11.1
 Require-Bundle: org.eclipse.core.runtime
 Bundle-ClassPath: .,
  jars/commons-codec-1.6.jar,
- jars/httpclient-4.2.3.jar,
- jars/httpcore-4.2.2.jar,
  jars/jcl-over-slf4j-1.6.4.jar,
  jars/jena-core-2.11.1.jar,
  jars/jena-iri-1.0.1.jar,
@@ -17,7 +15,9 @@ Bundle-ClassPath: .,
  jars/xercesImpl-2.11.0.jar,
  jars/xml-apis-1.4.01.jar,
  jars/jena-arq-2.11.1.jar,
- jars/jena-tdb-1.0.1.jar
+ jars/jena-tdb-1.0.1.jar,
+ jars/httpclient-4.3.3.jar,
+ jars/httpcore-4.3.2.jar
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j,
@@ -185,6 +185,7 @@ Export-Package: com.hp.hpl.jena,
  org.apache.http.client.protocol,
  org.apache.http.client.utils,
  org.apache.http.concurrent,
+ org.apache.http.config,
  org.apache.http.conn,
  org.apache.http.conn.params,
  org.apache.http.conn.routing,
