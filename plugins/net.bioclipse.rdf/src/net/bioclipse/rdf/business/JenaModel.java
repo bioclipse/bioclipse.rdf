@@ -26,14 +26,21 @@ public class JenaModel implements IJenaStore {
     }
 
     public JenaModel( Model jenaTypeModel ) {
+    	this(jenaTypeModel, true);
+    }
+
+    public JenaModel( Model jenaTypeModel, boolean ontologyModel ) {
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
-        model = ModelFactory.createOntologyModel();
-        model.add( jenaTypeModel );
+    	if (ontologyModel) {
+    		model = ModelFactory.createOntologyModel();
+    		model.add( jenaTypeModel );
+    	} else {
+    		model = jenaTypeModel;
+    	}
     }
-
     
     public Model getModel() {
         return this.model;
