@@ -16,6 +16,8 @@ import net.bioclipse.rdf.business.IRDFStore;
 import net.bioclipse.rdf.business.JenaModel;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.linkeddatafragments.model.LinkedDataFragmentGraph;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -33,11 +35,14 @@ public class LdfManager implements IBioclipseManager {
         return "ldf";
     }
 
-    public IRDFStore createStore(String provider) throws BioclipseException {
-    	logger.debug("Creating a Jena model with LDF for: " + provider);
-    	LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph(provider);
-    	Model model = ModelFactory.createModelForGraph(ldfg);
-    	return new JenaModel(model);
+    public IRDFStore createStore(String provider, IProgressMonitor monitor) throws BioclipseException {
+        if (monitor == null) monitor = new NullProgressMonitor();
+
+        monitor.beginTask("Creating an LDF store", 1);
+        LinkedDataFragmentGraph ldfg = new LinkedDataFragmentGraph(provider);
+        Model model = ModelFactory.createModelForGraph(ldfg);
+        monitor.worked(1);
+        return new JenaModel(model, false);
     }
     
     
