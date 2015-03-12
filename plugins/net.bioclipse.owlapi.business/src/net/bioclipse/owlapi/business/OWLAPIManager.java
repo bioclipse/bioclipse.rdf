@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -120,6 +121,17 @@ public class OWLAPIManager implements IBioclipseManager {
 		StringBuffer list = new StringBuffer();
 		for (OWLClass cls : ontology.getClassesInSignature()) {
 			list.append(cls.getIRI().toString()).append('\n');
+		}
+		return list.toString();
+	}
+
+	public String showProperties(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		StringBuffer list = new StringBuffer();
+		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
+			list.append(prop.getIRI().toString()).append('\n');
 		}
 		return list.toString();
 	}
