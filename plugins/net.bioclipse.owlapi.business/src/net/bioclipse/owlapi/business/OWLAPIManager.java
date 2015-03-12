@@ -119,7 +119,7 @@ public class OWLAPIManager implements IBioclipseManager {
 
 		StringBuffer list = new StringBuffer();
 		for (OWLClass cls : ontology.getClassesInSignature()) {
-			list.append(cls.toString()).append('\n');
+			list.append(cls.getIRI().toString()).append('\n');
 		}
 		return list.toString();
 	}
