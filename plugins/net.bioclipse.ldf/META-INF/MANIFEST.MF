@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Linked Data Fragment
+Bundle-SymbolicName: net.bioclipse.ldf;singleton:=true
+Bundle-Version: 2.6.0.qualifier
+Bundle-Activator: net.bioclipse.ldf.Activator
+Bundle-Vendor: Egon Willighagen
+Export-Package: net.bioclipse.ldf, net.bioclipse.ldf.business
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.bioclipse.core,
+ net.bioclipse.scripting,
+ org.springframework.bundle.spring.aop,
+ net.sf.cglib,
+ org.springframework.osgi.aopalliance.osgi,
+ com.hp.hpl.jena,
+ net.bioclipse.rdf,
+ org.apache.commons.lang3,
+ org.apache.commons.io,
+ com.google.guava,
+ jcl.over.slf4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.log4j
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ lib/ldf-client-0.1-SNAPSHOT.jar,
+ lib/gson-2.2.4.jar,
+ lib/httpasyncclient-4.0.jar,
+ lib/uri-template-0.8.jar,
+ lib/httpcore-nio-4.3.jar,
+ lib/msg-simple-1.0.jar,
+ lib/btf-1.1.jar
