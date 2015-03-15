@@ -44,6 +44,14 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+    	params="boolean ontologyModel",
+        methodSummary = "Creates a new in-memory store."
+    )
+    @TestMethods("testCreateInMemoryStore2")
+    public IRDFStore createInMemoryStore(boolean ontologyModel);
+
+    @Recorded
+    @PublishedMethod(
         params = "String tripleStoreDirectoryPath",
         methodSummary = "Creates a new on-disk store, " +
             "(using the Jena TDB package, which stores on disk as a " +

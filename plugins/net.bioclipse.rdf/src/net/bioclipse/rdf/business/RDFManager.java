@@ -216,6 +216,10 @@ public class RDFManager implements IBioclipseManager {
         return new JenaModel();
     }
 
+    public IRDFStore createInMemoryStore(boolean ontologyModel) {
+        return new JenaModel(ontologyModel);
+    }
+
     public IRDFStore createStore(String tripleStoreDirectoryPath) {
     	return new TDBModel(tripleStoreDirectoryPath);
     }
