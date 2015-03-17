@@ -136,6 +136,28 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list.toString();
 	}
 
+	public List<String> getClasses(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		List<String> list = new ArrayList<String>();
+		for (OWLClass cls : ontology.getClassesInSignature()) {
+			list.add(cls.getIRI().toString());
+		}
+		return list;
+	}
+
+	public List<String> getProperties(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		List<String> list = new ArrayList<String>();
+		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
+			list.add(prop.getIRI().toString());
+		}
+		return list;
+	}
+
 	public List<OWLOntology> getImportedOntologies(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
