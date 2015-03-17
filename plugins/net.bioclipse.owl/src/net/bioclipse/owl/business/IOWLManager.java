@@ -11,6 +11,7 @@
 package net.bioclipse.owl.business;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -26,23 +27,44 @@ public interface IOWLManager extends IBioclipseManager {
 
     @PublishedMethod(
          params = "IRDFStore store",
-         methodSummary = "Returns a list of all OWL classes."
+         methodSummary = "Returns a StringMatrix with all OWL classes."
     )
     public StringMatrix listClasses(IRDFStore store)
         throws IOException, BioclipseException, CoreException;
     
     @PublishedMethod(
         params = "IRDFStore store",
-        methodSummary = "Returns a list of all OWL object properties."
+        methodSummary = "Returns a StringMatrix with all OWL object properties."
     )
     public StringMatrix listObjectProperties(IRDFStore store)
     throws IOException, BioclipseException, CoreException;
        
     @PublishedMethod(
         params = "IRDFStore store",
-        methodSummary = "Returns a list of all OWL data type properties."
+        methodSummary = "Returns a StringMatrix with OWL data type properties."
     )
     public StringMatrix listDatatypeProperties(IRDFStore store)
     throws IOException, BioclipseException, CoreException;
        
+    @PublishedMethod(
+        params = "IRDFStore store",
+        methodSummary = "Returns a list of all OWL classes."
+    )
+    public List<String> getClasses(IRDFStore store)
+    	throws IOException, BioclipseException, CoreException;
+
+    @PublishedMethod(
+    	params = "IRDFStore store",
+    	methodSummary = "Returns a list of all OWL object properties."
+    )
+    public List<String> getObjectProperties(IRDFStore store)
+    	throws IOException, BioclipseException, CoreException;
+
+    @PublishedMethod(
+    	params = "IRDFStore store",
+    	methodSummary = "Returns a list of all OWL data type properties."
+    )
+    public List<String> getDatatypeProperties(IRDFStore store)
+    	throws IOException, BioclipseException, CoreException;
+          
 }
