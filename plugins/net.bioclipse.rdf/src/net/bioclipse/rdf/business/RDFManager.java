@@ -781,4 +781,62 @@ public class RDFManager implements IBioclipseManager {
     	uriList.add(lastNode.getURI());
     	return uriList;
     }
+
+    public IRDFStore extract(IRDFStore store, String iri, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+
+        monitor.beginTask("Extracting all we know about...", 100);
+
+        String outQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  <" + iri + "> ?p ?o " +
+            "} WHERE { "+
+            "  <" + iri + "> ?p ?o." +
+            "}";
+            
+        Query query = QueryFactory.create(outQuery);
+    	QueryExecution qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	Model aboutClass;
+    	try {
+    		aboutClass = qexec.execConstruct();
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+        String inQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  ?s ?p <" + iri + "> " +
+            "} WHERE { "+
+            "  ?s ?p <" + iri + "> ." +
+            "}";
+            
+        query = QueryFactory.create(inQuery);
+    	qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	try {
+    		aboutClass.add(qexec.execConstruct());
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+    	return new JenaModel(aboutClass);
+    }
 }

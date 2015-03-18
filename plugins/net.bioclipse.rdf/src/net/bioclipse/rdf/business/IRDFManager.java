@@ -372,4 +372,12 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode, String predicate)
     throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String iri",
+        methodSummary = "Extract all triples from and to the given class IRI."
+    )
+    public IRDFStore extract(IRDFStore store, String iri)
+    throws IOException, BioclipseException, CoreException;
 }
