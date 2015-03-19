@@ -845,6 +845,17 @@ public class RDFManager implements IBioclipseManager {
 
     public IRDFStore copy(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
     throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, false, monitor);
+    }
+
+    public IRDFStore rename(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, true, monitor);
+    }
+
+    private IRDFStore rename(IRDFStore store, String predicate, String newPredicate,
+    	boolean replace, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
     	if (!(store instanceof IJenaStore))
             throw new RuntimeException(
                 "Can only handle IJenaStore's for now."
@@ -860,16 +871,20 @@ public class RDFManager implements IBioclipseManager {
         Selector selector = new SimpleSelector(
         	(Resource)null, model.createProperty(predicate), (RDFNode)null
         );
+        List<Statement> statementsToRemove = new ArrayList<Statement>();
         StmtIterator statements = model.listStatements(selector);
         while (statements.hasNext()) {
             Statement statement = statements.nextStatement();
             Resource subNode = statement.getSubject();
             RDFNode object = statement.getObject();
             newTriples.add(subNode, newProperty, object);
+            statementsToRemove.add(statement);
         }
         statements.close();
+        for (Statement statement : statementsToRemove) model.remove(statement);
         model.add(newTriples);
 
         return store;
     }
+
 }

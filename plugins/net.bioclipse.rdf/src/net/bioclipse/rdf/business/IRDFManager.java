@@ -389,4 +389,13 @@ public interface IRDFManager extends IBioclipseManager {
     )
     public IRDFStore copy(IRDFStore store, String predicate, String newPredicate)
     throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String predicate, String newPredicate",
+        methodSummary = "Renames all triples with a particular predicate to new predicates with the "
+        		+ "same resource or same literal value."
+    )
+    public IRDFStore rename(IRDFStore store, String predicate, String newPredicate)
+    throws IOException, BioclipseException, CoreException;
 }
