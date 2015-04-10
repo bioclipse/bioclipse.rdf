@@ -20,6 +20,7 @@ package net.bioclipse.pellet.business;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.StringMatrix;
@@ -163,6 +164,17 @@ public class PelletManager implements IBioclipseManager {
     			"  ?o rdf:type <" + type + ">." +
     			"}"
     	);
+    }
+
+    public List<String> getRDFType(IRDFStore store, String type)
+        throws IOException, BioclipseException, CoreException {
+    	return reason(
+        	store,
+        	"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+        	"SELECT ?o WHERE { "+
+        	"  ?o rdf:type <" + type + ">." +
+        	"}"
+        ).getColumn("o");
     }
 
     public StringMatrix allAbout(IRDFStore store, String identifier)

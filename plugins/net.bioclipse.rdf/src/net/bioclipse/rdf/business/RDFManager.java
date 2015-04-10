@@ -53,9 +53,12 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Selector;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.NoReaderForLangException;
@@ -781,4 +784,107 @@ public class RDFManager implements IBioclipseManager {
     	uriList.add(lastNode.getURI());
     	return uriList;
     }
+
+    public IRDFStore extract(IRDFStore store, String iri, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+
+        monitor.beginTask("Extracting all we know about...", 100);
+
+        String outQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  <" + iri + "> ?p ?o " +
+            "} WHERE { "+
+            "  <" + iri + "> ?p ?o." +
+            "}";
+            
+        Query query = QueryFactory.create(outQuery);
+    	QueryExecution qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	Model aboutClass;
+    	try {
+    		aboutClass = qexec.execConstruct();
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+        String inQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  ?s ?p <" + iri + "> " +
+            "} WHERE { "+
+            "  ?s ?p <" + iri + "> ." +
+            "}";
+            
+        query = QueryFactory.create(inQuery);
+    	qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	try {
+    		aboutClass.add(qexec.execConstruct());
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+    	return new JenaModel(aboutClass);
+    }
+
+    public IRDFStore copy(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, false, monitor);
+    }
+
+    public IRDFStore rename(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, true, monitor);
+    }
+
+    private IRDFStore rename(IRDFStore store, String predicate, String newPredicate,
+    	boolean replace, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+        Property newProperty = model.createProperty(newPredicate);
+        Model newTriples = ModelFactory.createDefaultModel();
+
+        Selector selector = new SimpleSelector(
+        	(Resource)null, model.createProperty(predicate), (RDFNode)null
+        );
+        List<Statement> statementsToRemove = new ArrayList<Statement>();
+        StmtIterator statements = model.listStatements(selector);
+        while (statements.hasNext()) {
+            Statement statement = statements.nextStatement();
+            Resource subNode = statement.getSubject();
+            RDFNode object = statement.getObject();
+            newTriples.add(subNode, newProperty, object);
+            statementsToRemove.add(statement);
+        }
+        statements.close();
+        for (Statement statement : statementsToRemove) model.remove(statement);
+        model.add(newTriples);
+
+        return store;
+    }
+
 }
