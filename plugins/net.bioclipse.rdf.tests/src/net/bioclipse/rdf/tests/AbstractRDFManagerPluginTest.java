@@ -36,9 +36,16 @@ public abstract class AbstractRDFManagerPluginTest {
         IRDFStore store = rdf.createStore("/Virtual/test.store");
         Assert.assertNotNull(store);
     }
-    
+
     @Test public void testCreateInMemoryStore() {
         IRDFStore store = rdf.createInMemoryStore();
+        Assert.assertNotNull(store);
+    }
+
+    @Test public void testCreateInMemoryStore2() {
+        IRDFStore store = rdf.createInMemoryStore(false);
+        Assert.assertNotNull(store);
+        store = rdf.createInMemoryStore(true);
         Assert.assertNotNull(store);
     }
 

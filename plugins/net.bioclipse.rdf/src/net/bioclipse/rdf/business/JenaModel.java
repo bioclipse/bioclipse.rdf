@@ -18,11 +18,18 @@ public class JenaModel implements IJenaStore {
     private Model model;
     
     public JenaModel() {
+    	this(true);
+    }
+
+    public JenaModel(boolean ontologyModel) {
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
     	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
-        model = ModelFactory.createOntologyModel();
+    	if (ontologyModel)
+    		model = ModelFactory.createOntologyModel();
+    	else
+    		model = ModelFactory.createDefaultModel();
     }
 
     public JenaModel( Model jenaTypeModel ) {
