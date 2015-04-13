@@ -35,6 +35,7 @@ This feature includes the Linked Data Fragments library, which is MIT licensed.
       <import plugin="org.eclipse.ui.views" version="3.4.1" match="greaterOrEqual"/>
       <import plugin="slf4j.api"/>
       <import plugin="org.eclipse.osgi"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.6.2.qualifier"/>
    </requires>
 
    <plugin
@@ -53,6 +54,20 @@ This feature includes the Linked Data Fragments library, which is MIT licensed.
 
    <plugin
          id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.guava"
          download-size="0"
          install-size="0"
          version="0.0.0"
