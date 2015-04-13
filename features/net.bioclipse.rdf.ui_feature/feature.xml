@@ -19,7 +19,7 @@ This feature includes the Jena library, which is:
    </copyright>
 
    <license url="http://jena.sourceforge.net/license.html">
-      Bioclipse RDF feature licens: EPL
+      Bioclipse RDF feature license: EPL
 
 License of the Jena library:
 
@@ -40,8 +40,8 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
    </license>
 
    <requires>
-      <import feature="net.bioclipse.core_feature" />
-      <import feature="net.bioclipse.rdf_feature" />
+      <import feature="net.bioclipse.core_feature"/>
+      <import feature="net.bioclipse.rdf_feature"/>
    </requires>
 
    <plugin
