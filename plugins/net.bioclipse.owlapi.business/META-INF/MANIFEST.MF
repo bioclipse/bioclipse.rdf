@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OWLAPI Plugin
-Bundle-SymbolicName: net.bioclipse.owlapi.business;singleton:=true
+Bundle-SymbolicName: net.bioclipse.owlapi;singleton:=true
 Bundle-Version: 2.6.2.qualifier
 Bundle-Activator: net.bioclipse.owlapi.business.Activator
 Export-Package: net.bioclipse.owlapi.business
