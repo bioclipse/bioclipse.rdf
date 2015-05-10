@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="net.bioclipse.ldf_feature"
+      id="net.bioclipse.owlapi_feature"
       label="OWLAPI Feature"
       version="2.6.2.qualifier"
       provider-name="Bioclipse Team"
-      plugin="net.bioclipse.ldf">
+      plugin="net.bioclipse.owlapi">
 
    <description>
       OWLAPI support for Bioclipse.
@@ -14,7 +14,8 @@
       Copyright (c) 2015  Egon Willighagen
 Eclipse Public License.
 
-This feature includes the Linked Data Fragments library, which is MIT licensed.
+This feature includes the OWLAPI library, which has third party copyright and
+consists of Apache 2.0 and LGPL licensed parts.
    </copyright>
 
    <url>
