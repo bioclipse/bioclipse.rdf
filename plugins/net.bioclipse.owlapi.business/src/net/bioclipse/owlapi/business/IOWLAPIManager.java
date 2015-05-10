@@ -75,9 +75,9 @@ public interface IOWLAPIManager extends IBioclipseManager {
 	@Recorded
     @PublishedMethod(
         params = "OWLOntology ontology",
-        methodSummary = "Returns the OWL properties as a List of String's."
+        methodSummary = "Returns the OWL annotation properties as a List of String's."
     )
-    public List<String> getProperties(OWLOntology ontology)
+    public List<String> getAnnotationProperties(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 	@Recorded
@@ -91,9 +91,9 @@ public interface IOWLAPIManager extends IBioclipseManager {
 	@Recorded
     @PublishedMethod(
         params = "OWLOntology ontology",
-        methodSummary = "Shows the OWL properties."
+        methodSummary = "Shows the OWL annotationproperties."
     )
-    public String showProperties(OWLOntology ontology)
+    public String showAnnotationProperties(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 	@Recorded

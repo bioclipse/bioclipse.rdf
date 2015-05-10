@@ -125,7 +125,7 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list.toString();
 	}
 
-	public String showProperties(OWLOntology ontology, IProgressMonitor monitor)
+	public String showAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
@@ -147,7 +147,7 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list;
 	}
 
-	public List<String> getProperties(OWLOntology ontology, IProgressMonitor monitor)
+	public List<String> getAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
