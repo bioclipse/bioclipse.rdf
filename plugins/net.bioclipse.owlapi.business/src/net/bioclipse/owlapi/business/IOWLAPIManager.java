@@ -91,6 +91,14 @@ public interface IOWLAPIManager extends IBioclipseManager {
 	@Recorded
     @PublishedMethod(
         params = "OWLOntology ontology",
+        methodSummary = "Returns the OWL axioms as a List of String's."
+    )
+    public List<String> getPropertyDeclarationAxioms(OWLOntology ontology)
+        throws IOException, BioclipseException, CoreException;
+
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology",
         methodSummary = "Shows the OWL annotationproperties."
     )
     public String showAnnotationProperties(OWLOntology ontology)

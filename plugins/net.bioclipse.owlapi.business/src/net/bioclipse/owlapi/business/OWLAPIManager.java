@@ -23,9 +23,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataAllValuesFrom;
+import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -154,6 +160,22 @@ public class OWLAPIManager implements IBioclipseManager {
 		List<String> list = new ArrayList<String>();
 		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
 			list.add(prop.getIRI().toString());
+		}
+		return list;
+	}
+
+	public List<String> getPropertyDeclarationAxioms(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		List<String> list = new ArrayList<String>();
+		for (OWLAxiom axiom : ontology.getAxioms()) {
+			if (axiom instanceof OWLDeclarationAxiom) {
+				OWLEntity entity = ((OWLDeclarationAxiom)axiom).getEntity();
+				if (entity.isOWLObjectProperty() || entity.isOWLDataProperty()) {
+					list.add(entity.getIRI().toString());
+		        }
+			}
 		}
 		return list;
 	}
