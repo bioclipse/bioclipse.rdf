@@ -6,6 +6,7 @@ Bundle-Version: 2.6.1.qualifier
 Bundle-Activator: net.bioclipse.owl.Activator
 Bundle-Vendor: The Bioclipse Team
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.log4j
 Export-Package: net.bioclipse.owl,
  net.bioclipse.owl.business
