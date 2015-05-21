@@ -40,4 +40,8 @@
          id="net.bioclipse.sadi_feature"
          version="0.0.0"/>
 
+   <includes
+         id="net.bioclipse.owlapi_feature"
+         version="0.0.0"/>
+
 </feature>
