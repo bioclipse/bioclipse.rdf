@@ -22,10 +22,6 @@ consists of Apache 2.0 and LGPL licensed parts.
       <discovery label="OWLAPI Website" url="http://owlapi.sf.org/"/>
    </url>
 
-   <includes
-         id="net.bioclipse.bioinformatics.rdf_feature"
-         version="0.0.0"/>
-
    <requires>
       <import plugin="log4j.over.slf4j"/>
       <import plugin="net.bioclipse.core"/>
