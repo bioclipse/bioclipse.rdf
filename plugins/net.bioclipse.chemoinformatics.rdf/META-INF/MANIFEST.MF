@@ -6,7 +6,7 @@ Bundle-Version: 2.6.2.qualifier
 Bundle-Activator: net.bioclipse.chemoinformatics.rdf.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.core,
- com.hp.hpl.jena;bundle-version="2.6.2",
+ com.hp.hpl.jena,
  net.bioclipse.rdf.ui,
  org.eclipse.ui
 Bundle-ActivationPolicy: lazy
