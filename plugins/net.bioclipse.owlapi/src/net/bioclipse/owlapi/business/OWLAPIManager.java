@@ -11,8 +11,11 @@ package net.bioclipse.owlapi.business;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.bioclipse.business.BioclipsePlatformManager;
 import net.bioclipse.core.business.BioclipseException;
@@ -23,13 +26,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
-import org.semanticweb.owlapi.model.OWLDataAllValuesFrom;
-import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -142,7 +142,7 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list.toString();
 	}
 
-	public List<String> getClasses(OWLOntology ontology, IProgressMonitor monitor)
+	public Collection<String> getClasses(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
@@ -150,10 +150,15 @@ public class OWLAPIManager implements IBioclipseManager {
 		for (OWLClass cls : ontology.getClassesInSignature()) {
 			list.add(cls.getIRI().toString());
 		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			Collection<String> subList = getClasses(importedOntology, monitor);
+			list.addAll(subList);
+		}
 		return list;
 	}
 
-	public List<String> getAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
+	public Collection<String> getAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
@@ -161,10 +166,15 @@ public class OWLAPIManager implements IBioclipseManager {
 		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
 			list.add(prop.getIRI().toString());
 		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			Collection<String> subList = getAnnotationProperties(importedOntology, monitor);
+			list.addAll(subList);
+		}
 		return list;
 	}
 
-	public List<String> getPropertyDeclarationAxioms(OWLOntology ontology, IProgressMonitor monitor)
+	public Collection<String> getPropertyDeclarationAxioms(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
@@ -177,16 +187,24 @@ public class OWLAPIManager implements IBioclipseManager {
 		        }
 			}
 		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			Collection<String> subList = getPropertyDeclarationAxioms(importedOntology, monitor);
+			list.addAll(subList);
+		}
 		return list;
 	}
 
-	public List<OWLOntology> getImportedOntologies(OWLOntology ontology, IProgressMonitor monitor)
+	public Collection<OWLOntology> getImportedOntologies(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
-        List<OWLOntology> list = new ArrayList<OWLOntology>();
+        Set<OWLOntology> list = new HashSet<OWLOntology>();
 		for (OWLOntology importedOntology : ontology.getImports()) {
 			list.add(importedOntology);
+			// recurse
+			Collection<OWLOntology> subList = getImportedOntologies(importedOntology, monitor);
+			list.addAll(subList);
 		}
 		return list;
 	}

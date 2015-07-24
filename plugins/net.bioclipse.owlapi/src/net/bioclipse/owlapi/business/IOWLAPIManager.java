@@ -11,6 +11,7 @@
 package net.bioclipse.owlapi.business;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import net.bioclipse.core.PublishedClass;
@@ -77,7 +78,7 @@ public interface IOWLAPIManager extends IBioclipseManager {
         params = "OWLOntology ontology",
         methodSummary = "Returns the OWL annotation properties as a List of String's."
     )
-    public List<String> getAnnotationProperties(OWLOntology ontology)
+    public Collection<String> getAnnotationProperties(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 	@Recorded
@@ -85,7 +86,7 @@ public interface IOWLAPIManager extends IBioclipseManager {
         params = "OWLOntology ontology",
         methodSummary = "Returns the (non-asserted) OWL classes as a List of String's."
     )
-    public List<String> getClasses(OWLOntology ontology)
+    public Collection<String> getClasses(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 	@Recorded
@@ -93,7 +94,7 @@ public interface IOWLAPIManager extends IBioclipseManager {
         params = "OWLOntology ontology",
         methodSummary = "Returns the OWL axioms as a List of String's."
     )
-    public List<String> getPropertyDeclarationAxioms(OWLOntology ontology)
+    public Collection<String> getPropertyDeclarationAxioms(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 	@Recorded
@@ -109,7 +110,7 @@ public interface IOWLAPIManager extends IBioclipseManager {
         params = "OWLOntology ontology",
         methodSummary = "Lists the imported ontologies."
     )
-	public List<OWLOntology> getImportedOntologies(OWLOntology ontology)
+	public Collection<OWLOntology> getImportedOntologies(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
 }
