@@ -17,28 +17,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.bioclipse.business.BioclipsePlatformManager;
-import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.managers.business.IBioclipseManager;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.profiles.OWL2DLProfile;
 import org.semanticweb.owlapi.profiles.OWLProfileReport;
 import org.semanticweb.owlapi.profiles.OWLProfileViolation;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
+
+import net.bioclipse.business.BioclipsePlatformManager;
+import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.managers.business.IBioclipseManager;
 
 public class OWLAPIManager implements IBioclipseManager {
 
@@ -158,18 +161,29 @@ public class OWLAPIManager implements IBioclipseManager {
 		return list;
 	}
 
+	public Collection<OWLAnnotationProperty> getAllAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		List<OWLAnnotationProperty> list = new ArrayList<OWLAnnotationProperty>();
+		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
+			list.add(prop);
+		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			Collection<OWLAnnotationProperty> subList = getAllAnnotationProperties(importedOntology, monitor);
+			list.addAll(subList);
+		}
+		return list;
+	}
+
 	public Collection<String> getAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
 	throws IOException, BioclipseException, CoreException {
 		if (monitor == null) monitor = new NullProgressMonitor();
 
 		List<String> list = new ArrayList<String>();
-		for (OWLAnnotationProperty prop : ontology.getAnnotationPropertiesInSignature()) {
+		for (OWLAnnotationProperty prop : getAllAnnotationProperties(ontology, monitor)) {
 			list.add(prop.getIRI().toString());
-		}
-		// recurse
-		for (OWLOntology importedOntology : ontology.getImports()) {
-			Collection<String> subList = getAnnotationProperties(importedOntology, monitor);
-			list.addAll(subList);
 		}
 		return list;
 	}
@@ -207,5 +221,51 @@ public class OWLAPIManager implements IBioclipseManager {
 			list.addAll(subList);
 		}
 		return list;
+	}
+
+	public String getLabel(OWLOntology ontology, String classIRI, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException {
+		IRI cIRI = IRI.create(classIRI);
+		OWLClass owlClass = ontology.getOWLOntologyManager().getOWLDataFactory().getOWLClass(cIRI);
+    	System.out.println("iri: " + cIRI);
+    	System.out.println("owlClass: " + owlClass);
+		Collection<OWLAnnotation> annos = EntitySearcher.getAnnotations(owlClass, ontology);
+	    for (OWLAnnotation annotation : annos) {
+	    	System.out.println("annotation: " + annotation.getProperty().getIRI());
+        	if ("http://www.w3.org/2000/01/rdf-schema#label".equals(
+        		annotation.getProperty().getIRI().toString())
+            ) {
+        	  return ((OWLLiteral)annotation.getValue()).getLiteral();
+        	}
+		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			String label = getLabel(importedOntology, classIRI, monitor);
+			if (label.length() > 0) return label;
+		}
+		return "";
+	}
+
+	public String getDescription(OWLOntology ontology, String classIRI, IProgressMonitor monitor)
+        throws IOException, BioclipseException, CoreException {
+		IRI cIRI = IRI.create(classIRI);
+		OWLClass owlClass = ontology.getOWLOntologyManager().getOWLDataFactory().getOWLClass(cIRI);
+    	System.out.println("iri: " + cIRI);
+    	System.out.println("owlClass: " + owlClass);
+		Collection<OWLAnnotation> annos = EntitySearcher.getAnnotations(owlClass, ontology);
+	    for (OWLAnnotation annotation : annos) {
+	    	System.out.println("annotation: " + annotation.getProperty().getIRI());
+        	if ("http://purl.obolibrary.org/obo/IAO_0000115".equals(
+        		annotation.getProperty().getIRI().toString())
+            ) {
+        	  return ((OWLLiteral)annotation.getValue()).getLiteral();
+        	}
+		}
+		// recurse
+		for (OWLOntology importedOntology : ontology.getImports()) {
+			String desc = getDescription(importedOntology, classIRI, monitor);
+			if (desc.length() > 0) return desc;
+		}
+		return "";		
 	}
 }

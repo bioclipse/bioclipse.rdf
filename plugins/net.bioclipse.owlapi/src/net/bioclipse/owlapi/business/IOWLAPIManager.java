@@ -12,16 +12,15 @@ package net.bioclipse.owlapi.business;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
+import org.semanticweb.owlapi.model.OWLOntology;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
-
-import org.eclipse.core.runtime.CoreException;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 @PublishedClass(
     value="Provide functionality to handle OWL files, using the OWLAPI library.",
@@ -113,4 +112,19 @@ public interface IOWLAPIManager extends IBioclipseManager {
 	public Collection<OWLOntology> getImportedOntologies(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology, String classIRI",
+        methodSummary = "Returns the label of the given class."
+    )
+	public String getLabel(OWLOntology ontology, String classIRI)
+        throws IOException, BioclipseException, CoreException;
+
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology, String classIRI",
+        methodSummary = "Returns the description of the given class."
+    )
+	public String getDescription(OWLOntology ontology, String classIRI)
+        throws IOException, BioclipseException, CoreException;
 }
