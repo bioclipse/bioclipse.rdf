@@ -44,4 +44,11 @@
          id="net.bioclipse.owlapi_feature"
          version="0.0.0"/>
 
+   <plugin
+         id="org.slf4j.osgi-over-slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
