@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 import net.bioclipse.core.PublishedClass;
@@ -88,6 +89,14 @@ public interface IOWLAPIManager extends IBioclipseManager {
     public Collection<String> getClasses(OWLOntology ontology)
         throws IOException, BioclipseException, CoreException;
 
+	@Recorded
+    @PublishedMethod(
+        params = "OWLOntology ontology, String classIRI",
+        methodSummary = "Returns the (non-asserted) OWL super classes as a collection of String's."
+    )
+	public Collection<String> getSuperClasses(OWLOntology ontology, String classIRI)
+		throws IOException, BioclipseException, CoreException;
+	
 	@Recorded
     @PublishedMethod(
         params = "OWLOntology ontology",

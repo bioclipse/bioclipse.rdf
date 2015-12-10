@@ -12,6 +12,7 @@ package net.bioclipse.owlapi.business;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDeclarationAxiom;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
@@ -37,11 +39,13 @@ import org.semanticweb.owlapi.profiles.OWL2DLProfile;
 import org.semanticweb.owlapi.profiles.OWLProfileReport;
 import org.semanticweb.owlapi.profiles.OWLProfileViolation;
 import org.semanticweb.owlapi.search.EntitySearcher;
+import org.semanticweb.owlapi.search.Searcher;
 import org.semanticweb.owlapi.util.SimpleIRIMapper;
 
 import net.bioclipse.business.BioclipsePlatformManager;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
+import uk.ac.manchester.cs.owl.owlapi.OWLClassImpl;
 
 public class OWLAPIManager implements IBioclipseManager {
 
@@ -159,6 +163,37 @@ public class OWLAPIManager implements IBioclipseManager {
 			list.addAll(subList);
 		}
 		return list;
+	}
+
+	public Collection<String> getSuperClasses(OWLOntology ontology, String clazz, IProgressMonitor monitor)
+	throws IOException, BioclipseException, CoreException {
+		if (monitor == null) monitor = new NullProgressMonitor();
+
+		Set<String> allSuperClasses = new HashSet<String>();
+		Set<OWLEntity> entities = ontology.getEntitiesInSignature(IRI.create(clazz));
+		if (entities.isEmpty()) {
+			// recurse, maybe it's there
+			for (OWLOntology importedOntology : ontology.getImports()) {
+				Collection<String> subList = getSuperClasses(importedOntology, clazz, monitor);
+				allSuperClasses.addAll(subList);
+			}
+		} else {
+			if (entities.size() > 1)
+				throw new BioclipseException("More than one entity found with this IRI.");
+			OWLEntity entity = entities.iterator().next(); // there is exactly one
+			if (!(entity instanceof OWLClass))
+				throw new BioclipseException("The IRI is not of an OWLClass in this ontology, but an " + entity.getEntityType());
+			OWLClass owlClazz = new OWLClassImpl(IRI.create(clazz));
+			Collection<OWLClassExpression> superClasses = Searcher.sup(ontology.getSubClassAxiomsForSubClass(owlClazz));
+			for (OWLClassExpression superClass : superClasses) {
+				OWLClass superOwlClass = superClass.asOWLClass();
+				String superIri = superOwlClass.getIRI().toString();
+				allSuperClasses.add(superIri);
+				// recurse
+				allSuperClasses.addAll(getSuperClasses(ontology, superIri, monitor));
+			}
+		}
+		return allSuperClasses;
 	}
 
 	public Collection<OWLAnnotationProperty> getAllAnnotationProperties(OWLOntology ontology, IProgressMonitor monitor)
