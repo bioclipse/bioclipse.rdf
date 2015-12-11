@@ -7,8 +7,7 @@ Bundle-Activator: net.bioclipse.rdf.Activator
 Bundle-Vendor: The Bioclipse Team
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.log4j
-Export-Package: net.bioclipse.rdf,
- net.bioclipse.rdf.business
+Export-Package: net.bioclipse.rdf.business
 Require-Bundle: net.bioclipse.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
