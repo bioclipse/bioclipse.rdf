@@ -884,11 +884,4 @@ GNU AGPL, see
          version="2.0.2"
          unpack="false"/>
 
-   <plugin
-         id="com.hp.hpl.jena.tdb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
 </feature>
