@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="net.bioclipse.owlapi_feature"
+      label="OWLAPI Feature"
+      version="2.6.2.qualifier"
+      provider-name="Bioclipse Team"
+      plugin="net.bioclipse.owlapi">
+
+   <description>
+      OWLAPI support for Bioclipse.
+   </description>
+
+   <copyright>
+      Copyright (c) 2015  Egon Willighagen
+Eclipse Public License.
+
+This feature includes the OWLAPI library, which has third party copyright and
+consists of Apache 2.0 and LGPL licensed parts.
+   </copyright>
+
+   <url>
+      <discovery label="OWLAPI Website" url="http://owlapi.sf.org/"/>
+   </url>
+
+   <requires>
+      <import plugin="log4j.over.slf4j"/>
+      <import plugin="net.bioclipse.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="net.bioclipse.scripting.ui"/>
+      <import plugin="org.eclipse.ui.views" version="3.4.1" match="greaterOrEqual"/>
+      <import plugin="slf4j.api"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import feature="net.bioclipse.rdf_feature" version="2.6.2.qualifier"/>
+   </requires>
+
+   <plugin
+         id="net.bioclipse.owlapi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.guava"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

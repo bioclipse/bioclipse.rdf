@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.pellet_feature"
       label="Pellet OWL Reasoner Feature"
-      version="2.6.1.qualifier"
+      version="2.6.2.qualifier"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.pellet">
 
@@ -882,13 +882,6 @@ GNU AGPL, see
          download-size="0"
          install-size="0"
          version="2.0.2"
-         unpack="false"/>
-
-   <plugin
-         id="com.hp.hpl.jena.tdb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
          unpack="false"/>
 
 </feature>

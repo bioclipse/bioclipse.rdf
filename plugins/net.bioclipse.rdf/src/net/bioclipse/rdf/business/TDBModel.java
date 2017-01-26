@@ -11,7 +11,6 @@
 package net.bioclipse.rdf.business;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class TDBModel implements IJenaStore {
@@ -19,7 +18,10 @@ public class TDBModel implements IJenaStore {
     private Model model;
     
     protected TDBModel(String tripleStoreDirectoryPath) {
-    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
         model = TDBFactory.createModel(tripleStoreDirectoryPath);
     }
     

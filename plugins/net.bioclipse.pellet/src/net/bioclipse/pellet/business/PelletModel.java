@@ -21,7 +21,10 @@ public class PelletModel implements IJenaStore {
     private Model model;
 
     protected PelletModel(String tripleStoreDirectoryPath) {
-    	RDFReaderFImpl.setClassLoader(this.getClass().getClassLoader());
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_TTL.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_NT.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFJSON.class.getName();
+    	org.apache.jena.riot.adapters.JenaReadersWriters.RDFReaderRIOT_RDFXML.class.getName();
         model = TDBFactory.createModel(tripleStoreDirectoryPath);
     }
 

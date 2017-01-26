@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bioclipse OWL
 Bundle-SymbolicName: net.bioclipse.owl;singleton:=true
-Bundle-Version: 2.6.1.qualifier
+Bundle-Version: 2.6.2.qualifier
 Bundle-Activator: net.bioclipse.owl.Activator
 Bundle-Vendor: The Bioclipse Team
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.log4j
 Export-Package: net.bioclipse.owl,
  net.bioclipse.owl.business
@@ -13,7 +14,7 @@ Require-Bundle: net.bioclipse.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.ui,
- com.hp.hpl.jena;bundle-version="2.5.6",
+ com.hp.hpl.jena,
  net.bioclipse.scripting.ui,
  net.bioclipse.rdf,
  net.bioclipse.pellet;bundle-version="2.0.0",

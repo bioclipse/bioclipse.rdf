@@ -45,21 +45,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import com.hp.hpl.jena.n3.turtle.TurtleParseException;
+import com.hp.hpl.jena.ontology.OntTools;
+import com.hp.hpl.jena.ontology.OntTools.Path;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Selector;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.NoReaderForLangException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.SyntaxError;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+import com.hp.hpl.jena.util.iterator.Filter;
 
 public class RDFManager implements IBioclipseManager {
 
@@ -211,6 +217,10 @@ public class RDFManager implements IBioclipseManager {
 
     public IRDFStore createInMemoryStore() {
         return new JenaModel();
+    }
+
+    public IRDFStore createInMemoryStore(boolean ontologyModel) {
+        return new JenaModel(ontologyModel);
     }
 
     public IRDFStore createStore(String tripleStoreDirectoryPath) {
@@ -422,6 +432,42 @@ public class RDFManager implements IBioclipseManager {
         ((IJenaStore)targetStore).getModel().add(
             ((IJenaStore)sourceStore).getModel()
         );
+    }
+
+    public IRDFStore union(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().union(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
+    }
+
+    public IRDFStore intersection(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().intersection(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
+    }
+
+    public IRDFStore difference(IRDFStore first, IRDFStore second)
+    	    throws IOException, BioclipseException, CoreException {
+    	if (!(first instanceof IJenaStore &&
+    	      second instanceof IJenaStore)) {
+    		throw new BioclipseException("Only supporting IJenaStore.");
+    	}
+    	Model unionModel = ((IJenaStore)first).getModel().difference(
+    		((IJenaStore)second).getModel()
+    	);
+    	return new JenaModel(unionModel);
     }
 
     public void addPrefix(IRDFStore store, String prefix, String namespace)
@@ -664,4 +710,181 @@ public class RDFManager implements IBioclipseManager {
     	resources.addAll(results.getColumn("resource"));
     	return resources;
     }
+
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+    	Path path = OntTools.findShortestPath(
+    		model,
+    		model.createResource(firstNode),
+    		model.createResource(secondNode),
+    		new Filter<Statement>() {
+				@Override
+				public boolean accept(Statement arg0) {
+					return true; // any predicate in the path is fine
+				}
+			}
+    	);
+    	if (path == null) return Collections.emptyList();
+
+    	List<String> uriList = new ArrayList<String>();
+    	Resource lastNode = null;
+    	for (Statement statement : path) {
+    		System.out.println(
+        		statement.getSubject() + " -> " +
+    			statement.getPredicate() + " -> " +
+    			statement.getObject()
+    	    );
+    		uriList.add(statement.getSubject().getURI());
+    		uriList.add(statement.getPredicate().getURI());
+    		lastNode = statement.getObject().asResource();
+		}
+    	uriList.add(lastNode.getURI());
+    	return uriList;
+    }
+
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode, final String predicate)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+    	Path path = OntTools.findShortestPath(
+    		model,
+    		model.createResource(firstNode),
+    		model.createResource(secondNode),
+    		new Filter<Statement>() {
+				@Override
+				public boolean accept(Statement arg0) {
+					return arg0.getPredicate().hasURI(predicate);
+				}
+			}
+    	);
+    	if (path == null) return Collections.emptyList();
+
+    	List<String> uriList = new ArrayList<String>();
+    	Resource lastNode = null;
+    	for (Statement statement : path) {
+    		System.out.println(
+        		statement.getSubject() + " -> " +
+    			statement.getPredicate() + " -> " +
+    			statement.getObject()
+    	    );
+    		uriList.add(statement.getSubject().getURI());
+    		uriList.add(statement.getPredicate().getURI());
+    		lastNode = statement.getObject().asResource();
+		}
+    	uriList.add(lastNode.getURI());
+    	return uriList;
+    }
+
+    public IRDFStore extract(IRDFStore store, String iri, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+
+        monitor.beginTask("Extracting all we know about...", 100);
+
+        String outQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  <" + iri + "> ?p ?o " +
+            "} WHERE { "+
+            "  <" + iri + "> ?p ?o." +
+            "}";
+            
+        Query query = QueryFactory.create(outQuery);
+    	QueryExecution qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	Model aboutClass;
+    	try {
+    		aboutClass = qexec.execConstruct();
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+        String inQuery =
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+            "CONSTRUCT {" +
+            "  ?s ?p <" + iri + "> " +
+            "} WHERE { "+
+            "  ?s ?p <" + iri + "> ." +
+            "}";
+            
+        query = QueryFactory.create(inQuery);
+    	qexec = QueryExecutionFactory.create(query, model);
+    	monitor.worked(40);
+
+    	try {
+    		aboutClass.add(qexec.execConstruct());
+        	monitor.worked(10);
+    	} finally {
+    		qexec.close();
+        	monitor.done();
+    	}
+
+    	return new JenaModel(aboutClass);
+    }
+
+    public IRDFStore copy(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, false, monitor);
+    }
+
+    public IRDFStore rename(IRDFStore store, String predicate, String newPredicate, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	return rename(store, predicate, newPredicate, true, monitor);
+    }
+
+    private IRDFStore rename(IRDFStore store, String predicate, String newPredicate,
+    	boolean replace, IProgressMonitor monitor)
+    throws IOException, BioclipseException, CoreException {
+    	if (!(store instanceof IJenaStore))
+            throw new RuntimeException(
+                "Can only handle IJenaStore's for now."
+            );
+        Model model = ((IJenaStore)store).getModel();
+
+        if (monitor == null) {
+            monitor = new NullProgressMonitor();
+        }
+        Property newProperty = model.createProperty(newPredicate);
+        Model newTriples = ModelFactory.createDefaultModel();
+
+        Selector selector = new SimpleSelector(
+        	(Resource)null, model.createProperty(predicate), (RDFNode)null
+        );
+        List<Statement> statementsToRemove = new ArrayList<Statement>();
+        StmtIterator statements = model.listStatements(selector);
+        while (statements.hasNext()) {
+            Statement statement = statements.nextStatement();
+            Resource subNode = statement.getSubject();
+            RDFNode object = statement.getObject();
+            newTriples.add(subNode, newProperty, object);
+            statementsToRemove.add(statement);
+        }
+        statements.close();
+        for (Statement statement : statementsToRemove) model.remove(statement);
+        model.add(newTriples);
+
+        return store;
+    }
+
 }

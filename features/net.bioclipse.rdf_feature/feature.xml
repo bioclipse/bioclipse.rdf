@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf_feature"
       label="Resource Description Framework Feature"
-      version="2.6.1.qualifier"
+      version="2.6.2.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.rdf">
 
@@ -11,7 +11,7 @@
    </description>
 
    <copyright>
-      Copyright (c) 2008-2011 The Bioclipse Project Team and others.
+      Copyright (c) 2008-2015 The Bioclipse Project Team and others.
 Eclipse Public License.
 
 This feature includes the Jena library, which is:
@@ -41,8 +41,6 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
 
    <requires>
       <import plugin="com.hp.hpl.jena" version="2.5.6" match="greaterOrEqual"/>
-      <import plugin="com.hp.hpl.jena.arq" version="2.8.2" match="greaterOrEqual"/>
-      <import plugin="com.hp.hpl.jena.tdb" version="0.8.4" match="greaterOrEqual"/>
       <import plugin="log4j.over.slf4j"/>
       <import plugin="javax.xml" version="1.3.4" match="compatible"/>
       <import plugin="net.bioclipse.core"/>
@@ -59,6 +57,13 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
    </requires>
 
    <plugin
+         id="net.bioclipse.rdf.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="net.bioclipse.rdf"
          download-size="0"
          install-size="0"
@@ -67,13 +72,6 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
 
    <plugin
          id="com.hp.hpl.jena"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.hp.hpl.jena.arq"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -102,13 +100,6 @@ Jena is built on top of other sub-systems which we gratefully acknowledge: detai
 
    <plugin
          id="javax.xml"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.hp.hpl.jena.tdb"
          download-size="0"
          install-size="0"
          version="0.0.0"

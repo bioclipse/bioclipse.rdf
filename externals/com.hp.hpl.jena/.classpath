@@ -2,15 +2,12 @@
 <classpath>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="lib" path="jars/antlr-2.7.5.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/concurrent.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/icu4j-3.4.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/iri.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/json.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/lucene-core-2.3.1.jar" sourcepath="com.hp.hpl.jenasrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/stax-api-1.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/wstx-asl-3.2.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/stax-1.2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/commons-codec-1.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/httpclient-4.3.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/httpcore-4.3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-arq-2.12.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-core-2.12.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-iri-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jena-tdb-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

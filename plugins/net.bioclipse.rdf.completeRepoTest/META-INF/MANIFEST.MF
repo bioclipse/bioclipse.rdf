@@ -2,15 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CompleteRepoTest
 Bundle-SymbolicName: net.bioclipse.rdf.completeRepoTest
-Bundle-Version: 2.6.1.qualifier
+Bundle-Version: 2.6.2.qualifier
 Bundle-Activator: net.bioclipse.rdf.completerepotest.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.bioclipse.rdf.tests,
  net.bioclipse.pellet.tests,
- com.hp.hpl.jena,
- com.hp.hpl.jena.arq,
- com.hp.hpl.jena.tdb
+ com.hp.hpl.jena
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.junit,

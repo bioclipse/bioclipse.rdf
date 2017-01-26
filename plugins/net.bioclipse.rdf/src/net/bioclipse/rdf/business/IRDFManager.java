@@ -44,6 +44,14 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+    	params="boolean ontologyModel",
+        methodSummary = "Creates a new in-memory store."
+    )
+    @TestMethods("testCreateInMemoryStore2")
+    public IRDFStore createInMemoryStore(boolean ontologyModel);
+
+    @Recorded
+    @PublishedMethod(
         params = "String tripleStoreDirectoryPath",
         methodSummary = "Creates a new on-disk store, " +
             "(using the Jena TDB package, which stores on disk as a " +
@@ -323,5 +331,71 @@ public interface IRDFManager extends IBioclipseManager {
         methodSummary = "Lists all resources or literals for the resource and predicate."
     )
     public List<String> getForPredicate(IRDFStore store, String resourceURI, String predicate)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the union of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore union(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the intersection of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore intersection(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore first, IRDFStore second",
+        methodSummary = "Takes the difference of the two stores and returns that as a IRDFStore."
+    )
+    public IRDFStore difference(IRDFStore first, IRDFStore second)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String firstNode, String secondNode",
+        methodSummary = "The shortest path between two nodes."
+    )
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String firstNode, String secondNode, String predicate",
+        methodSummary = "The shortest path between two nodes, following only one specific predicate."
+    )
+    public List<String> shortestPath(IRDFStore store, String firstNode, String secondNode, String predicate)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String iri",
+        methodSummary = "Extract all triples from and to the given class IRI."
+    )
+    public IRDFStore extract(IRDFStore store, String iri)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String predicate, String newPredicate",
+        methodSummary = "Copies all triples with a particular predicate to new predicates with the "
+        		+ "same resource or same literal value."
+    )
+    public IRDFStore copy(IRDFStore store, String predicate, String newPredicate)
+    throws IOException, BioclipseException, CoreException;
+
+    @Recorded
+    @PublishedMethod(
+        params = "IRDFStore store, String predicate, String newPredicate",
+        methodSummary = "Renames all triples with a particular predicate to new predicates with the "
+        		+ "same resource or same literal value."
+    )
+    public IRDFStore rename(IRDFStore store, String predicate, String newPredicate)
     throws IOException, BioclipseException, CoreException;
 }
