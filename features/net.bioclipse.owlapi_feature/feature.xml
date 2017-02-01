@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.owlapi_feature"
       label="OWLAPI Feature"
-      version="2.6.2.qualifier"
+      version="2.7.0.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.owlapi">
 

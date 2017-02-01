@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.bioinformatics.rdf_feature"
       label="RDF Bioinformatics Integration Feature"
-      version="2.6.0.vqualifier"
+      version="2.7.0.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.bioinformatics.rdf">
 
