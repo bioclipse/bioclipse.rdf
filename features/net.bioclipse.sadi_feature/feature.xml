@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.sadi_feature"
       label="SADI Feature"
-      version="2.5.0.qualifier"
+      version="2.7.0.qualifier"
       provider-name="Bioclipse Team"
       plugin="net.bioclipse.sadi">
 

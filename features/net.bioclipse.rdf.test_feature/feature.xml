@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.rdf.test_feature"
       label="RDF Test Feature"
-      version="2.5.0.qualifier"
+      version="2.7.0.qualifier"
       provider-name="The Bioclipse Team"
       plugin="net.bioclipse.rdf.completeRepoTest">
 
