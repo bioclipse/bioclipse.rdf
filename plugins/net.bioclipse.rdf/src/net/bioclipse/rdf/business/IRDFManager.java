@@ -264,6 +264,15 @@ public interface IRDFManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(
+        params = "String queryResults, String originalQuery",
+        methodSummary = "Parses the XML-formatted SPARQL end point results into an IStringMatrix. "
+        		+ "The originalQuery is used to determine prefixes."
+    )
+    public IStringMatrix processSPARQLXML(byte[] queryResults, String originalQuery)
+        throws BioclipseException;
+
+    @Recorded
+    @PublishedMethod(
         params = "String url, String SPARQL",
         methodSummary = "Queries a remote SPARQL endpoint and returns RDF/XML. " +
         		        "Assumes that the query is creating an RDF graph with the " +

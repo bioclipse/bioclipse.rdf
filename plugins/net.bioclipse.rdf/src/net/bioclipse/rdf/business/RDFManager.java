@@ -52,6 +52,7 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -64,6 +65,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.NoReaderForLangException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.SyntaxError;
+import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 import com.hp.hpl.jena.util.iterator.Filter;
 
@@ -503,6 +505,31 @@ public class RDFManager implements IBioclipseManager {
         return table;
     }
     
+    public StringMatrix processSPARQLXML(
+            byte[] queryResults, String originalQuery, IProgressMonitor monitor) {
+         if (monitor == null) monitor = new NullProgressMonitor();
+
+         monitor.beginTask("Processing XML results returned by a SPARQL end point..", 100);
+    	 PrefixMapping prefixMap = null;
+         if (originalQuery != null) {
+        	 try {
+                 Query query = QueryFactory.create(originalQuery);
+                 prefixMap = query.getPrefixMapping();
+        	 } catch (Exception exception) {
+        		 // could not parse the query for namespaces
+        		 prefixMap = new PrefixMappingImpl();
+        	 }
+         }
+         monitor.worked(20);
+
+         // now the Jena part
+         ResultSet results = ResultSetFactory.fromXML(new ByteArrayInputStream(queryResults));
+         StringMatrix table = StringMatrixHelper.convertIntoTable(prefixMap, results);
+         monitor.worked(80);
+
+         return table;
+     }
+     
     public IRDFStore sparqlConstructRemote(
     		String serviceURL,
     		String sparqlQueryString, IProgressMonitor monitor) 
